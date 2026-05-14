@@ -1,7 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 const FloatingCookieSettingsButton = dynamic(
   () =>
@@ -43,10 +46,13 @@ function scheduleAfterInitialWork(callback: () => void) {
 }
 
 export function DeferredPublicWidgets() {
+  const pathname = usePathname() ?? "/";
   const [enabled, setEnabled] = useState(false);
+  const barePath = stripLocaleFromPathname(pathname);
 
   useEffect(() => scheduleAfterInitialWork(() => setEnabled(true)), []);
 
+  if (barePath.startsWith("/blog-writer")) return null;
   if (!enabled) return null;
 
   return (

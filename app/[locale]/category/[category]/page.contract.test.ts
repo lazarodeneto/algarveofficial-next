@@ -49,4 +49,15 @@ describe("category page route contract", () => {
     expect(page).toContain('const shouldShowTopCities = canonicalSlug !== "beaches"');
     expect(page).toContain("shouldShowTopCities &&");
   });
+
+  it("renders every fetched beaches category listing card", () => {
+    const page = source("app/[locale]/category/[category]/page.tsx");
+
+    expect(page).toContain('const categoryListingLimit = canonicalSlug === "beaches" ? 1000 : 50');
+    expect(page).toContain('canonicalSlug === "beaches"');
+    expect(page).toContain('const shouldRenderListingCards = canonicalSlug === "beaches" || featuredListingsEnabled');
+    expect(page).toContain("shouldRenderListingCards && categoryListingCards.length > 0");
+    expect(page).toContain("categoryListingCards.map");
+    expect(page).not.toContain("safeListingsForLocale.slice(0, 12).map");
+  });
 });

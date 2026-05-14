@@ -38,7 +38,6 @@ import {
   useUpdateBlogPost,
   blogCategoryLabels,
   type BlogPostWithAuthor,
-  type BlogCategory
 } from "@/hooks/useBlogPosts";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -99,6 +98,39 @@ export default function AdminBlog() {
     setSelectedIds([]);
   };
 
+  const renderPostActions = (post: BlogPostWithAuthor) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+          aria-label={`Post actions for ${post.title}`}
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-48">
+        <DropdownMenuItem onClick={() => window.open(`/blog/${post.slug}`, "_blank", "noopener,noreferrer")}>
+          <Eye className="h-4 w-4 mr-2" />
+          View
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push(l(`/admin/blog/${post.id}/edit`))}>
+          <Edit className="h-4 w-4 mr-2" />
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="text-destructive"
+          onClick={() => handleDelete(post.id)}
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   const columns: Column<BlogPostWithAuthor>[] = [
     {
       key: "title",
@@ -112,6 +144,7 @@ export default function AdminBlog() {
               className="h-full w-full object-cover"
             />
           </div>
+          {renderPostActions(post)}
           <div className="min-w-0 flex-1">
             <p className="font-medium text-foreground truncate">{post.title}</p>
             <p className="text-xs text-muted-foreground">by {post.author?.full_name || 'Unknown'}</p>
@@ -170,38 +203,6 @@ export default function AdminBlog() {
             </span>
           )}
         </div>
-      ),
-    },
-    {
-      key: "actions",
-      label: "",
-      className: "w-12",
-      render: (post) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={() => window.open(`/blog/${post.slug}`, "_blank", "noopener,noreferrer")}>
-              <Eye className="h-4 w-4 mr-2" />
-              View
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push(l(`/admin/blog/${post.id}/edit`))}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive"
-              onClick={() => handleDelete(post.id)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       ),
     },
   ];

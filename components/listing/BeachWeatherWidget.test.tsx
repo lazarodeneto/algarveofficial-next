@@ -69,6 +69,8 @@ describe("BeachWeatherWidget", () => {
     renderWidget();
 
     expect(await screen.findByText(/16°C/)).toBeInTheDocument();
+    expect(screen.getByText(/60°F/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Lagoa weather: 16°C / 60°F")).toBeInTheDocument();
     expect(screen.getByText(/Sunny/)).toBeInTheDocument();
     expect(screen.getByText(/SW 14 km\/h/)).toBeInTheDocument();
     expect(screen.getByText(/UV 1.5/)).toBeInTheDocument();
@@ -92,9 +94,15 @@ describe("BeachWeatherWidget", () => {
     expect(document.body.textContent).not.toMatch(/--°C|undefined|NaN|null/);
   });
 
-  it("does not render when listing coordinates are missing", async () => {
+  it("stays visible without requesting weather when listing coordinates are missing", async () => {
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
     const { container } = renderWidget({ latitude: null, longitude: null });
 
-    await waitFor(() => expect(container.querySelector("aside")).not.toBeInTheDocument());
+    expect(screen.getByText("Weather unavailable")).toBeInTheDocument();
+    expect(screen.getByText("Local forecast could not be loaded.")).toBeInTheDocument();
+    expect(container.querySelector("aside")).toBeInTheDocument();
+    await waitFor(() => expect(fetchSpy).not.toHaveBeenCalled());
   });
 });

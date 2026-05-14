@@ -61,6 +61,7 @@ import { buildCategoryRouteData } from "@/lib/public-route-builders";
 import { resolveListingDetailLayoutKey } from "@/lib/listingDetailLayout";
 import { hasRealEstateSignals } from "@/lib/realEstateDetection";
 import ListingImage from "@/components/ListingImage";
+import { ListingTagCloud } from "@/components/listing/ListingTagCloud";
 
 // Category-specific detail renderers
 import { PremiumAccommodationLayout } from "@/components/listing-details/PremiumAccommodationLayout";
@@ -820,16 +821,11 @@ export default function ListingDetail() {
                 {listing.tags && listing.tags.length > 0 && (
                   <>
                     <Separator />
-                    <div>
-                      <h2 className="text-xl font-serif font-medium mb-4">{t("listing.tags")}</h2>
-                      <div className="flex flex-wrap gap-2">
-                        {listing.tags.map((tag: string) => (
-                          <Badge key={tag} variant="outline" className="text-sm">
-                            {translateCategoryValue(t, tag)}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                    <ListingTagCloud
+                      title={t("listing.tags")}
+                      tags={listing.tags}
+                      translateTag={(tag) => translateCategoryValue(t, tag)}
+                    />
                   </>
                 )}
               </div>

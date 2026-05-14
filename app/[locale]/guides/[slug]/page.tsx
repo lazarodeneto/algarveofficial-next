@@ -25,6 +25,7 @@ import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
+import { Button } from "@/components/ui/Button";
 
 interface PageProps {
   params: Promise<{ locale: string; slug: string }>;
@@ -341,12 +342,11 @@ export default async function GuidePage({ params }: PageProps) {
                   },
                 )}
               </LocaleLink>
-              <LocaleLink 
-                href={buildStaticRouteData("partner")}
-                className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
-              >
-                {getTranslationOrThrow(tx, "guides.listYourBusiness")}
-              </LocaleLink>
+              <Button asChild variant="gold">
+                <LocaleLink href={buildStaticRouteData("partner")}>
+                  {getTranslationOrThrow(tx, "guides.listYourBusiness")}
+                </LocaleLink>
+              </Button>
             </div>
           </div>
         </section>
@@ -372,12 +372,11 @@ export default async function GuidePage({ params }: PageProps) {
               )}
             </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <LocaleLink 
-                  href={`/partner?category=${guide.targetCategory}`}
-                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                  {getTranslationOrThrow(tx, "guides.upgradeYourListing")}
-                </LocaleLink>
+                <Button asChild variant="gold">
+                  <LocaleLink href={`/partner?category=${guide.targetCategory}`}>
+                    {getTranslationOrThrow(tx, "guides.upgradeYourListing")}
+                  </LocaleLink>
+                </Button>
                 <LocaleLink 
                   href={buildStaticRouteData("partner")}
                   className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"

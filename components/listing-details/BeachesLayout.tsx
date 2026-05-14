@@ -762,7 +762,7 @@ export function BeachesLayout({
         </section>
       ) : null}
 
-      <section className="overflow-hidden rounded-[1.5rem] border border-border/70 bg-[radial-gradient(circle_at_top_left,rgba(212,166,42,0.16),transparent_34%),linear-gradient(135deg,hsl(var(--card))_0%,hsl(var(--background))_100%)] p-4 shadow-[0_24px_80px_-58px_rgba(15,23,42,0.5)] sm:p-6 lg:p-7">
+      <section className="ao-glass-tag-surface overflow-hidden rounded-[1.5rem] p-4 sm:p-6 lg:p-7">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
             <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.24em] text-primary">
@@ -795,13 +795,13 @@ export function BeachesLayout({
               <article
                 key={group.title}
                 className={cn(
-                  "rounded-2xl border border-border/70 bg-background/78 p-4 shadow-[0_18px_50px_-42px_rgba(15,23,42,0.55)] backdrop-blur-sm transition-colors dark:bg-white/[0.04] sm:p-5",
+                  "ao-glass-tag-surface rounded-2xl p-4 transition-colors sm:p-5",
                   groupIndex === 0 ? "lg:col-span-2" : "",
                 )}
               >
                 <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-primary">
+                    <span className="ao-tag-section-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
                       <Icon className="h-5 w-5" aria-hidden="true" />
                     </span>
                     <div className="min-w-0">
@@ -826,12 +826,12 @@ export function BeachesLayout({
                         key={`${group.title}-${link.label}-${index}`}
                         href={href}
                         aria-label={`${index + 1}. ${link.label}`}
-                        className="group inline-flex max-w-full items-center overflow-hidden rounded-full border border-border/80 bg-card text-xs font-semibold text-card-foreground shadow-[0_8px_22px_-18px_rgba(15,23,42,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/45 hover:bg-primary/[0.08] hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 dark:border-white/[0.14] dark:bg-white/[0.06] dark:text-foreground dark:hover:bg-primary/15"
+                        className="ao-glass-tag-chip group text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                       >
-                        <span className="flex h-8 min-w-8 items-center justify-center bg-foreground px-2 text-[11px] font-bold text-background transition-colors group-hover:bg-primary group-hover:text-primary-foreground dark:bg-primary dark:text-primary-foreground">
+                        <span className="ao-glass-tag-index">
                           {String(index + 1).padStart(2, "0")}
                         </span>
-                        <span className="truncate px-3 py-2">{link.label}</span>
+                        <span className="ao-glass-tag-label">{link.label}</span>
                       </Link>
                     );
                   })}

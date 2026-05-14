@@ -98,7 +98,7 @@ function MenuLink({
         </span>
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className={cn("font-fira font-bold leading-tight text-foreground group-hover:text-primary", dense ? "text-[13px]" : "text-sm")}>
+            <span className={cn("font-fira font-bold leading-tight text-foreground group-hover:text-primary", dense ? "text-[14.95px]" : "text-[1.00625rem]")}>
               {translated(t, item.labelKey, item.fallbackLabel)}
             </span>
             {item.badge ? (

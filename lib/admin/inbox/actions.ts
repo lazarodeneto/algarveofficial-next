@@ -126,6 +126,11 @@ const ARCHIVABLE_SOURCES = new Set<InboxSource>([
 ]);
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const TEXT_SOURCE_ROW_ID_PATTERN = /^[a-z0-9][a-z0-9:._-]{0,159}$/i;
+const TEXT_SOURCE_ROW_ID_SOURCES = new Set<InboxSource>([
+  "external_outbox_alert",
+  "translation_job",
+]);
 
 function validateActionInput(input: ActionInput | null | undefined): InboxActionResult | null {
   if (!input || typeof input !== "object") {
@@ -133,6 +138,12 @@ function validateActionInput(input: ActionInput | null | undefined): InboxAction
   }
   if (!INBOX_SOURCES.has(input.source)) {
     return { ok: false, error: "Invalid inbox source." };
+  }
+  if (TEXT_SOURCE_ROW_ID_SOURCES.has(input.source)) {
+    if (!TEXT_SOURCE_ROW_ID_PATTERN.test(input.sourceRowId)) {
+      return { ok: false, error: "sourceRowId must be a safe inbox item key." };
+    }
+    return null;
   }
   if (!UUID_PATTERN.test(input.sourceRowId)) {
     return { ok: false, error: "sourceRowId must be a valid UUID." };

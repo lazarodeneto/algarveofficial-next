@@ -202,12 +202,13 @@ export default async function CategoryHubPage({ params }: PageProps) {
 
   const catData = resolution.category;
   const canonicalSlug = catData.canonicalSlug;
+  const categoryListingLimit = canonicalSlug === "beaches" ? 1000 : 50;
   
   const listingData = catData.memberIds.length > 0
     ? await getPublicListings({
         categoryIds: catData.memberIds,
         locale,
-        limit: 50,
+        limit: categoryListingLimit,
         includeReviewsSummary: false,
       })
     : [];
@@ -334,6 +335,11 @@ export default async function CategoryHubPage({ params }: PageProps) {
     tx["categoryHub.bottomDescription"],
     templateValues,
   );
+  const categoryListingCards =
+    canonicalSlug === "beaches"
+      ? safeListingsForLocale
+      : safeListingsForLocale.slice(0, 12);
+  const shouldRenderListingCards = canonicalSlug === "beaches" || featuredListingsEnabled;
 
   return (
     <>
@@ -430,13 +436,13 @@ export default async function CategoryHubPage({ params }: PageProps) {
           </section>
         ) : null}
         
-        {featuredListingsEnabled && safeListingsForLocale.length > 0 && (
+        {shouldRenderListingCards && categoryListingCards.length > 0 && (
           <section className="app-container py-8">
             <h2 className="text-xl font-semibold mb-4">
               {featuredTitle}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {safeListingsForLocale.slice(0, 12).map((listing) => (
+              {categoryListingCards.map((listing) => (
                 <ListingCard key={listing.id} listing={listing} tx={tx} />
               ))}
             </div>
@@ -453,12 +459,11 @@ export default async function CategoryHubPage({ params }: PageProps) {
                 {visibilityDescription}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <LocaleLink 
-                  href={`/partner?category=${canonicalSlug}`}
-                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                  {tx["guides.upgradeYourListing"]}
-                </LocaleLink>
+                <Button asChild variant="gold">
+                  <LocaleLink href={`/partner?category=${canonicalSlug}`}>
+                    {tx["guides.upgradeYourListing"]}
+                  </LocaleLink>
+                </Button>
                 <LocaleLink 
                   href={buildStaticRouteData("partner")}
                   className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
@@ -480,12 +485,11 @@ export default async function CategoryHubPage({ params }: PageProps) {
                 {bottomDescription}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <LocaleLink 
-                  href={buildStaticRouteData("partner")}
-                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                >
-                  {tx["guides.listYourBusiness"]}
-                </LocaleLink>
+                <Button asChild variant="gold">
+                  <LocaleLink href={buildStaticRouteData("partner")}>
+                    {tx["guides.listYourBusiness"]}
+                  </LocaleLink>
+                </Button>
               </div>
             </div>
           </section>

@@ -49,4 +49,12 @@ describe("header responsive navigation contract", () => {
     expect(megaMenuSource).not.toContain("overflow-y-auto");
     expect(megaMenuSource).not.toContain("max-h-[min(74vh,calc(100vh-6.5rem))]");
   });
+
+  it("hides the top header only on mobile while the mobile chrome is scrolling", () => {
+    expect(headerSource).toContain('import { useMobileChromeScrollState } from "@/hooks/useMobileChromeScrollState"');
+    expect(headerSource).toContain("const { isUserScrolling } = useMobileChromeScrollState();");
+    expect(headerSource).toContain("transition-[transform,background-color,border-color,box-shadow,backdrop-filter] duration-200 ease-out");
+    expect(headerSource).toContain('isUserScrolling && !mobileMenuOpen && "-translate-y-full"');
+    expect(headerSource).toContain("lg:translate-y-0");
+  });
 });

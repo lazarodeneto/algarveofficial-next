@@ -98,8 +98,13 @@ import {
   resetHeroMediaConfig,
   type HeroMediaType,
 } from "@/lib/cms/hero-media";
+import { notifyCmsRuntimeChanged } from "@/lib/cms/runtime-events";
 
 const ENABLE_VISUAL_BLOCK_BUILDER = true;
+const DEFAULT_DISABLED_BLOCK_IDS_BY_PAGE: Record<string, ReadonlySet<string>> = {
+  blog: new Set(["featured-post"]),
+  home: new Set(["featured-city"]),
+};
 
 const AdminHomePage = lazy(() => import("./AdminHomePage"));
 const BlockPreview = lazy(() =>
@@ -538,6 +543,10 @@ function fromRows(rows: KeyValueRow[]): Record<string, string> {
     acc[key] = row.value;
     return acc;
   }, {});
+}
+
+function getDefaultBlockEnabled(pageId: string, blockId: string): boolean {
+  return !(DEFAULT_DISABLED_BLOCK_IDS_BY_PAGE[pageId]?.has(blockId) ?? false);
 }
 
 function resolvePreviewPath(path: string): string {
@@ -1264,7 +1273,9 @@ function AdminPageBuilderContent() {
   const selectedInspectorBlockConfig = selectedInspectorBlock
     ? selectedPageConfig.blocks?.[selectedInspectorBlock.id] ?? {}
     : {};
-  const selectedInspectorDefaultEnabled = selectedInspectorBlock?.id === "featured-city" ? false : true;
+  const selectedInspectorDefaultEnabled = selectedInspectorBlock
+    ? getDefaultBlockEnabled(selectedPageId, selectedInspectorBlock.id)
+    : true;
   const selectedInspectorEnabled = selectedInspectorBlock
     ? typeof selectedInspectorBlockConfig.enabled === "boolean"
       ? selectedInspectorBlockConfig.enabled
@@ -1273,7 +1284,7 @@ function AdminPageBuilderContent() {
 
   const enabledBlockCount = blockControlsDefinitions.filter((block) => {
     const config = selectedPageConfig.blocks?.[block.id] ?? {};
-    const fallback = block.id === "featured-city" ? false : true;
+    const fallback = getDefaultBlockEnabled(selectedPageId, block.id);
     return typeof config.enabled === "boolean" ? config.enabled : fallback;
   }).length;
   const customVisibleFieldCount = selectedVisibleFields.filter((field) =>
@@ -2005,6 +2016,7 @@ function AdminPageBuilderContent() {
       setVisualConfig(normalizedContent);
       setIsCmsDirty(false);
       void invalidateCmsPageMutationQueries(queryClient);
+      notifyCmsRuntimeChanged({ pageId: selectedPageId, locale, source: "page-builder-draft" });
       fetchSelectedCmsHistory(selectedPageId).then(setCmsVersionHistory).catch(() => undefined);
       toast.success(`${selectedPageDefinition?.label ?? "Page"} draft saved.`);
     } catch (error) {
@@ -2051,6 +2063,7 @@ function AdminPageBuilderContent() {
       setVisualConfig(normalizedContent);
       setIsCmsDirty(false);
       void invalidateCmsPageMutationQueries(queryClient);
+      notifyCmsRuntimeChanged({ pageId: selectedPageId, locale, source: "page-builder-publish" });
       fetchSelectedCmsHistory(selectedPageId).then(setCmsVersionHistory).catch(() => undefined);
       toast.success(`${selectedPageDefinition?.label ?? "Page"} published.`);
     } catch (error) {
@@ -2087,6 +2100,7 @@ function AdminPageBuilderContent() {
       setVisualConfig(normalizedContent);
       setIsCmsDirty(false);
       void invalidateCmsPageMutationQueries(queryClient);
+      notifyCmsRuntimeChanged({ pageId: selectedPageId, locale, source: "page-builder-preview" });
       fetchSelectedCmsHistory(selectedPageId).then(setCmsVersionHistory).catch(() => undefined);
       await openSelectedPreview(resolvePreviewPath(selectedPageDefinition?.path ?? "/"));
       toast.success(`${selectedPageDefinition?.label ?? "Page"} draft preview opened.`);
@@ -2198,6 +2212,7 @@ function AdminPageBuilderContent() {
 
       await saveSettingsAsync(payload);
       void invalidateCmsPageMutationQueries(queryClient);
+      notifyCmsRuntimeChanged({ pageId: selectedPageId, locale, source: "page-builder-settings" });
       toast.success("Page builder settings saved");
     } catch (error) {
       toast.error(`Failed to save page builder settings: ${(error as Error).message}`);
@@ -2326,7 +2341,7 @@ function AdminPageBuilderContent() {
                   Preview Draft
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="gold"
                   onClick={handleSaveDraft}
                   disabled={isCmsDocumentLoading || isCmsSavingDraft || isCmsPublishing || isCmsPreviewing || !selectedPageCanEdit || validationErrors.length > 0}
                 >
@@ -2542,7 +2557,7 @@ function AdminPageBuilderContent() {
             <CardContent className="space-y-3">
               {orderedCanvasBlocks.map((block, index) => {
                 const config = selectedPageConfig.blocks?.[block.id] ?? {};
-                const defaultEnabled = block.id === "featured-city" ? false : true;
+                const defaultEnabled = getDefaultBlockEnabled(selectedPageId, block.id);
                 const isEnabled = typeof config.enabled === "boolean" ? config.enabled : defaultEnabled;
                 const isSelected = selectedInspectorBlockId === block.id;
                 const orderValue = typeof config.order === "number" ? config.order : (index + 1) * 10;
@@ -2670,7 +2685,7 @@ function AdminPageBuilderContent() {
                   <div className="space-y-2">
                     {blocks.map((block) => {
                       const config = selectedPageConfig.blocks?.[block.id] ?? {};
-                      const defaultEnabled = block.id === "featured-city" ? false : true;
+                      const defaultEnabled = getDefaultBlockEnabled(selectedPageId, block.id);
                       const isEnabled = typeof config.enabled === "boolean" ? config.enabled : defaultEnabled;
 
                       return (
@@ -3388,7 +3403,7 @@ function AdminPageBuilderContent() {
                     listing.name.toLowerCase().includes(listingSearchQuery.trim().toLowerCase()),
                   )
                 : availablePlacementListings;
-              const defaultEnabled = block.id === "featured-city" ? false : true;
+              const defaultEnabled = getDefaultBlockEnabled(selectedPageId, block.id);
 
               return (
                 <div key={block.id} className="space-y-3 rounded-lg border border-border p-4">

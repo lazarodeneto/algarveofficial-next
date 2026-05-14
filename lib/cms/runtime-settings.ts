@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { unstable_noStore as noStore } from "next/cache";
 
 import type { Database } from "@/integrations/supabase/types";
 import {
@@ -172,6 +173,12 @@ export async function fetchCmsRuntimeSettings({
   locale: rawLocale,
   includeDraft = false,
 }: FetchCmsRuntimeSettingsOptions = {}): Promise<RuntimeSettingRow[]> {
+  try {
+    noStore();
+  } catch {
+    // The runtime helper is also imported by tests and utility code outside a Next request.
+  }
+
   const locale = normalizeCmsRuntimeLocale(rawLocale);
   const serviceClient = createServiceRoleClient();
   const readClient: SupabaseClient<Database> =

@@ -63,6 +63,7 @@ import {
   getListingGalleryThumbnails,
   type ListingGalleryImage,
 } from "@/lib/listings/gallery-images";
+import { resolveBeachWeatherCoordinates } from "@/lib/listings/beach-weather-coordinates";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 import ListingImage from "@/components/ListingImage";
@@ -93,6 +94,7 @@ import type { MapListingPoint } from "@/components/map/ListingsLeafletMap";
 import { BusinessClaimCTA } from "@/components/listing/BusinessClaimCTA";
 import { ClaimedListingTierBadge } from "@/components/listing/ClaimedListingTierBadge";
 import { BeachWeatherWidget } from "@/components/listing/BeachWeatherWidget";
+import { ListingTagCloud } from "@/components/listing/ListingTagCloud";
 import { trackListingPerformanceEvent } from "@/lib/analytics/platformTracking";
 
 export type ListingTranslationRow = {
@@ -962,7 +964,10 @@ function ListingDetailClientInner({
     [listing?.description, listing?.short_description, tr?.description],
   );
   const listingTitle = effectiveTitle ?? listing.name;
-  const details = listing.category_data as Record<string, unknown> ?? {};
+  const details = useMemo(
+    () => (listing.category_data as Record<string, unknown> | null) ?? {},
+    [listing.category_data],
+  );
   const localizedTags = useMemo(
     () => resolveLocalizedTags(details, routeLocale) ?? listing.tags ?? null,
     [details, listing.tags, routeLocale],
@@ -1114,10 +1119,14 @@ function ListingDetailClientInner({
     openAgentContactModal(true);
   };
 
-  const normalizedListingCategorySlug = listing.category?.slug?.trim().toLowerCase() ?? "";
-  const normalizedListingCategoryName = listing.category?.name?.trim().toLowerCase() ?? "";
-  const isExactBeachesListing =
-    normalizedListingCategorySlug === "beaches" || normalizedListingCategoryName === "beaches";
+  const beachWeatherCoordinates = resolveBeachWeatherCoordinates({
+    categorySlug: listing.category?.slug,
+    categoryName: listing.category?.name,
+    listingLatitude: listing.latitude,
+    listingLongitude: listing.longitude,
+    categoryData: details,
+  });
+  const isExactBeachesListing = beachWeatherCoordinates.isBeachListing;
   const explicitBeachCoordinates = getExplicitBeachCoordinates(details);
   const suppressBeachCoordinateFallback =
     isExactBeachesListing &&
@@ -1529,9 +1538,9 @@ function ListingDetailClientInner({
                     <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
                       {isExactBeachesListing ? (
                         <BeachWeatherWidget
-                          latitude={Number.isFinite(baseLatitude) ? baseLatitude : null}
-                          longitude={Number.isFinite(baseLongitude) ? baseLongitude : null}
-                          locationLabel={listing.city?.name ?? listingTitle}
+                          latitude={beachWeatherCoordinates.latitude}
+                          longitude={beachWeatherCoordinates.longitude}
+                          locationLabel={listingTitle}
                         />
                       ) : null}
                       <ClaimedListingTierBadge
@@ -1808,16 +1817,11 @@ function ListingDetailClientInner({
                 {localizedTags && localizedTags.length > 0 ? (
                   <>
                     <Separator />
-                    <div>
-                      <h2 className="text-xl font-serif font-medium mb-4">{t("listing.tags")}</h2>
-                      <div className="flex flex-wrap gap-2">
-                        {localizedTags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-sm">
-                            {translateCategoryValue(t, tag)}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
+                    <ListingTagCloud
+                      title={t("listing.tags")}
+                      tags={localizedTags}
+                      translateTag={(tag) => translateCategoryValue(t, tag)}
+                    />
                   </>
                 ) : null}
 

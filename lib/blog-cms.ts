@@ -1,7 +1,6 @@
-import { unstable_cache } from "next/cache";
+import { unstable_noStore as noStore } from "next/cache";
 import { draftMode } from "next/headers";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
-import { CMS_TAGS } from "./golf-cms";
 
 export interface BlogPageConfig {
   hero?: {
@@ -20,6 +19,12 @@ export interface BlogPageConfig {
 }
 
 async function fetchBlogPageConfig(locale: string): Promise<BlogPageConfig | null> {
+  try {
+    noStore();
+  } catch {
+    // This helper can be imported in tests outside a Next request.
+  }
+
   const supabase = createPublicServerClient();
   const { isEnabled: isPreview } = await draftMode();
 
@@ -72,8 +77,4 @@ async function fetchBlogPageConfig(locale: string): Promise<BlogPageConfig | nul
   return version.content as BlogPageConfig;
 }
 
-export const getBlogPageConfig = unstable_cache(
-  fetchBlogPageConfig,
-  ["blog-cms"],
-  { tags: [CMS_TAGS.blog] }
-);
+export const getBlogPageConfig = fetchBlogPageConfig;

@@ -7,6 +7,13 @@ import {
   normalizeCmsRuntimeLocale,
 } from "@/lib/cms/runtime-settings";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+};
+
 function parseRequestedKeys(request: NextRequest) {
   const direct = request.nextUrl.searchParams.getAll("key");
   if (direct.length > 0) {
@@ -27,10 +34,13 @@ export async function GET(request: NextRequest) {
       includeDraft: draft.isEnabled,
     });
 
-    return NextResponse.json({
-      ok: true,
-      data,
-    });
+    return NextResponse.json(
+      {
+        ok: true,
+        data,
+      },
+      { headers: NO_STORE_HEADERS },
+    );
   } catch (error) {
     if (error instanceof CmsRuntimeGlobalSettingsError) {
       return NextResponse.json(
@@ -41,7 +51,7 @@ export async function GET(request: NextRequest) {
             message: error.message,
           },
         },
-        { status: 500 },
+        { status: 500, headers: NO_STORE_HEADERS },
       );
     }
 
@@ -53,7 +63,7 @@ export async function GET(request: NextRequest) {
           message: "Failed to read CMS runtime settings.",
         },
       },
-      { status: 500 },
+      { status: 500, headers: NO_STORE_HEADERS },
     );
   }
 }

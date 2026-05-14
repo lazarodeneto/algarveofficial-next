@@ -72,7 +72,7 @@ export function FormActionBar({
             {!isAdmin && (
               <Button
                 type="button"
-                variant="outline"
+                variant="gold"
                 onClick={onSaveDraft}
                 disabled={isSaving ?? !hasChanges}
                 size="sm"
@@ -103,10 +103,11 @@ export function FormActionBar({
             {isAdmin && (
               <Button
                 type="button"
+                variant="gold"
                 onClick={onPublish}
                 disabled={isSaving ?? !isValid}
                 size="sm"
-                className="rounded-full bg-primary hover:bg-primary/90"
+                className="rounded-full"
               >
                 {isSaving ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

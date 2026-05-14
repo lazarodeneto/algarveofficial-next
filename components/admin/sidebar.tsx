@@ -153,13 +153,13 @@ export function Sidebar() {
           />
           <span
             className={cn(
-              "truncate font-serif text-lg font-normal tracking-tight transition-[max-width,opacity] duration-200 ease-out",
+              "truncate font-serif text-lg font-bold tracking-tight transition-[max-width,opacity] duration-200 ease-out",
               expanded ? "max-w-[9.5rem] opacity-100" : "max-w-0 opacity-0",
             )}
             aria-hidden={!expanded}
           >
             <span className="brand-logo-algarve text-gradient-gold">Algarve</span>
-            <span className="brand-logo-official text-foreground">Official</span>
+            <span className="brand-logo-official text-black">Official</span>
           </span>
         </LocaleLink>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from "next/navigation";
 import { m } from 'framer-motion';
@@ -10,7 +10,6 @@ import {
   ArrowLeft, 
   Clock, 
   User, 
-  Calendar,
   Tag,
   Share2,
   Facebook,
@@ -18,14 +17,22 @@ import {
   Linkedin,
   Link as LinkIcon,
   Eye,
-  Loader2
+  Loader2,
+  BookOpenText,
+  Compass,
+  Sparkles,
 } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { RouteMessageState } from '@/components/layout/RouteMessageState';
+import {
+  BeachGuideMap,
+  BeachGuideRelatedCards,
+  type BeachGuideListing,
+} from '@/components/blog/BeachGuideListings';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
@@ -37,7 +44,16 @@ import {
   buildStaticRouteData,
   type BlogPostRouteData,
 } from '@/lib/i18n/localized-routing';
+import {
+  BEST_BEACHES_LINK_ALIASES,
+  GOLF_LINK_ALIASES,
+  isBestBeachesArticleSlug,
+  shouldLinkBeachListingsInArticle,
+  shouldLinkGolfListingsInArticle,
+} from '@/lib/blog/best-beaches-guide';
+import { linkArticleListingMentions } from '@/lib/blog/article-listing-links';
 import { sanitizeHtmlString } from '@/lib/sanitizeHtml';
+import { cn } from '@/lib/utils';
 import { 
   usePublishedBlogPost, 
   useIncrementBlogViews,
@@ -57,15 +73,6 @@ const BLOG_TRANSLATION_KEYS: Record<BlogCategory, string> = {
   "insider-tips": "blog.blogCategories.insiderTips",
 };
 
-function formatPublishedDate(value: string | null | undefined, locale: string) {
-  const date = value ? new Date(value) : new Date();
-  return new Intl.DateTimeFormat(locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-}
-
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")
@@ -73,6 +80,42 @@ function escapeHtml(value: string) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function stripHtmlTags(value: string) {
+  return value.replace(/<[^>]*>/g, " ");
+}
+
+function decodeCommonHtmlEntities(value: string) {
+  const namedEntities: Record<string, string> = {
+    amp: "&",
+    apos: "'",
+    gt: ">",
+    lt: "<",
+    nbsp: " ",
+    quot: '"',
+  };
+
+  return value
+    .replace(/&([a-z]+);/gi, (match, entity) => namedEntities[entity.toLowerCase()] ?? match)
+    .replace(/&#(\d+);/g, (_match, entity) => String.fromCodePoint(Number(entity)))
+    .replace(/&#x([0-9a-f]+);/gi, (_match, entity) => String.fromCodePoint(Number.parseInt(entity, 16)));
+}
+
+function normalizeArticleHeading(value: string) {
+  return decodeCommonHtmlEntities(stripHtmlTags(value))
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLocaleLowerCase();
+}
+
+function stripDuplicateArticleTitleHeading(html: string, title: string) {
+  const normalizedTitle = normalizeArticleHeading(title);
+  if (!normalizedTitle) return html;
+
+  return html.replace(/^\s*<h[1-3]\b[^>]*>([\s\S]*?)<\/h[1-3]>\s*/i, (match, heading) =>
+    normalizeArticleHeading(heading) === normalizedTitle ? "" : match,
+  );
 }
 
 function isMajorArticleHeading(line: string, title: string) {
@@ -118,12 +161,16 @@ interface BlogPostProps {
   localeSwitchPaths?: Partial<Record<Locale, string>>;
   localizedRoute?: BlogPostRouteData;
   initialPost?: BlogPostWithAuthor | null;
+  beachListings?: BeachGuideListing[];
+  golfListings?: BeachGuideListing[];
 }
 
 export default function BlogPost({
   localeSwitchPaths,
   localizedRoute,
   initialPost,
+  beachListings = [],
+  golfListings = [],
 }: BlogPostProps = {}) {
   const { slug: rawSlug } = useParams<{ slug?: string | string[] }>();
   const slug = Array.isArray(rawSlug) ? rawSlug[0] : rawSlug;
@@ -132,6 +179,7 @@ export default function BlogPost({
   const locale = useCurrentLocale();
   const l = useLocalePath();
   const isBrowser = typeof window !== "undefined";
+  const [activeBeachListingId, setActiveBeachListingId] = useState<string | null>(beachListings[0]?.id ?? null);
 
   const { data: post, isLoading, error } = usePublishedBlogPost(slug, initialPost);
   const { mutate: incrementViews } = useIncrementBlogViews();
@@ -201,8 +249,27 @@ export default function BlogPost({
     );
   }
 
+  const isBeachGuideArticle = isBestBeachesArticleSlug(post.slug);
+  const shouldLinkBeachMentions = shouldLinkBeachListingsInArticle(post.slug);
+  const shouldLinkGolfMentions = shouldLinkGolfListingsInArticle(post.slug);
+  const categoryLabel = t(BLOG_TRANSLATION_KEYS[post.category], blogCategoryLabels[post.category]);
+  const primaryTopic = post.tags?.[0] ?? categoryLabel;
+  const articleHtml = stripDuplicateArticleTitleHeading(
+    formatArticleContent(post.content, post.title),
+    post.title,
+  );
+  const articleWithBeachLinks = shouldLinkBeachMentions
+    ? linkArticleListingMentions(articleHtml, beachListings, BEST_BEACHES_LINK_ALIASES, l)
+    : articleHtml;
+  const articleWithListingLinks = shouldLinkGolfMentions
+    ? linkArticleListingMentions(articleWithBeachLinks, golfListings, GOLF_LINK_ALIASES, l)
+    : articleWithBeachLinks;
+  const formattedContent = sanitizeHtmlString(
+    articleWithListingLinks,
+  );
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn("min-h-screen bg-background", isBeachGuideArticle && "bg-[#f7fbfa]")}>
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: buildAbsoluteRouteUrl(locale, buildStaticRouteData("home")) },
@@ -220,17 +287,27 @@ export default function BlogPost({
       
       <main className="pt-20">
         {/* Hero Image */}
-        <div className="relative h-[40vh] md:h-[50vh] overflow-hidden">
+        <div className={cn(
+          "relative h-[40vh] overflow-hidden md:h-[50vh]",
+          isBeachGuideArticle && "h-[62vh] min-h-[520px] md:h-[68vh]",
+        )}>
           <img
             src={post.featured_image || '/placeholder.svg'}
             alt={post.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          <div className={cn(
+            "absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent",
+            isBeachGuideArticle &&
+              "bg-[linear-gradient(180deg,rgba(5,20,24,0.18)_0%,rgba(5,20,24,0.42)_42%,#f7fbfa_100%)]",
+          )} />
         </div>
 
         {/* Article Content */}
-        <article className="container max-w-5xl mx-auto px-4 -mt-32 relative z-10">
+        <article className={cn(
+          "container relative z-10 mx-auto -mt-32 max-w-5xl px-4",
+          isBeachGuideArticle && "-mt-56 max-w-7xl",
+        )}>
           <m.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -244,22 +321,55 @@ export default function BlogPost({
             </Button>
 
             {/* Article Header */}
-            <Card className="bg-card border-border mb-8">
+            <Card className={cn(
+              "mb-8 border-border bg-card",
+              isBeachGuideArticle && "overflow-hidden border-white/70 bg-white/95 shadow-[0_34px_100px_-68px_rgba(7,43,39,0.75)] backdrop-blur",
+            )}>
               <CardContent className="p-6 md:p-10">
-                <Badge variant="secondary" className="mb-4">
-                  {t(BLOG_TRANSLATION_KEYS[post.category], blogCategoryLabels[post.category])}
+                <Badge
+                  variant="secondary"
+                  className={cn(
+                    "mb-4",
+                    isBeachGuideArticle && "border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-50",
+                  )}
+                >
+                  {categoryLabel}
                 </Badge>
                 
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-medium leading-tight mb-6">
+                <h1 className={cn(
+                  "mb-6 font-serif text-4xl font-medium leading-tight md:text-6xl lg:text-7xl",
+                  isBeachGuideArticle && "max-w-5xl text-slate-950",
+                )}>
                   {post.title}
                 </h1>
 
-                <p className="text-xl text-muted-foreground mb-8">
+                <div className="mb-8 grid gap-3 md:grid-cols-3">
+                  <div className="flex items-center gap-3 rounded-md border border-border/70 bg-background/70 p-3 text-sm text-muted-foreground">
+                    <BookOpenText className="h-5 w-5 shrink-0 text-primary" />
+                    <span className="font-medium text-foreground">{post.reading_time} {t('blog.readTime')}</span>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-md border border-border/70 bg-background/70 p-3 text-sm text-muted-foreground">
+                    <Compass className="h-5 w-5 shrink-0 text-primary" />
+                    <span className="font-medium text-foreground">{categoryLabel}</span>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-md border border-border/70 bg-background/70 p-3 text-sm text-muted-foreground">
+                    <Sparkles className="h-5 w-5 shrink-0 text-primary" />
+                    <span className="line-clamp-1 font-medium text-foreground">{primaryTopic}</span>
+                  </div>
+                </div>
+
+                <p className={cn(
+                  "mb-8 text-xl text-muted-foreground",
+                  isBeachGuideArticle && "max-w-3xl leading-8 text-slate-600",
+                )}>
                   {post.excerpt}
                 </p>
 
                 {/* Meta */}
-                <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                <div className={cn(
+                  "flex flex-wrap items-center gap-4 text-sm text-muted-foreground",
+                  isBeachGuideArticle && "text-slate-600",
+                )}>
                   <div className="flex items-center gap-2">
                     {post.author?.avatar_url ? (
                       <img
@@ -279,11 +389,6 @@ export default function BlogPost({
                   </div>
                   <span className="hidden sm:block">•</span>
                   <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>{formatPublishedDate(post.published_at || post.created_at, locale)}</span>
-                  </div>
-                  <span className="hidden sm:block">•</span>
-                  <div className="flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     <span>{post.reading_time} {t('blog.readTime')}</span>
                   </div>
@@ -297,24 +402,38 @@ export default function BlogPost({
             </Card>
 
             {/* Article Body */}
-            <Card className="bg-card border-border mb-8">
+            <Card className={cn(
+              "mb-8 border-border bg-card",
+              isBeachGuideArticle && "border-white/80 bg-white shadow-[0_28px_80px_-68px_rgba(7,43,39,0.7)]",
+            )}>
               <CardContent className="p-6 md:p-10">
                 <div 
-                  className="prose prose-xl prose-invert max-w-none
-                    prose-headings:font-serif prose-headings:font-semibold prose-headings:tracking-normal
-                    prose-h1:text-4xl prose-h1:md:text-5xl
-                    prose-h2:mt-16 prose-h2:text-4xl prose-h2:md:text-5xl
-                    prose-h3:mt-10 prose-h3:text-2xl prose-h3:md:text-3xl
-                    prose-p:text-muted-foreground prose-p:leading-8
-                    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                    prose-strong:text-foreground
-                    prose-ul:text-muted-foreground prose-ol:text-muted-foreground
-                    prose-li:marker:text-primary"
+                  className={cn(
+                    "ao-blog-article-prose max-w-none",
+                    isBeachGuideArticle
+                      ? "ao-beach-article-prose ao-blog-article-prose--light"
+                      : "ao-blog-article-prose--default",
+                  )}
                   dangerouslySetInnerHTML={{ 
-                    __html: sanitizeHtmlString(formatArticleContent(post.content, post.title))
+                    __html: formattedContent
                   }}
                 />
+              </CardContent>
+            </Card>
 
+            {isBeachGuideArticle ? (
+              <BeachGuideMap
+                listings={beachListings}
+                activeListingId={activeBeachListingId}
+                onListingSelect={setActiveBeachListingId}
+              />
+            ) : null}
+
+            <Card className={cn(
+              "mb-8 border-border bg-card",
+              isBeachGuideArticle && "border-white/80 bg-white shadow-[0_24px_70px_-62px_rgba(7,43,39,0.62)]",
+            )}>
+              <CardContent className="p-6 md:p-10">
                 {/* Tags */}
                 {post.tags && post.tags.length > 0 && (
                   <>
@@ -322,8 +441,10 @@ export default function BlogPost({
                     <div className="flex flex-wrap items-center gap-2">
                       <Tag className="h-4 w-4 text-muted-foreground" />
                       {post.tags.map(tag => (
-                        <Badge key={tag} variant="outline" className="text-xs">
-                          {tag}
+                        <Badge key={tag} variant="outline" className="text-xs transition hover:border-primary/60 hover:text-primary">
+                          <Link href={l(`/blog?tag=${encodeURIComponent(tag)}`)} className="underline-offset-4 hover:underline">
+                            {tag}
+                          </Link>
                         </Badge>
                       ))}
                     </div>
@@ -354,6 +475,14 @@ export default function BlogPost({
                 </div>
               </CardContent>
             </Card>
+
+            {isBeachGuideArticle ? (
+              <BeachGuideRelatedCards
+                listings={beachListings}
+                activeListingId={activeBeachListingId}
+                onListingSelect={setActiveBeachListingId}
+              />
+            ) : null}
           </m.div>
         </article>
       </main>

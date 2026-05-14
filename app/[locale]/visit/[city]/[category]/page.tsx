@@ -38,6 +38,7 @@ import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import InternalLinks from "@/components/seo/InternalLinks";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { getCanonicalCategorySlug as getCanonicalListingCategorySlug } from "@/lib/categoryMerges";
+import { Button } from "@/components/ui/Button";
 
 interface PageParams {
   locale: string;
@@ -510,12 +511,11 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
                 )}
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <LocaleLink 
-                  href={`/partner?category=${canonical}&city=${citySlug}&type=upgrade`}
-                  className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                  {tx["guides.upgradeYourListing"] ?? "Upgrade Your Listing"}
-                </LocaleLink>
+                <Button asChild variant="gold">
+                  <LocaleLink href={`/partner?category=${canonical}&city=${citySlug}&type=upgrade`}>
+                    {tx["guides.upgradeYourListing"] ?? "Upgrade Your Listing"}
+                  </LocaleLink>
+                </Button>
                 <LocaleLink 
                   href={`/partner`}
                   className="inline-flex items-center justify-center rounded-full border border-primary px-6 py-3 text-sm font-medium text-primary hover:bg-primary/10 transition-colors"
@@ -550,12 +550,11 @@ export default async function VisitCityCategoryPage({ params }: PageProps) {
               )}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <LocaleLink 
-                href={`/partner`}
-                className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                {tx["guides.listYourBusiness"] ?? "List Your Business"}
-              </LocaleLink>
+              <Button asChild variant="gold">
+                <LocaleLink href={`/partner`}>
+                  {tx["guides.listYourBusiness"] ?? "List Your Business"}
+                </LocaleLink>
+              </Button>
             </div>
           </div>
         </section>

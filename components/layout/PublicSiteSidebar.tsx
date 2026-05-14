@@ -48,9 +48,9 @@ export function PublicSiteSidebar() {
         >
           <BrandLogo size="sm" showIcon showText={false} asLink={false} className="justify-center" iconClassName="h-6 w-6 shrink-0" />
           {expanded ? (
-            <span className="whitespace-nowrap font-serif text-lg font-normal tracking-tight">
+            <span className="whitespace-nowrap font-serif text-lg font-bold tracking-tight">
               <span className="brand-logo-algarve text-gradient-gold">Algarve</span>
-              <span className="brand-logo-official text-foreground">Official</span>
+              <span className="brand-logo-official text-black">Official</span>
             </span>
           ) : null}
         </LocaleLink>

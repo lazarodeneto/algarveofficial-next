@@ -44,6 +44,7 @@ describe("proxy default locale prefix policy", () => {
     "/relocation",
     "/listing/example",
     "/visit/lagos/restaurants",
+    "/category/beaches",
     "/category/restaurants",
   ])("serves canonical unprefixed English URL %s via the internal locale route", async (source) => {
     const response = await proxy(makeRequest(source, "de"));

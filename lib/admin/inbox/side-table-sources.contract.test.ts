@@ -6,6 +6,10 @@ const MIGRATION_PATH = join(
   process.cwd(),
   "supabase/migrations/20260512110500_resync_admin_inbox_side_table_sources.sql",
 );
+const TEXT_SOURCE_ROW_ID_MIGRATION_PATH = join(
+  process.cwd(),
+  "supabase/migrations/20260514112000_allow_text_admin_inbox_source_row_ids.sql",
+);
 
 const CURRENT_INBOX_SOURCES = [
   "billing_subscription",
@@ -42,4 +46,11 @@ describe("admin inbox side-table source constraints", () => {
     expect(archiveConstraint).toContain("'translation_job'");
   });
 
+  it("allows derived inbox items to use stable non-UUID source row keys", () => {
+    const source = readFileSync(TEXT_SOURCE_ROW_ID_MIGRATION_PATH, "utf8");
+
+    expect(source).toContain("ALTER COLUMN source_row_id TYPE text");
+    expect(source).toContain("admin_inbox_archives_pkey");
+    expect(source).toContain("admin_inbox_assignments_pkey");
+  });
 });

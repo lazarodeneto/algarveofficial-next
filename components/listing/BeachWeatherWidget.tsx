@@ -5,7 +5,7 @@ import { CloudSun, Wind } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 
-import type { WeatherResponse, WeatherSummary } from "@/lib/weather/weatherapi";
+import { toFahrenheit, type WeatherResponse, type WeatherSummary } from "@/lib/weather/weatherapi";
 import { cn } from "@/lib/utils";
 
 type BeachWeatherWidgetProps = {
@@ -89,11 +89,11 @@ export function BeachWeatherWidget({
     refetchOnWindowFocus: false,
   });
 
-  if (!canLoadWeather) return null;
-
   const weather = data ?? null;
-  const unavailable = !isLoading && isError;
+  const unavailable = !canLoadWeather || (!isLoading && isError);
   const temperature = formatNumber(weather?.temperatureC);
+  const temperatureF =
+    typeof weather?.temperatureC === "number" ? formatNumber(toFahrenheit(weather.temperatureC)) : null;
   const wind = formatNumber(weather?.windKph);
   const uv = formatNumber(weather?.uvIndex, 1);
   const minTemp = formatNumber(weather?.minTempC);
@@ -103,12 +103,13 @@ export function BeachWeatherWidget({
 
   const title = t("weather.label", { defaultValue: "Weather" });
   const ariaLabel = weather && temperature
-    ? t("weather.beachTemperatureLabel", {
+    ? t("weather.temperatureLabel", {
         place: locationLabel ?? title,
         celsius: temperature,
+        fahrenheit: temperatureF ?? "",
         condition: condition ?? "",
         wind: wind ?? "",
-        defaultValue: `${locationLabel ?? title} weather: ${temperature}°C${condition ? `, ${condition}` : ""}`,
+        defaultValue: `${locationLabel ?? title} weather: ${temperature}°C / ${temperatureF ?? ""}°F`,
       })
     : unavailable
       ? t("weather.unavailable", { defaultValue: "Weather unavailable" })
@@ -135,8 +136,15 @@ export function BeachWeatherWidget({
           </p>
           {weather && temperature ? (
             <>
-              <p className="mt-1 whitespace-nowrap text-sm font-semibold tabular-nums text-foreground">
-                {temperature}°C{condition ? <span className="text-muted-foreground"> · {condition}</span> : null}
+              <p className="mt-1 flex flex-wrap items-baseline gap-x-1 text-sm font-semibold tabular-nums text-foreground">
+                <span className="whitespace-nowrap">{temperature}°C</span>
+                {temperatureF ? (
+                  <>
+                    <span className="text-muted-foreground/60">/</span>
+                    <span className="whitespace-nowrap">{temperatureF}°F</span>
+                  </>
+                ) : null}
+                {condition ? <span className="text-muted-foreground"> · {condition}</span> : null}
               </p>
               <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 {wind ? (

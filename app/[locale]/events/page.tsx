@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { draftMode } from "next/headers";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Calendar, MapPin } from "lucide-react";
@@ -10,9 +11,16 @@ import EventsClient from "@/components/events/EventsClient";
 import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
 import { eventCategoryLabels, type EventCategory } from "@/types/events";
 import { getEventMonthHeading } from "@/lib/events/dateDisplay";
-import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import {
-  getPublicEventGlobalSettings,
+  CMS_PAGE_BUILDER_RUNTIME_KEYS,
+  type CmsPageConfig,
+} from "@/lib/cms/pageBuilderRegistry";
+import { fetchCmsRuntimeSettings } from "@/lib/cms/runtime-settings";
+import {
+  getRuntimePageConfig,
+  isRuntimeSectionEnabled,
+} from "@/lib/cms/public-page-runtime";
+import {
   getPublicEvents,
   type PublicEventDTO,
   type PublicEventGlobalSetting,
@@ -23,7 +31,8 @@ interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const EVENTS_META: Record<Locale, { title: string; description: string }> = {
   en: {
@@ -78,13 +87,6 @@ const EVENTS_META: Record<Locale, { title: string; description: string }> = {
   },
 };
 
-const EVENTS_CMS_KEYS = [
-  CMS_GLOBAL_SETTING_KEYS.textOverrides,
-  CMS_GLOBAL_SETTING_KEYS.pageConfigs,
-  CMS_GLOBAL_SETTING_KEYS.designTokens,
-  CMS_GLOBAL_SETTING_KEYS.customCss,
-] as const;
-
 const EVENTS_SERVER_KEYS = [
   "serverPages.events.badge",
   "serverPages.events.emptyTitle",
@@ -121,9 +123,14 @@ async function fetchEventsPageData(locale: Locale): Promise<{
   events: PublicEventDTO[];
   globalSettings: PublicEventGlobalSetting[];
 }> {
+  const draft = await draftMode();
   const [events, globalSettings] = await Promise.all([
     getPublicEvents({ locale, timeFilter: "upcoming", limit: 100 }),
-    getPublicEventGlobalSettings(EVENTS_CMS_KEYS),
+    fetchCmsRuntimeSettings({
+      requestedKeys: CMS_PAGE_BUILDER_RUNTIME_KEYS,
+      locale,
+      includeDraft: draft.isEnabled,
+    }),
   ]);
 
   return { events, globalSettings };
@@ -135,13 +142,17 @@ function EventsServerShell({
   title,
   description,
   copy,
+  pageConfig,
 }: {
   locale: Locale;
   events: PublicEventDTO[];
   title: string;
   description: string;
   copy: Record<string, string>;
+  pageConfig: CmsPageConfig;
 }) {
+  const heroEnabled = isRuntimeSectionEnabled(pageConfig, "hero", true);
+  const timelineEnabled = isRuntimeSectionEnabled(pageConfig, "timeline", true);
   const eventsByMonth: Record<string, PublicEventDTO[]> = {};
   events.forEach((event) => {
     const monthKey = event.start_date.slice(0, 7);
@@ -152,19 +163,21 @@ function EventsServerShell({
   return (
     <div id="events-server-shell" className="min-h-screen bg-background text-foreground">
       <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
-        <section className="mb-8 max-w-4xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-            {eventsCopy(copy, "serverPages.events.badge")}
-          </p>
-          <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
-            {title}
-          </h1>
-          <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg">
-            {description}
-          </p>
-        </section>
+        {heroEnabled ? (
+          <section className="mb-8 max-w-4xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              {eventsCopy(copy, "serverPages.events.badge")}
+            </p>
+            <h1 className="mt-3 font-serif text-4xl leading-tight text-foreground sm:text-5xl">
+              {title}
+            </h1>
+            <p className="mt-4 text-base leading-7 text-muted-foreground sm:text-lg">
+              {description}
+            </p>
+          </section>
+        ) : null}
 
-        {events.length === 0 ? (
+        {timelineEnabled && events.length === 0 ? (
           <section className="rounded-lg border border-border bg-card/80 p-8 text-center shadow-sm">
             <Calendar className="mx-auto mb-3 h-8 w-8 text-primary" />
             <h2 className="font-serif text-2xl">{eventsCopy(copy, "serverPages.events.emptyTitle")}</h2>
@@ -172,7 +185,7 @@ function EventsServerShell({
               {eventsCopy(copy, "serverPages.events.emptyDescription")}
             </p>
           </section>
-        ) : (
+        ) : timelineEnabled ? (
           <section aria-label={eventsCopy(copy, "serverPages.events.eventsAria")} className="space-y-10">
             {Object.entries(eventsByMonth).map(([monthKey, monthEvents]) => (
               <div key={monthKey}>
@@ -213,7 +226,7 @@ function EventsServerShell({
               </div>
             ))}
           </section>
-        )}
+        ) : null}
       </main>
     </div>
   );
@@ -227,6 +240,7 @@ export default async function EventsPage({ params }: PageProps) {
     fetchEventsPageData(locale),
     getServerTranslations(locale, [...EVENTS_SERVER_KEYS]),
   ]);
+  const pageConfig = getRuntimePageConfig(globalSettings, "events");
   const localizedEventsPath = buildLocalizedPath(locale, "/events");
   const itemListSchema = buildItemListSchema(
     meta.title,
@@ -261,6 +275,7 @@ export default async function EventsPage({ params }: PageProps) {
         title={meta.title}
         description={meta.description}
         copy={copy}
+        pageConfig={pageConfig}
       />
       <Suspense fallback={<RouteLoadingState />}>
         <EventsClient initialEvents={events} initialGlobalSettings={globalSettings} />

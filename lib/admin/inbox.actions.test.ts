@@ -129,7 +129,7 @@ describe("admin inbox actions", () => {
     expect(mockedCreateServiceRoleClient).not.toHaveBeenCalled();
   });
 
-  it("requires UUID source row ids", async () => {
+  it("requires UUID source row ids for source-backed moderation rows", async () => {
     const result = await approveInboxItem({
       source: "listing_moderation",
       sourceRowId: "not-a-uuid",
@@ -137,6 +137,29 @@ describe("admin inbox actions", () => {
 
     expect(result).toEqual({ ok: false, error: "sourceRowId must be a valid UUID." });
     expect(mockedCreateServiceRoleClient).not.toHaveBeenCalled();
+  });
+
+  it("allows stable text source row keys for derived translation alerts", async () => {
+    const rpc = vi.fn().mockResolvedValue({ data: "admin", error: null });
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const from = vi.fn(() => ({ upsert }));
+    mockedCreateServiceRoleClient.mockReturnValue({ from, rpc } as never);
+
+    const result = await assignInboxItem({
+      source: "translation_job",
+      sourceRowId: "processor-unconfigured",
+      assigneeId: "33333333-3333-4333-8333-333333333333",
+    });
+
+    expect(result).toEqual({ ok: true });
+    expect(upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        source: "translation_job",
+        source_row_id: "processor-unconfigured",
+        assignee_id: "33333333-3333-4333-8333-333333333333",
+      }),
+      { onConflict: "source,source_row_id" },
+    );
   });
 
   it("only assigns inbox items to admins", async () => {

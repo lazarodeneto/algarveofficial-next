@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useQueryClient } from "@tanstack/react-query";
-import { Archive, ArchiveRestore, BellOff, CheckCheck } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Archive, ArchiveRestore, BellOff, CheckCheck, Loader2, Search, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ import {
   restoreInboxNotification,
 } from "@/lib/admin/inbox/actions";
 import { useLocalePath } from "@/hooks/useLocalePath";
+import { fetchAdmin } from "@/lib/api/fetchAdmin";
 import { formatInboxDueStatus } from "@/lib/admin/inbox/format";
 import type {
   BillingSubscriptionItem,
@@ -46,6 +47,31 @@ interface InboxDetailProps {
   onResolved: () => void;
   currentUserId: string | null;
   viewStatus: InboxStatus;
+}
+
+interface InboxAssigneeOption {
+  id: string;
+  email: string;
+  fullName: string | null;
+  avatarUrl: string | null;
+  role: "admin";
+}
+
+interface InboxAssigneeSearchResponse {
+  ok: true;
+  assignees: InboxAssigneeOption[];
+}
+
+async function fetchInboxAssignees(search: string): Promise<InboxAssigneeOption[]> {
+  const params = new URLSearchParams();
+  if (search.trim()) params.set("query", search.trim());
+  const suffix = params.toString() ? `?${params.toString()}` : "";
+  const response = (await fetchAdmin(`/api/admin/inbox/assignees${suffix}`)) as InboxAssigneeSearchResponse;
+  return response.assignees;
+}
+
+function formatAssigneeName(assignee: InboxAssigneeOption) {
+  return assignee.fullName?.trim() || assignee.email || assignee.id;
 }
 
 function EntityLink({ item }: { item: InboxItem }) {
@@ -157,14 +183,50 @@ export function InboxDetail({
   currentUserId,
   viewStatus,
 }: InboxDetailProps) {
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      {item ? (
+        <InboxDetailContent
+          key={item.id}
+          item={item}
+          open={open}
+          onOpenChange={onOpenChange}
+          onResolved={onResolved}
+          currentUserId={currentUserId}
+          viewStatus={viewStatus}
+        />
+      ) : null}
+    </Sheet>
+  );
+}
+
+function InboxDetailContent({
+  item,
+  open,
+  onOpenChange,
+  onResolved,
+  currentUserId,
+  viewStatus,
+}: Omit<InboxDetailProps, "item"> & { item: InboxItem }) {
   const queryClient = useQueryClient();
   const [rejectReason, setRejectReason] = useState("");
-  const [assigneeId, setAssigneeId] = useState("");
+  const [assigneeSearch, setAssigneeSearch] = useState("");
+  const [selectedAssignee, setSelectedAssignee] = useState<InboxAssigneeOption | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [lastAction, setLastAction] = useState<(() => Promise<{ ok: boolean; error?: string }>) | null>(null);
   const [pending, startTransition] = useTransition();
-
-  if (!item) return null;
+  const canSearchAssignees =
+    open &&
+    viewStatus === "open" &&
+    item?.status === "open" &&
+    item.resolution.available.includes("assign");
+  const assigneeSearchTerm = assigneeSearch.trim();
+  const assigneesQuery = useQuery({
+    queryKey: ["admin-inbox-assignees", assigneeSearchTerm],
+    queryFn: () => fetchInboxAssignees(assigneeSearchTerm),
+    enabled: canSearchAssignees,
+    staleTime: 60_000,
+  });
 
   const run = (
     fn: () => Promise<{ ok: boolean; error?: string }>,
@@ -179,7 +241,8 @@ export function InboxDetail({
         return;
       }
       setRejectReason("");
-      setAssigneeId("");
+      setAssigneeSearch("");
+      setSelectedAssignee(null);
       setLastAction(null);
       if (successMessage) toast.success(successMessage);
       queryClient.invalidateQueries({ queryKey: ADMIN_INBOX_QUERY_KEY, exact: false });
@@ -213,71 +276,68 @@ export function InboxDetail({
   const ReadActionIcon = item.source === "external_outbox_alert" ? BellOff : CheckCheck;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full max-w-xl overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="text-left">{item.title}</SheetTitle>
-          <SheetDescription className="text-left">
-            Review inbox item details and apply moderation actions.
-          </SheetDescription>
-          <div className="flex flex-wrap items-center gap-2 pt-1">
-            <Badge variant="outline" className="capitalize">
-              {item.domain}
-            </Badge>
-            <Badge variant={item.urgency === "urgent" ? "destructive" : "secondary"}>
-              {item.urgency}
-            </Badge>
-            <Badge variant="outline" className="capitalize">
-              {item.status}
-            </Badge>
-            <span className="text-xs text-muted-foreground">
-              {formatInboxDueStatus(item.sla.dueAt, item.sla.minutesRemaining)}
-            </span>
-          </div>
-        </SheetHeader>
+    <SheetContent side="right" className="w-full max-w-xl overflow-y-auto">
+      <SheetHeader>
+        <SheetTitle className="text-left">{item.title}</SheetTitle>
+        <SheetDescription className="text-left">
+          Review inbox item details and apply moderation actions.
+        </SheetDescription>
+        <div className="flex flex-wrap items-center gap-2 pt-1">
+          <Badge variant="outline" className="capitalize">
+            {item.domain}
+          </Badge>
+          <Badge variant={item.urgency === "urgent" ? "destructive" : "secondary"}>
+            {item.urgency}
+          </Badge>
+          <Badge variant="outline" className="capitalize">
+            {item.status}
+          </Badge>
+          <span className="text-xs text-muted-foreground">
+            {formatInboxDueStatus(item.sla.dueAt, item.sla.minutesRemaining)}
+          </span>
+        </div>
+      </SheetHeader>
 
-        <dl className="mt-6 space-y-3 text-sm">
+      <dl className="mt-6 space-y-3 text-sm">
+        <div>
+          <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Submitter
+          </dt>
+          <dd>{item.owner.name ?? item.owner.id}</dd>
+        </div>
+        {item.summary ? (
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Submitter
+              Summary
             </dt>
-            <dd>{item.owner.name ?? item.owner.id}</dd>
+            <dd className="whitespace-pre-wrap">{item.summary}</dd>
           </div>
-          {item.summary ? (
-            <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Summary
-              </dt>
-              <dd className="whitespace-pre-wrap">{item.summary}</dd>
-            </div>
-          ) : null}
+        ) : null}
+        <div>
+          <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Created
+          </dt>
+          <dd>{new Date(item.createdAt).toLocaleString()}</dd>
+        </div>
+        <div>
+          <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Link
+          </dt>
+          <dd>
+            <EntityLink item={item} />
+          </dd>
+        </div>
+        {item.assignee ? (
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Created
+              Assigned to
             </dt>
-            <dd>{new Date(item.createdAt).toLocaleString()}</dd>
+            <dd>{item.assignee.id === currentUserId ? "You" : item.assignee.id.slice(0, 8)}</dd>
           </div>
-          <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Link
-            </dt>
-            <dd>
-              <EntityLink item={item} />
-            </dd>
-          </div>
-          {item.assignee ? (
-            <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Assigned to
-              </dt>
-              <dd>
-                {item.assignee.id === currentUserId ? "You" : item.assignee.id.slice(0, 8)}
-              </dd>
-            </div>
-          ) : null}
-        </dl>
+        ) : null}
+      </dl>
 
-        <div className="mt-6 space-y-4 border-t border-border pt-6">
+      <div className="mt-6 space-y-4 border-t border-border pt-6">
           {/* Primary actions */}
           <div className="flex flex-wrap gap-2">
             {canApprove ? (
@@ -379,28 +439,86 @@ export function InboxDetail({
 
           {/* Manual assign */}
           {canAssign ? (
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Assign to user ID
+                Assign to admin
               </label>
-              <div className="flex gap-2">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  value={assigneeId}
-                  onChange={(e) => setAssigneeId(e.target.value)}
-                  placeholder="UUID of assignee"
+                  value={assigneeSearch}
+                  onChange={(e) => {
+                    setAssigneeSearch(e.target.value);
+                    setSelectedAssignee(null);
+                  }}
+                  placeholder="Search by name or email"
+                  className="pl-9"
+                  aria-label="Search admin assignee by name or email"
                 />
+              </div>
+              <div className="rounded-lg border border-border bg-background p-1">
+                {assigneesQuery.isLoading || assigneesQuery.isFetching ? (
+                  <div className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Searching admins...
+                  </div>
+                ) : assigneesQuery.isError ? (
+                  <p className="px-3 py-2 text-sm text-destructive">
+                    Could not load admin users.
+                  </p>
+                ) : assigneesQuery.data?.length ? (
+                  <div className="max-h-52 overflow-y-auto" role="listbox" aria-label="Admin assignee results">
+                    {assigneesQuery.data.map((assignee) => {
+                      const selected = selectedAssignee?.id === assignee.id;
+                      return (
+                        <button
+                          key={assignee.id}
+                          type="button"
+                          className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                            selected ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                          }`}
+                          onClick={() => {
+                            setSelectedAssignee(assignee);
+                            setAssigneeSearch(formatAssigneeName(assignee));
+                          }}
+                          role="option"
+                          aria-selected={selected}
+                        >
+                          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold uppercase text-primary">
+                            {formatAssigneeName(assignee).charAt(0)}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate font-medium text-foreground">
+                              {formatAssigneeName(assignee)}
+                            </span>
+                            <span className="block truncate text-xs text-muted-foreground">
+                              {assignee.email}
+                            </span>
+                          </span>
+                          {selected ? <UserCheck className="h-4 w-4 shrink-0" /> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="px-3 py-2 text-sm text-muted-foreground">
+                    No admin users match this search.
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
-                  disabled={pending || !assigneeId.trim()}
+                  disabled={pending || !selectedAssignee}
                   onClick={() =>
                     run(
-                      () => assignInboxItem({ ...base, assigneeId: assigneeId.trim() }),
+                      () => assignInboxItem({ ...base, assigneeId: selectedAssignee!.id }),
                       "Inbox item assigned.",
                     )
                   }
                 >
-                  Assign
+                  {selectedAssignee ? `Assign to ${formatAssigneeName(selectedAssignee)}` : "Assign"}
                 </Button>
               </div>
             </div>
@@ -426,7 +544,6 @@ export function InboxDetail({
             </div>
           ) : null}
         </div>
-      </SheetContent>
-    </Sheet>
+    </SheetContent>
   );
 }

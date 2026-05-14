@@ -6,6 +6,10 @@ import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { invalidateCmsPageMutationQueries } from "@/lib/query-invalidation";
 import { globalSettingsQueryKey } from "@/lib/query-keys";
+import {
+  notifyCmsRuntimeChanged,
+  subscribeCmsRuntimeChanged,
+} from "@/lib/cms/runtime-events";
 
 export interface GlobalSetting {
   key: string;
@@ -60,7 +64,12 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
           normalizedKeys.forEach((key) => params.append("key", key));
         }
 
-        const response = await fetch(`/api/cms/runtime?${params.toString()}`);
+        const response = await fetch(`/api/cms/runtime?${params.toString()}`, {
+          cache: "no-store",
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        });
         const payload = (await response.json().catch(() => null)) as
           | { ok?: boolean; data?: GlobalSetting[]; error?: { message?: string } }
           | null;
@@ -85,8 +94,19 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       return (data ?? []) as GlobalSetting[];
     },
     staleTime: 0,
-    refetchOnMount: isCmsPreviewRuntime ? "always" : undefined,
+    refetchOnMount: shouldUseCmsRuntime || isCmsPreviewRuntime ? "always" : undefined,
+    refetchOnWindowFocus: shouldUseCmsRuntime ? "always" : undefined,
+    refetchOnReconnect: shouldUseCmsRuntime ? "always" : undefined,
   });
+
+  useEffect(() => {
+    if (!shouldUseCmsRuntime) return;
+
+    return subscribeCmsRuntimeChanged(() => {
+      void queryClient.invalidateQueries({ queryKey: ["global-settings"], exact: false });
+      void queryClient.invalidateQueries({ queryKey: ["cms-runtime"], exact: false });
+    });
+  }, [queryClient, shouldUseCmsRuntime]);
 
   const saveMutation = useMutation({
     mutationFn: async (settings: GlobalSetting[]) => {
@@ -122,6 +142,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
     },
     onSuccess: () => {
       void invalidateCmsPageMutationQueries(queryClient);
+      notifyCmsRuntimeChanged({ locale, source: "global-settings" });
     },
   });
 

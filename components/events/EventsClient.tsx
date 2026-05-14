@@ -33,8 +33,10 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
-import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
-import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import {
+  STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+  STANDARD_PUBLIC_NO_HERO_SPACER_CLASS,
+} from "@/components/sections/hero-layout";
 import { hideServerShell } from "@/lib/dom/server-shell";
 import { isPublicEventVisibleByDate } from "@/lib/events/publicVisibility";
 import { getEventMonthHeading } from "@/lib/events/dateDisplay";
@@ -43,6 +45,8 @@ import { EventTicketCard } from "@/components/events/EventTicketCard";
 import type { PublicEventGlobalSetting } from "@/lib/public-data/events";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
 import { useAuth } from "@/contexts/AuthContext";
+import { CmsBlock } from "@/components/cms/CmsBlock";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 
 const EventMapDirectory = dynamic(
   () => import("@/components/events/EventMapDirectory").then((module) => module.EventMapDirectory),
@@ -64,7 +68,7 @@ export interface EventsClientProps {
   initialGlobalSettings: EventGlobalSetting[];
 }
 
-function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClientProps) {
+function EventsClientInner({ initialEvents }: EventsClientProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
   const locale = useCurrentLocale();
@@ -72,6 +76,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
   const { createTrip } = useTripPlanner();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
+  const cms = useCmsPageBuilder("events");
 
   const [selectedCategory, setSelectedCategory] = useState<EventCategory | "all">("all");
   const [activeMapEventId, setActiveMapEventId] = useState<string | null>(null);
@@ -101,17 +106,10 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
   const visibleEvents = events.filter((event) => isPublicEventVisibleByDate(event));
   const featuredEvents = visibleEvents.filter((event) => event.is_featured).slice(0, 3);
   const upcomingEvents = visibleEvents.filter((event) => !featuredEvents.some((featured) => featured.id === event.id));
-  const pageConfigText = (() => {
-    const pageConfigSetting = initialGlobalSettings.find((setting) => setting.key === CMS_GLOBAL_SETTING_KEYS.pageConfigs)?.value;
-    if (!pageConfigSetting) return {} as Record<string, string>;
-    try {
-      const parsed = JSON.parse(pageConfigSetting) as Record<string, { text?: Record<string, string> }>;
-      return parsed?.events?.text ?? {};
-    } catch {
-      return {} as Record<string, string>;
-    }
-  })();
-  const cmsText = (key: string, fallback: string) => pageConfigText[key] ?? fallback;
+  const heroEnabled = cms.isBlockEnabled("hero", true);
+  const filtersEnabled = cms.isBlockEnabled("filters", true);
+  const featuredEnabled = cms.isBlockEnabled("featured", true);
+  const timelineEnabled = cms.isBlockEnabled("timeline", true);
 
   const scrollToEventsListings = () => {
     document.getElementById("events-listings")?.scrollIntoView({
@@ -161,31 +159,34 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      {!heroEnabled && <div className={STANDARD_PUBLIC_NO_HERO_SPACER_CLASS} aria-hidden="true" />}
 
       <main>
-        <section className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
+        {heroEnabled ? (
+        <CmsBlock pageId="events" blockId="hero" as="section" className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
           <LiveStyleHero
-            badge={t("sections.events.label")}
-            title={t("sections.events.title")}
-            subtitle={t(
-              "sections.events.subtitle",
+            badge={cms.getText("hero.badge", t("sections.events.label"))}
+            title={cms.getText("hero.title", t("sections.events.title"))}
+            subtitle={cms.getText(
+              "hero.subtitle",
+              t("sections.events.subtitle"),
             )}
             media={
               <HeroBackgroundMedia
-                mediaType={cmsText("hero.mediaType", "image")}
-                imageUrl={cmsText("hero.imageUrl", "")}
-                videoUrl={cmsText("hero.videoUrl", "")}
-                youtubeUrl={cmsText("hero.youtubeUrl", "")}
-                posterUrl={cmsText("hero.posterUrl", "")}
-                alt={t("events.hero.alt")}
-                fallback={<PageHeroImage page="events" alt={t("events.hero.alt")} />}
+                mediaType={cms.getText("hero.mediaType", "image")}
+                imageUrl={cms.getText("hero.imageUrl", "")}
+                videoUrl={cms.getText("hero.videoUrl", "")}
+                youtubeUrl={cms.getText("hero.youtubeUrl", "")}
+                posterUrl={cms.getText("hero.posterUrl", "")}
+                alt={cms.getText("hero.alt", t("events.hero.alt"))}
+                fallback={<PageHeroImage page="events" alt={cms.getText("hero.alt", t("events.hero.alt"))} />}
               />
             }
             ctas={
               <>
                 <Button type="button" variant="gold" size="lg" onClick={scrollToEventsListings}>
                   <ArrowDown className="h-4 w-4" />
-                  {t("events.hero.ctaPrimary")}
+                  {cms.getText("hero.cta.primary", t("events.hero.ctaPrimary"))}
                 </Button>
                 <Button
                   type="button"
@@ -195,12 +196,22 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                   disabled={isAuthLoading}
                 >
                   <CalendarPlus className="h-4 w-4" />
-                  {t("events.hero.ctaSecondary")}
+                  {cms.getText("hero.cta.secondary", t("events.hero.ctaSecondary"))}
                 </Button>
               </>
             }
+          />
+        </CmsBlock>
+        ) : null}
+
+        {filtersEnabled ? (
+          <CmsBlock
+            pageId="events"
+            blockId="filters"
+            as="section"
+            className={`${heroEnabled ? "-mt-12" : "pt-8"} relative z-10 app-container content-max pb-6`}
           >
-            <div className="mt-4 flex w-full flex-wrap items-center justify-center gap-4">
+            <div className="flex w-full flex-wrap items-center justify-center gap-4 rounded-md border border-border bg-card/95 p-4 shadow-sm backdrop-blur">
               <Select
                 value={selectedCategory}
                 onValueChange={(value) => setSelectedCategory(value as EventCategory | "all")}
@@ -222,14 +233,14 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                 </SelectContent>
               </Select>
             </div>
-          </LiveStyleHero>
-        </section>
+          </CmsBlock>
+        ) : null}
 
-        {featuredEvents.length > 0 ? (
-          <section className="py-12 app-container content-max">
+        {featuredEnabled && featuredEvents.length > 0 ? (
+          <CmsBlock pageId="events" blockId="featured" as="section" className="py-12 app-container content-max">
             <h2 className="mb-8 flex items-center gap-2 text-title font-serif font-semibold">
               <Star className="h-6 w-6 text-primary" />
-              {t("sections.events.featured")}
+              {cms.getText("featured.title", t("sections.events.featured"))}
             </h2>
             <div className="grid-adaptive">
               {featuredEvents.map((event, index) => (
@@ -246,7 +257,7 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                     locale={locale}
                     href={getEventHref(event)}
                     categoryLabel={getEventCategoryLabel(event.category as EventCategory)}
-                    featuredLabel={t("sections.events.featuredBadge")}
+                    featuredLabel={cms.getText("featured.badge", t("sections.events.featuredBadge"))}
                     showFeaturedBadge
                     imageFallback={PIXABAY_EVENT_IMAGE_FALLBACK}
                     isFavorite={isFavorite(event)}
@@ -256,20 +267,26 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
                 </m.div>
               ))}
             </div>
-          </section>
+          </CmsBlock>
         ) : null}
 
-        <section id="events-listings" className="scroll-mt-28 py-12 app-container content-max">
+        {timelineEnabled ? (
+        <CmsBlock pageId="events" blockId="timeline" as="section" className="scroll-mt-28 py-12 app-container content-max">
+          <div id="events-listings" className="scroll-mt-28">
           <h2 className="mb-8 text-title font-serif font-semibold">
-            {t("common.upcomingEvents")}
+            {cms.getText("timeline.title", t("common.upcomingEvents"))}
           </h2>
 
           {Object.entries(eventsByMonth).length === 0 ? (
             <Card className="border-border bg-card">
               <CardContent className="py-16 text-center">
                 <Calendar className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
-                <h3 className="mb-2 text-xl font-serif font-semibold">{t("sections.events.noUpcoming")}</h3>
-                <p className="text-muted-foreground">{t("sections.events.noUpcomingHint")}</p>
+                <h3 className="mb-2 text-xl font-serif font-semibold">
+                  {cms.getText("timeline.emptyTitle", t("sections.events.noUpcoming"))}
+                </h3>
+                <p className="text-muted-foreground">
+                  {cms.getText("timeline.emptyDescription", t("sections.events.noUpcomingHint"))}
+                </p>
               </CardContent>
             </Card>
           ) : (
@@ -320,7 +337,9 @@ function EventsClientInner({ initialEvents, initialGlobalSettings }: EventsClien
               </aside>
             </div>
           )}
-        </section>
+          </div>
+        </CmsBlock>
+        ) : null}
       </main>
 
       {tripPlannerOpen ? (

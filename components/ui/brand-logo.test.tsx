@@ -99,13 +99,24 @@ describe("BrandLogo", () => {
     );
   });
 
-  it("allows overriding the official wordmark segment for hero overlays", () => {
+  it("keeps the official wordmark segment black", () => {
     mockState.hydrated = true;
     mockState.resolvedTheme = "light";
     mockState.settings = null;
 
-    render(<BrandLogo showIcon={false} asLink={false} officialClassName="text-white" />);
+    render(<BrandLogo showIcon={false} asLink={false} />);
 
-    expect(screen.getByText("Official")).toHaveClass("text-white");
+    expect(screen.getByText("Official")).toHaveClass("text-black");
+  });
+
+  it("renders the wordmark with bold weight by default", () => {
+    mockState.hydrated = true;
+    mockState.resolvedTheme = "light";
+    mockState.settings = null;
+
+    render(<BrandLogo showIcon={false} asLink={false} />);
+
+    expect(screen.getByText("Algarve").parentElement).toHaveClass("font-bold");
+    expect(screen.getByText("Algarve").parentElement).not.toHaveClass("font-normal");
   });
 });

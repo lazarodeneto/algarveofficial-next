@@ -27,6 +27,7 @@ import { HeaderWeatherPill, type HeaderWeatherLocation } from "./HeaderWeatherPi
 import { MobileBottomNav } from "./MobileBottomNav";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { cn } from "@/lib/utils";
+import { useMobileChromeScrollState } from "@/hooks/useMobileChromeScrollState";
 
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
@@ -46,6 +47,7 @@ const SIDEBAR_EXCLUDED_PREFIXES = ["/admin", "/owner", "/dashboard"];
 export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
   const { isAuthenticated, user, logout, getDashboardPath } = useAuth();
+  const { isUserScrolling } = useMobileChromeScrollState();
   const { t } = useTranslation();
   const l = useLocalePath();
   const pathname = usePathname() ?? "/";
@@ -71,7 +73,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const isHeroHeader = isHomepage && !isScrolled;
-  const logoOfficialOverlayClass = isHeroHeader ? "text-white" : undefined;
 
   // Mirror mobile menu state to DOM for CSS failsafe (production caching workaround)
   useEffect(() => {
@@ -163,7 +164,10 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
       {searchOpen ? <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} /> : null}
 
       <header
-        className="site-header fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300 ease-out lg:left-20"
+        className={cn(
+          "site-header fixed top-0 left-0 right-0 z-50 transition-[transform,background-color,border-color,box-shadow,backdrop-filter] duration-200 ease-out lg:left-20 lg:translate-y-0",
+          isUserScrolling && !mobileMenuOpen && "-translate-y-full",
+        )}
       >
         <div
           className={cn(
@@ -185,7 +189,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   size="md"
                   showIcon
                   className="whitespace-nowrap"
-                  officialClassName={logoOfficialOverlayClass}
                 />
               </div>
               <div className="hidden items-center justify-center lg:flex min-[1440px]:hidden">
@@ -194,15 +197,10 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   showIcon={!isLeftSidebarActive}
                   className="whitespace-nowrap gap-1.5"
                   iconClassName="h-5 w-5"
-                  officialClassName={logoOfficialOverlayClass}
                 />
               </div>
               <div className="hidden min-[1440px]:block">
-                <BrandLogo
-                  size="md"
-                  className="whitespace-nowrap"
-                  officialClassName={logoOfficialOverlayClass}
-                />
+                <BrandLogo size="md" className="whitespace-nowrap" />
               </div>
             </div>
 

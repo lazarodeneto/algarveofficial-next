@@ -884,6 +884,8 @@ export const CMS_BLOCK_ID_ALIASES_BY_PAGE: Record<string, Record<string, string>
   },
 };
 
+const CMS_RETIRED_BLOCK_IDS_BY_PAGE: Record<string, ReadonlySet<string>> = {};
+
 export const CMS_CONTRACT_ENFORCED_PAGE_IDS: string[] = [
   "home",
   "blog",
@@ -962,6 +964,10 @@ export function resolveCmsBlockId(pageId: string, blockId: string): string | nul
 
   const aliasExists = definition.blocks.some((block) => block.id === alias);
   return aliasExists ? alias : null;
+}
+
+function isRetiredCmsBlockId(pageId: string, blockId: string): boolean {
+  return CMS_RETIRED_BLOCK_IDS_BY_PAGE[pageId]?.has(blockId) ?? false;
 }
 
 function normalizeCmsBlockConfig(input: unknown): CmsBlockConfig {
@@ -1049,6 +1055,7 @@ export function normalizeCmsPageConfigs(
 
         const resolvedBlockId = resolveCmsBlockId(pageId, rawSectionId);
         if (!resolvedBlockId) {
+          if (isRetiredCmsBlockId(pageId, rawSectionId)) return;
           options?.onIssue?.({
             kind: "unknown-block-id",
             pageId,
@@ -1078,6 +1085,7 @@ export function normalizeCmsPageConfigs(
       Object.entries(rawPage.blocks).forEach(([rawBlockId, rawBlock]) => {
         const resolvedBlockId = resolveCmsBlockId(pageId, rawBlockId);
         if (!resolvedBlockId) {
+          if (isRetiredCmsBlockId(pageId, rawBlockId)) return;
           options?.onIssue?.({
             kind: "unknown-block-id",
             pageId,

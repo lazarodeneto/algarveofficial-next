@@ -4,6 +4,7 @@ import type { CSSProperties, ElementType, ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { m } from "framer-motion";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { Search, Clock } from "lucide-react";
 
@@ -12,8 +13,6 @@ import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/card";
-import { BrandLogo } from "@/components/ui/brand-logo";
 import { BlogFeaturedImage } from "@/components/blog/BlogFeaturedImage";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -23,22 +22,17 @@ import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
 import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
 import { resolveHero } from "@/lib/cms/resolve-hero";
-import type { BlogPageConfig } from "@/lib/blog-cms";
 import { getKnownBlogCategoryLabel } from "@/lib/blog/localization";
-import {
-  CMS_GLOBAL_SETTING_KEYS,
-  normalizeCmsPageConfigs,
-  type CmsTextOverrideMap,
-} from "@/lib/cms/pageBuilderRegistry";
+import { type CmsPageConfig } from "@/lib/cms/pageBuilderRegistry";
 import { blogCategoryLabels, type BlogCategory } from "@/hooks/useBlogPosts";
 import { hideServerShell } from "@/lib/dom/server-shell";
+import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import type {
   PublicBlogAuthorDTO,
   PublicBlogGlobalSettingDTO,
   PublicBlogPostDTO,
 } from "@/lib/public-data/blog";
 
-const BLOG_AUTHOR_NAME = "AlgarveOfficial";
 const BLOG_HERO_SURFACE_CLASS =
   "h-auto min-h-[calc(100svh-4.5rem)] max-h-none py-7 pb-[calc(7rem+env(safe-area-inset-bottom))] sm:h-[620px] sm:min-h-[620px] sm:py-0 sm:pb-0 lg:h-[680px] lg:max-h-[760px]";
 const BLOG_HERO_CONTENT_CLASS =
@@ -56,7 +50,7 @@ export interface BlogClientProps {
   initialPosts: BlogPostRow[];
   initialAuthors: BlogAuthor[];
   initialGlobalSettings: BlogGlobalSetting[];
-  pageConfig?: BlogPageConfig | null;
+  pageConfig?: CmsPageConfig | null;
 }
 
 const BLOG_TRANSLATION_KEYS: Record<BlogCategory, string> = {
@@ -77,88 +71,10 @@ function normalizeBlogLocale(language: string | undefined): string {
   return normalized;
 }
 
-function parseJsonSetting<T>(raw: string | undefined, fallback: T): T {
-  if (!raw) return fallback;
-  try {
-    const parsed = JSON.parse(raw);
-    return parsed ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function isPlainRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function normalizeTextOverrides(input: unknown): CmsTextOverrideMap {
-  if (!isPlainRecord(input)) return {};
-
-  const normalized: CmsTextOverrideMap = {};
-  Object.entries(input).forEach(([key, value]) => {
-    if (typeof value === "string") {
-      normalized[key.trim()] = value;
-    }
-  });
-
-  return normalized;
-}
-
-function useBlogCmsHelpers(globalSettings: BlogGlobalSetting[]) {
-  return useMemo(() => {
-    const settingMap = globalSettings.reduce<Record<string, string>>((acc, setting) => {
-      acc[setting.key] = setting.value ?? "";
-      return acc;
-    }, {});
-
-    const textOverrides = normalizeTextOverrides(
-      parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.textOverrides], {}),
-    );
-    const pageConfigs = normalizeCmsPageConfigs(
-      parseJsonSetting(settingMap[CMS_GLOBAL_SETTING_KEYS.pageConfigs], {}),
-    );
-    const pageConfig = pageConfigs.blog ?? {};
-    const blocks = pageConfig.blocks ?? {};
-    const pageText = pageConfig.text ?? {};
-
-    const isBlockEnabled = (blockId: string, fallback = true) => {
-      const configured = blocks[blockId]?.enabled;
-      return typeof configured === "boolean" ? configured : fallback;
-    };
-
-    const getBlockClassName = (blockId: string) => {
-      const className = blocks[blockId]?.className;
-      return typeof className === "string" ? className : "";
-    };
-
-    const getBlockStyle = (blockId: string): CSSProperties => {
-      const style = blocks[blockId]?.style;
-      if (!style || typeof style !== "object") return {};
-      return style as CSSProperties;
-    };
-
-    const getText = (textKey: string, fallback: string) =>
-      pageText[textKey] ??
-      textOverrides[`blog.${textKey}`] ??
-      textOverrides[textKey] ??
-      fallback;
-
-    const getMetaTitle = (fallback: string) =>
-      pageConfig.meta?.title ?? getText("meta.title", getText("seo.title", fallback));
-
-    const getMetaDescription = (fallback: string) =>
-      pageConfig.meta?.description ?? getText("meta.description", getText("seo.description", fallback));
-
-    return {
-      getText,
-      getMetaTitle,
-      getMetaDescription,
-      isBlockEnabled,
-      getBlockClassName,
-      getBlockStyle,
-    };
-  }, [globalSettings]);
-}
+type BlogCmsHelpers = Pick<
+  ReturnType<typeof useCmsPageBuilder>,
+  "getText" | "isBlockEnabled" | "getBlockClassName" | "getBlockStyle"
+>;
 
 function BlogCmsBlock({
   blockId,
@@ -175,7 +91,7 @@ function BlogCmsBlock({
   style?: CSSProperties;
   as?: ElementType;
   defaultEnabled?: boolean;
-  cms: ReturnType<typeof useBlogCmsHelpers>;
+  cms: BlogCmsHelpers;
 }) {
   if (!cms.isBlockEnabled(blockId, defaultEnabled)) {
     return null;
@@ -201,19 +117,24 @@ function mergePostsWithAuthors(posts: BlogPostRow[], authors: BlogAuthor[]): Blo
   }));
 }
 
-function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, pageConfig }: BlogClientProps) {
+function BlogClientInner({ initialPosts, initialAuthors, pageConfig }: BlogClientProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
   const locale = normalizeBlogLocale(useCurrentLocale());
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const searchParamQuery = searchParams.get("tag") ?? searchParams.get("q") ?? "";
+  const [searchQuery, setSearchQuery] = useState(searchParamQuery);
   const [selectedCategory, setSelectedCategory] = useState<BlogCategory | "all">("all");
+
+  useEffect(() => {
+    setSearchQuery(searchParamQuery);
+  }, [searchParamQuery]);
 
   const mergedInitialPosts = useMemo(
     () => mergePostsWithAuthors(initialPosts, initialAuthors),
     [initialAuthors, initialPosts],
   );
 
-  const globalSettings = initialGlobalSettings;
   const posts = useMemo(
     () =>
       selectedCategory === "all"
@@ -222,8 +143,9 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
     [mergedInitialPosts, selectedCategory],
   );
 
-  const cms = useBlogCmsHelpers(globalSettings);
-  const serverHero = resolveHero(pageConfig as Parameters<typeof resolveHero>[0] ?? null);
+  const cms = useCmsPageBuilder("blog");
+  const activePageConfig = Object.keys(cms.pageConfig).length > 0 ? cms.pageConfig : pageConfig ?? {};
+  const serverHero = resolveHero(activePageConfig as Parameters<typeof resolveHero>[0] ?? null);
   const categories = Object.entries(blogCategoryLabels) as [BlogCategory, string][];
 
   const getCategoryLabel = (category: BlogCategory, post?: BlogPostRow) =>
@@ -241,16 +163,21 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
     );
   }, [posts, searchQuery]);
 
-  const featuredPost = filteredPosts[0];
-  const remainingPosts = filteredPosts.slice(1);
+  const showHero = cms.isBlockEnabled("hero", true);
+  const showSearch = cms.isBlockEnabled("search", true);
+  const showFeaturedPost = cms.isBlockEnabled("featured-post", false);
+  const featuredPost = showFeaturedPost ? filteredPosts[0] ?? null : null;
+  const gridPosts = featuredPost ? filteredPosts.slice(1) : filteredPosts;
+  const showPostsGrid = cms.isBlockEnabled("posts-grid", true);
+  const shouldRenderPostsGrid = showPostsGrid && (filteredPosts.length === 0 || gridPosts.length > 0);
 
   return (
     <div className="min-h-screen bg-background" data-cms-page="blog">
       <Header />
-      {!cms.isBlockEnabled("hero", true) && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
+      {!showHero && <div className="h-[4.5rem] sm:h-20" aria-hidden="true" />}
 
       <main>
-        {cms.isBlockEnabled("hero", true) ? (
+        {showHero ? (
           <BlogCmsBlock
             blockId="hero"
             as="section"
@@ -289,19 +216,30 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                   </Link>
                 </>
               }
-            >
-              <div className="relative mx-auto mt-3 max-w-xl sm:mt-4">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            />
+          </BlogCmsBlock>
+        ) : null}
+
+        {showSearch ? (
+          <BlogCmsBlock
+            blockId="search"
+            as="section"
+            cms={cms}
+            className={`${showHero ? "-mt-16 pb-4" : "pt-6 pb-4"} relative z-10 app-container content-max`}
+          >
+            <div className="rounded-md border border-border/70 bg-card/95 p-4 shadow-sm backdrop-blur sm:p-5">
+              <div className="relative mx-auto max-w-xl">
+                <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="text"
                   placeholder={cms.getText("search.placeholder", t("blog.searchPlaceholder"))}
                   value={searchQuery}
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  className="h-11 border-border bg-card pl-12 text-base text-foreground sm:h-12 sm:text-lg"
+                  className="h-11 border-border bg-background pl-12 text-base text-foreground sm:h-12 sm:text-lg"
                 />
               </div>
 
-              <div className="-mx-4 mt-3 flex max-w-none justify-start gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-auto sm:mt-4 sm:max-w-3xl sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
+              <div className="-mx-4 mt-4 flex max-w-none justify-start gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-auto sm:max-w-3xl sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden">
                 <Button
                   variant={selectedCategory === "all" ? "default" : "outline"}
                   size="sm"
@@ -322,69 +260,57 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                   </Button>
                 ))}
               </div>
-            </LiveStyleHero>
+            </div>
           </BlogCmsBlock>
         ) : null}
 
-        {featuredPost && cms.isBlockEnabled("featured-post", true) ? (
-          <BlogCmsBlock blockId="featured-post" as="section" cms={cms} className="py-8 app-container content-max">
-            <m.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <Link href={l(`/blog/${featuredPost.slug}`)}>
-                <Card className="overflow-hidden bg-card border-border hover:border-primary/30 transition-all group">
-                  <div className="grid md:grid-cols-2 gap-0">
-                    <div className="aspect-video md:aspect-auto md:h-full overflow-hidden">
-                      <BlogFeaturedImage
-                        src={featuredPost.featured_image ?? "/placeholder.svg"}
-                        category={featuredPost.category}
-                        alt={featuredPost.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        loading="lazy"
-                      />
+        {featuredPost ? (
+          <BlogCmsBlock
+            blockId="featured-post"
+            as="section"
+            cms={cms}
+            defaultEnabled={false}
+            className="app-container content-max py-8"
+          >
+            <Link href={l(`/blog/${featuredPost.slug}`)} className="group block">
+              <article className="grid overflow-hidden rounded-md border border-border/60 bg-card shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[#C7A35A]/50 hover:shadow-lg lg:grid-cols-[1.08fr_0.92fr]">
+                <div className="relative min-h-[17rem] overflow-hidden">
+                  <BlogFeaturedImage
+                    src={featuredPost.featured_image ?? "/placeholder.svg"}
+                    category={featuredPost.category}
+                    alt={featuredPost.title}
+                    className="h-full w-full object-cover transition-all duration-500 group-hover:scale-105 group-hover:brightness-95"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="flex flex-col justify-center p-6 sm:p-8">
+                  <Badge variant="outline" className="mb-4 w-fit border-[#C7A35A]/40 bg-[#C7A35A]/5 text-xs tracking-wide text-[#C7A35A]">
+                    {getCategoryLabel(featuredPost.category, featuredPost)}
+                  </Badge>
+                  <h2 className="font-serif text-2xl font-light leading-tight text-foreground transition-colors duration-300 group-hover:text-[#C7A35A] sm:text-3xl">
+                    {featuredPost.title}
+                  </h2>
+                  <p className="mt-4 line-clamp-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                    {featuredPost.excerpt}
+                  </p>
+                  <div className="mt-6 flex items-center justify-between border-t border-border/30 pt-4 text-xs text-muted-foreground/70">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5 text-[#C7A35A]/60" />
+                      <span>{featuredPost.reading_time} {cms.getText("posts.readTime", t("blog.readTime"))}</span>
                     </div>
-                    <CardContent className="p-6 md:p-10 flex flex-col justify-center">
-                      <Badge variant="secondary" className="w-fit mb-4">
-                        {getCategoryLabel(featuredPost.category, featuredPost)}
-                      </Badge>
-                      <h2 className="text-2xl md:text-3xl font-serif font-medium mb-4 group-hover:text-primary transition-colors">
-                        {featuredPost.title}
-                      </h2>
-                      <p className="text-muted-foreground mb-6 line-clamp-3">
-                        {featuredPost.excerpt}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                            <BrandLogo
-                              size="sm"
-                              showIcon
-                              showText={false}
-                              asLink={false}
-                              iconClassName="h-4 w-4"
-                            />
-                          </div>
-                          <span>{cms.getText("posts.by", t("blog.by"))} {BLOG_AUTHOR_NAME}</span>
-                        </div>
-                        <span>•</span>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-4 w-4" />
-                          <span>{featuredPost.reading_time} {cms.getText("posts.readTime", t("blog.readTime"))}</span>
-                        </div>
-                      </div>
-                    </CardContent>
+                    <span className="font-medium tracking-wide text-[#C7A35A] transition-transform duration-200 group-hover:translate-x-0.5">
+                      {cms.getText("posts.readMore", t("blog.readMore"))}
+                    </span>
                   </div>
-                </Card>
-              </Link>
-            </m.div>
+                </div>
+              </article>
+            </Link>
           </BlogCmsBlock>
         ) : null}
 
-        {cms.isBlockEnabled("posts-grid", true) ? (
+        {shouldRenderPostsGrid ? (
           <BlogCmsBlock blockId="posts-grid" as="section" cms={cms} className="py-12 app-container content-max">
-            {remainingPosts.length === 0 && !featuredPost ? (
+            {filteredPosts.length === 0 ? (
               <div className="text-center py-16">
                 <h2 className="text-2xl font-serif font-medium text-foreground mb-4">
                   {cms.getText("posts.emptyTitle", t("blog.noPostsTitle"))}
@@ -400,15 +326,15 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                {remainingPosts.map((post, index) => (
+                {gridPosts.map((post, index) => (
                   <m.div
                     key={post.id}
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.1 * (index + 1), duration: 0.5, ease: "easeOut" }}
-                    className="group"
+                    className="group h-full"
                   >
-                    <Link href={l(`/blog/${post.slug}`)}>
+                    <Link href={l(`/blog/${post.slug}`)} className="block h-full">
                       <article className="relative overflow-hidden rounded-md bg-card border border-border/50 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.01] transition-all duration-300 ease-out h-full flex flex-col">
                         <div className="relative aspect-[16/10] overflow-hidden">
                           <BlogFeaturedImage
@@ -424,10 +350,10 @@ function BlogClientInner({ initialPosts, initialAuthors, initialGlobalSettings, 
                           <Badge variant="outline" className="w-fit mb-4 text-xs tracking-wide border-[#C7A35A]/40 text-[#C7A35A] bg-[#C7A35A]/5">
                             {getCategoryLabel(post.category, post)}
                           </Badge>
-                          <h3 className="text-lg font-serif font-light leading-snug mb-3 line-clamp-2 group-hover:text-[#C7A35A] transition-colors duration-300 text-foreground">
+                          <h3 className="text-lg font-serif font-light leading-snug mb-3 line-clamp-2 min-h-[3.1rem] group-hover:text-[#C7A35A] transition-colors duration-300 text-foreground">
                             {post.title}
                           </h3>
-                          <p className="text-sm text-muted-foreground leading-relaxed mb-5 line-clamp-2 flex-1">
+                          <p className="text-sm text-muted-foreground leading-relaxed mb-5 line-clamp-2 min-h-[2.75rem] flex-1">
                             {post.excerpt}
                           </p>
                           <div className="flex items-center justify-between text-xs text-muted-foreground/70 pt-4 border-t border-border/30">
