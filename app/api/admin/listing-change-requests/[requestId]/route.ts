@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { getAdminListingChangeRequestById } from "@/lib/admin/listing-change-requests/queries";
 import { validateListingChangeRequestValue } from "@/lib/admin/listing-change-requests/validation";
+import { notifyListingChangeRequestReviewed } from "@/lib/communication/listing-notifications";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 
 export const runtime = "nodejs";
@@ -115,8 +116,29 @@ export async function PATCH(
       );
     }
 
+    const notification = await notifyListingChangeRequestReviewed({
+      client: auth.writeClient,
+      requestId,
+      status: action === "approve" ? "approved" : "rejected",
+      ownerEmail: changeRequest.owner?.email,
+      ownerName: changeRequest.owner?.name,
+      listingTitle: changeRequest.listing?.name,
+      listingId: changeRequest.listingId,
+      adminNote: note?.trim() || null,
+    }).catch((error) => ({
+      sent: false,
+      skipped: false,
+      reason: error instanceof Error ? error.message : "listing_change_request_notification_failed",
+    }));
+
     return NextResponse.json(
-      { ok: true, result: data },
+      {
+        ok: true,
+        result: data,
+        ...(!notification.sent && !notification.skipped
+          ? { warnings: ["listing_change_request_notification_failed"] }
+          : {}),
+      },
       {
         headers: {
           "Cache-Control": "no-store",
@@ -131,4 +153,3 @@ export async function PATCH(
     );
   }
 }
-

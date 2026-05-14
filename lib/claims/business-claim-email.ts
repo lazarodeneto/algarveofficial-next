@@ -2,7 +2,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
-import { normalizePublicContactEmail, PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
+import { PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
+import {
+  getClaimNotificationRecipients,
+  getDefaultFrom,
+  getDefaultReplyTo,
+  getSiteUrl as getConfiguredSiteUrl,
+} from "@/lib/email/email-config";
+import { sendEmail } from "@/lib/email/send-email";
+import type { EmailRelatedEntityType, EmailTemplateKey } from "@/lib/email/email-types";
 
 type EmailClient = SupabaseClient<Database>;
 
@@ -46,26 +54,31 @@ export interface BusinessClaimEmailContext {
 }
 
 interface EmailJob {
-  to: string;
+  to: string | string[];
   subject: string;
   html: string;
   text: string;
   replyTo?: string | null;
   idempotencyKey: string;
+  templateKey: EmailTemplateKey;
+  relatedEntityType: EmailRelatedEntityType;
+  relatedEntityId: string;
+  metadata?: Record<string, unknown>;
 }
 
 function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, "") || "https://algarveofficial.com";
+  return getConfiguredSiteUrl();
 }
 
 function getTransactionalFromAddress() {
-  return process.env.RESEND_TRANSACTIONAL_FROM?.trim()
+  return getDefaultFrom()
+    || process.env.RESEND_TRANSACTIONAL_FROM?.trim()
     || process.env.EMAIL_FROM?.trim()
     || DEFAULT_TRANSACTIONAL_FROM;
 }
 
 function getReplyToAddress() {
-  return process.env.EMAIL_REPLY_TO?.trim() || PRIMARY_CONTACT_EMAIL;
+  return getDefaultReplyTo() || process.env.EMAIL_REPLY_TO?.trim() || PRIMARY_CONTACT_EMAIL;
 }
 
 function escapeHtml(value: string) {
@@ -217,11 +230,19 @@ function buildClaimantSubmittedEmail(ctx: BusinessClaimEmailContext): EmailJob {
       rows,
       nextStep,
     }),
-    idempotencyKey: `business-claim:${ctx.claimId}:submitted-claimant`,
+    idempotencyKey: `business-claim/${ctx.claimId}/user`,
+    templateKey: "claim_user_confirmation",
+    relatedEntityType: "business_claim",
+    relatedEntityId: ctx.claimId,
+    metadata: {
+      listingId: ctx.listingId,
+      status: ctx.status,
+      selectedTier: ctx.selectedTier,
+    },
   };
 }
 
-function buildAdminSubmittedEmail(ctx: BusinessClaimEmailContext, recipient: string): EmailJob {
+function buildAdminSubmittedEmail(ctx: BusinessClaimEmailContext, recipients: string[]): EmailJob {
   const subject = "New business claim submitted";
   const listingUrl = publicListingUrl(ctx);
   const rows: Array<[string, string]> = [
@@ -233,7 +254,7 @@ function buildAdminSubmittedEmail(ctx: BusinessClaimEmailContext, recipient: str
   const nextStep = "Review the structured claim in the admin dashboard.";
 
   return {
-    to: recipient,
+    to: recipients,
     subject,
     html: emailLayout({
       preview: subject,
@@ -255,7 +276,15 @@ function buildAdminSubmittedEmail(ctx: BusinessClaimEmailContext, recipient: str
       note: listingUrl ? `Public listing: ${listingUrl}` : null,
     }),
     replyTo: ctx.claimantEmail,
-    idempotencyKey: `business-claim:${ctx.claimId}:submitted-admin`,
+    idempotencyKey: `business-claim/${ctx.claimId}/admin`,
+    templateKey: "claim_admin_notification",
+    relatedEntityType: "business_claim",
+    relatedEntityId: ctx.claimId,
+    metadata: {
+      listingId: ctx.listingId,
+      status: ctx.status,
+      selectedTier: ctx.selectedTier,
+    },
   };
 }
 
@@ -305,23 +334,21 @@ function buildReviewEmail(ctx: BusinessClaimEmailContext): EmailJob | null {
       actionUrl: status === "approved" ? ownerDashboardUrl() : undefined,
       note,
     }),
-    idempotencyKey: `business-claim:${ctx.claimId}:${status}-claimant`,
+    idempotencyKey: `business-claim/${ctx.claimId}/review-${status}`,
+    templateKey: "claim_user_confirmation",
+    relatedEntityType: "business_claim",
+    relatedEntityId: ctx.claimId,
+    metadata: {
+      listingId: ctx.listingId,
+      status: ctx.status,
+      selectedTier: ctx.selectedTier,
+    },
   };
 }
 
-async function resolveBusinessClaimAdminRecipient(client: EmailClient) {
-  try {
-    const { data, error } = await client
-      .from("contact_settings")
-      .select("forwarding_email")
-      .eq("id", "default")
-      .maybeSingle();
-
-    if (error) return PRIMARY_CONTACT_EMAIL;
-    return normalizePublicContactEmail(data?.forwarding_email ?? PRIMARY_CONTACT_EMAIL);
-  } catch {
-    return PRIMARY_CONTACT_EMAIL;
-  }
+function resolveBusinessClaimAdminRecipients() {
+  const configured = getClaimNotificationRecipients();
+  return configured.length > 0 ? configured : [PRIMARY_CONTACT_EMAIL];
 }
 
 function getOutboxAlertKey(alert: unknown) {
@@ -355,8 +382,37 @@ async function enqueueBusinessClaimEmailJobs(client: EmailClient, jobs: EmailJob
   let enqueued = 0;
 
   for (const job of jobs) {
+    const recipients = Array.isArray(job.to) ? job.to : [job.to];
+    const directResult = await sendEmail({
+      to: recipients,
+      replyTo: job.replyTo ?? getReplyToAddress(),
+      subject: job.subject,
+      html: job.html,
+      text: job.text,
+      templateKey: job.templateKey,
+      relatedEntityType: job.relatedEntityType,
+      relatedEntityId: job.relatedEntityId,
+      idempotencyKey: job.idempotencyKey,
+      metadata: job.metadata,
+      tags: [
+        { name: "template", value: job.templateKey },
+        { name: "source", value: "business_claim" },
+      ],
+    });
+
+    if (directResult.success) {
+      continue;
+    }
+
+    if (!directResult.skipped) {
+      console.error("Direct business claim email failed; falling back to outbox", {
+        idempotencyKey: job.idempotencyKey,
+        error: directResult.error ?? directResult.reason ?? "unknown",
+      });
+    }
+
     const payload = {
-      to: [job.to],
+      to: recipients,
       from: getTransactionalFromAddress(),
       subject: job.subject,
       html: job.html,
@@ -410,10 +466,10 @@ export async function notifyBusinessClaimSubmitted(
   client: EmailClient,
   context: BusinessClaimEmailContext,
 ) {
-  const adminRecipient = await resolveBusinessClaimAdminRecipient(client);
+  const adminRecipients = resolveBusinessClaimAdminRecipients();
   return enqueueBusinessClaimEmailJobs(client, [
     buildClaimantSubmittedEmail(context),
-    buildAdminSubmittedEmail(context, adminRecipient),
+    buildAdminSubmittedEmail(context, adminRecipients),
   ]);
 }
 

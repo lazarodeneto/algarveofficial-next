@@ -4,12 +4,24 @@ import { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/integrations/supabase/types";
 import { INBOX_CACHE_TAG } from "@/lib/admin/inbox/types";
-import { normalizePublicContactEmail, PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
+import { notifyOwnerListingContactReceived } from "@/lib/communication/listing-notifications";
+import {
+  getContactNotificationRecipients,
+  getDefaultFrom,
+  getSiteUrl,
+} from "@/lib/email/email-config";
+import { sendEmail } from "@/lib/email/send-email";
+import { contactAdminNotificationTemplate } from "@/lib/email/templates/contact-admin-notification";
+import { contactUserConfirmationTemplate } from "@/lib/email/templates/contact-user-confirmation";
 import {
   enquirySchema,
   normalizeEnquiryPayload,
   type EnquiryPayload,
 } from "@/lib/enquiries/schema";
+import {
+  enforceFormAbuseProtection,
+  extractFormAbuseFields,
+} from "@/lib/security/form-abuse-protection";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
@@ -17,18 +29,16 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const MESSAGE_FORWARD_COPY_EMAIL = "lazaro@deneto.ch";
 const RESEND_OUTBOX_PROVIDER = "resend";
 const RESEND_OUTBOX_OPERATION = "resend.send_email";
 const RESEND_OUTBOX_SOURCE = "public-message-forward";
-const RESEND_EMAIL_API_URL = "https://api.resend.com/emails";
 const DEFAULT_TRANSACTIONAL_FROM = "AlgarveOfficial <info@algarveofficial.com>";
 const OUTBOX_WARNING_ENQUEUE_FAILED = "email_delivery_failed";
 const OUTBOX_WARNING_TRIGGER_FAILED = "email_delivery_failed";
 const OUTBOX_WARNING_WORKER_UNHEALTHY = "email_delivery_failed";
 
 type ServiceRoleClient = NonNullable<ReturnType<typeof createServiceRoleClient>>;
-type ListingRow = Pick<Database["public"]["Tables"]["listings"]["Row"], "id" | "name" | "owner_id">;
+type ListingRow = Pick<Database["public"]["Tables"]["listings"]["Row"], "id" | "name" | "owner_id" | "slug">;
 
 function errorResponse(
   status: number,
@@ -49,31 +59,11 @@ function errorResponse(
   );
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function toDisplayValue(value: string | null | undefined) {
-  return value && value.trim().length > 0 ? value.trim() : "Not provided";
-}
-
-function toMultilineHtml(value: string | null | undefined) {
-  return escapeHtml(toDisplayValue(value)).replace(/\n/g, "<br />");
-}
-
 function getTransactionalFromAddress() {
-  return process.env.RESEND_TRANSACTIONAL_FROM?.trim()
+  return getDefaultFrom()
+    || process.env.RESEND_TRANSACTIONAL_FROM?.trim()
     || process.env.EMAIL_FROM?.trim()
     || DEFAULT_TRANSACTIONAL_FROM;
-}
-
-function getResendApiKey() {
-  return process.env.RESEND_API_KEY?.trim() || null;
 }
 
 async function resolveCurrentUserId() {
@@ -107,7 +97,7 @@ async function resolveListing(
   if (!listingId) return null;
   const { data, error } = await writeClient
     .from("listings")
-    .select("id, name, owner_id")
+    .select("id, name, owner_id, slug")
     .eq("id", listingId)
     .maybeSingle();
 
@@ -115,33 +105,30 @@ async function resolveListing(
   return data ?? null;
 }
 
-async function resolveForwardRecipients(writeClient: ServiceRoleClient) {
-  let primary = PRIMARY_CONTACT_EMAIL;
-  try {
-    const { data, error } = await writeClient
-      .from("contact_settings")
-      .select("forwarding_email")
-      .eq("id", "default")
-      .maybeSingle();
-    if (!error) {
-      primary = normalizePublicContactEmail(data?.forwarding_email ?? PRIMARY_CONTACT_EMAIL);
-    }
-  } catch {
-    primary = PRIMARY_CONTACT_EMAIL;
-  }
-
-  return Array.from(
-    new Set([
-      normalizePublicContactEmail(primary),
-      normalizePublicContactEmail(MESSAGE_FORWARD_COPY_EMAIL),
-    ]),
-  );
-}
-
 function getOutboxAlertKey(alert: unknown) {
   if (!alert || typeof alert !== "object") return null;
   const key = (alert as { alert_key?: unknown }).alert_key;
   return typeof key === "string" ? key : null;
+}
+
+function parseMessageSubject(message: string) {
+  const match = message.match(/^Subject:\s*(.+?)\n\n([\s\S]*)$/);
+  if (!match) {
+    return {
+      subject: "Website message",
+      body: message,
+    };
+  }
+
+  return {
+    subject: match[1]?.trim() || "Website message",
+    body: match[2]?.trim() || message,
+  };
+}
+
+function publicListingUrl(listing: ListingRow | null) {
+  if (!listing) return null;
+  return new URL(`/listing/${encodeURIComponent(listing.slug || listing.id)}`, getSiteUrl()).toString();
 }
 
 async function hasOutboxDeliveryAvailabilityIssue(writeClient: ServiceRoleClient) {
@@ -187,124 +174,31 @@ function buildForwardEmail(args: {
   recipients: string[];
 }) {
   const { payload, listing, messageId, threadId, createdAt, recipients } = args;
-  const listingTitle = listing?.name ?? payload.listing_title ?? "Website message";
-  const subject = `New AlgarveOfficial message - ${listingTitle}`;
-  const contextRows = [
-    ["Message ID", messageId],
-    ["Thread ID", threadId],
-    ["Submitted At (UTC)", createdAt],
-    ["Name", payload.name],
-    ["Email", payload.email],
-    ["Phone", payload.phone],
-    ["Listing", listingTitle],
-    ["Listing ID", listing?.id ?? payload.listing_id],
-    ["Agent", payload.agent_name],
-    ["Agent Email", payload.agent_email],
-    ["Context", payload.visit_type],
-  ] as const;
-
-  const htmlRows = contextRows
-    .map(([label, value]) => (
-      `<tr><td style="padding:6px 0;color:#6b7280;width:170px">${escapeHtml(label)}</td><td style="padding:6px 0">${escapeHtml(toDisplayValue(value))}</td></tr>`
-    ))
-    .join("");
-
-  const html = `
-<!DOCTYPE html>
-<html>
-<body style="font-family:sans-serif;color:#111;max-width:680px;margin:0 auto;padding:24px">
-  <h2 style="margin-bottom:6px">New AlgarveOfficial Message</h2>
-  <p style="color:#6b7280;margin-top:0">Forwarded copy for ${escapeHtml(recipients.join(", "))}</p>
-  <table style="border-collapse:collapse;width:100%;margin:16px 0">
-    ${htmlRows}
-  </table>
-  <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0" />
-  <p style="margin:0 0 6px 0;color:#6b7280">Message:</p>
-  <p style="white-space:normal;line-height:1.65;margin:0">${toMultilineHtml(payload.message)}</p>
-</body>
-</html>`.trim();
-
-  const text = [
-    "New AlgarveOfficial Message",
-    "",
-    ...contextRows.map(([label, value]) => `${label}: ${toDisplayValue(value)}`),
-    "",
-    "Message:",
-    payload.message,
-  ].join("\n");
+  const message = parseMessageSubject(payload.message);
+  const listingTitle = listing?.name ?? payload.listing_title ?? null;
+  const template = contactAdminNotificationTemplate({
+    messageId,
+    threadId,
+    senderName: payload.name,
+    senderEmail: payload.email,
+    phone: payload.phone,
+    subjectLabel: message.subject,
+    message: message.body,
+    listingTitle,
+    listingUrl: publicListingUrl(listing),
+    sourceUrl: payload.agent_name ? `Agent: ${payload.agent_name}` : payload.visit_type,
+    submittedAt: createdAt,
+    adminUrl: `/admin/inbox`,
+  });
 
   return {
     to: recipients,
     from: getTransactionalFromAddress(),
-    subject,
-    html,
-    text,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
     reply_to: payload.email,
   };
-}
-
-async function sendForwardEmailDirectly(
-  outboxPayload: ReturnType<typeof buildForwardEmail>,
-  idempotencyKey: string,
-) {
-  const apiKey = getResendApiKey();
-  if (!apiKey) {
-    return { status: "not_configured" as const };
-  }
-
-  try {
-    const response = await fetch(RESEND_EMAIL_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "Idempotency-Key": idempotencyKey,
-      },
-      body: JSON.stringify(outboxPayload),
-    });
-
-    if (response.ok) {
-      return { status: "sent" as const };
-    }
-
-    const responseBody = await response.text().catch(() => "");
-    return {
-      status: "failed" as const,
-      message: responseBody || `Resend responded with HTTP ${response.status}`,
-    };
-  } catch (error) {
-    return {
-      status: "failed" as const,
-      message: error instanceof Error ? error.message : "Resend request failed",
-    };
-  }
-}
-
-async function recordSentForwardEmail(args: {
-  writeClient: ServiceRoleClient;
-  outboxPayload: ReturnType<typeof buildForwardEmail>;
-  idempotencyKey: string;
-  messageId: string;
-}) {
-  const { writeClient, outboxPayload, idempotencyKey, messageId } = args;
-  const { error } = await writeClient
-    .from("external_outbox" as never)
-    .insert({
-      provider: RESEND_OUTBOX_PROVIDER,
-      operation: RESEND_OUTBOX_OPERATION,
-      payload: outboxPayload,
-      source: RESEND_OUTBOX_SOURCE,
-      idempotency_key: idempotencyKey,
-      status: "sent",
-      attempts: 1,
-    } as never);
-
-  if (error) {
-    console.error("Forwarding email was sent, but outbox audit insert failed", {
-      messageId,
-      error: error.message,
-    });
-  }
 }
 
 async function enqueueForwardEmail(args: {
@@ -317,7 +211,13 @@ async function enqueueForwardEmail(args: {
 }) {
   const { writeClient, payload, listing, messageId, threadId, createdAt } = args;
   const warnings: string[] = [];
-  const recipients = await resolveForwardRecipients(writeClient);
+  const recipients = getContactNotificationRecipients();
+  if (recipients.length === 0) {
+    console.error("Public message forwarding has no configured recipients", { messageId });
+    warnings.push(OUTBOX_WARNING_ENQUEUE_FAILED);
+    return warnings;
+  }
+
   const outboxPayload = buildForwardEmail({
     payload,
     listing,
@@ -326,25 +226,37 @@ async function enqueueForwardEmail(args: {
     createdAt,
     recipients,
   });
-  const idempotencyKey = `public-message-forward:${messageId}`;
+  const idempotencyKey = `enquiry/${messageId}/admin`;
 
-  const directDelivery = await sendForwardEmailDirectly(outboxPayload, idempotencyKey);
-  if (directDelivery.status === "sent") {
-    await recordSentForwardEmail({
-      writeClient,
-      outboxPayload,
-      idempotencyKey,
-      messageId,
-    });
+  const directDelivery = await sendEmail({
+    to: recipients,
+    replyTo: payload.email,
+    subject: outboxPayload.subject,
+    html: outboxPayload.html,
+    text: outboxPayload.text,
+    templateKey: "contact_admin_notification",
+    relatedEntityType: "enquiry",
+    relatedEntityId: messageId,
+    idempotencyKey,
+    metadata: {
+      threadId,
+      listingId: listing?.id ?? payload.listing_id ?? null,
+      visitType: payload.visit_type ?? null,
+    },
+    tags: [
+      { name: "template", value: "contact_admin_notification" },
+      { name: "source", value: "enquiry" },
+    ],
+  });
+
+  if (directDelivery.success) {
     return warnings;
   }
 
-  if (directDelivery.status === "failed") {
-    console.error("Direct public message forwarding email failed; falling back to outbox", {
-      messageId,
-      error: directDelivery.message,
-    });
-  }
+  console.error("Direct public message forwarding email failed; falling back to outbox", {
+    messageId,
+    error: directDelivery.error ?? directDelivery.reason ?? "unknown",
+  });
 
   const { error: outboxError } = await writeClient
     .from("external_outbox" as never)
@@ -381,6 +293,47 @@ async function enqueueForwardEmail(args: {
   return Array.from(new Set(warnings));
 }
 
+async function sendContactUserConfirmation(args: {
+  payload: EnquiryPayload;
+  listing: ListingRow | null;
+  messageId: string;
+  createdAt: string;
+}) {
+  const { payload, listing, messageId, createdAt } = args;
+  const parsedMessage = parseMessageSubject(payload.message);
+  const content = contactUserConfirmationTemplate({
+    name: payload.name,
+    subjectLabel: parsedMessage.subject,
+    listingTitle: listing?.name ?? payload.listing_title ?? null,
+  });
+
+  const result = await sendEmail({
+    to: payload.email,
+    subject: content.subject,
+    html: content.html,
+    text: content.text,
+    templateKey: "contact_user_confirmation",
+    relatedEntityType: "enquiry",
+    relatedEntityId: messageId,
+    idempotencyKey: `enquiry/${messageId}/user`,
+    metadata: {
+      listingId: listing?.id ?? payload.listing_id ?? null,
+      submittedAt: createdAt,
+    },
+    tags: [
+      { name: "template", value: "contact_user_confirmation" },
+      { name: "source", value: "enquiry" },
+    ],
+  });
+
+  if (!result.success && !result.skipped) {
+    console.error("Public message confirmation email failed", {
+      messageId,
+      error: result.error ?? result.reason ?? "unknown",
+    });
+  }
+}
+
 function invalidateAdminMessageViews() {
   revalidateTag(INBOX_CACHE_TAG, "max");
   revalidatePath("/admin/inbox");
@@ -409,6 +362,22 @@ export async function POST(request: NextRequest) {
 
   try {
     const payload = normalizeEnquiryPayload(parsed.data);
+    const abuseFields = extractFormAbuseFields(rawBody);
+    const abuse = await enforceFormAbuseProtection({
+      request,
+      client: writeClient,
+      scope: "enquiry",
+      email: payload.email,
+      honeypot: abuseFields.honeypot,
+      submittedAt: abuseFields.submittedAt,
+      maxAttempts: 8,
+      windowSeconds: 60 * 60,
+    });
+
+    if (!abuse.allowed) {
+      return errorResponse(400, "ENQUIRY_REJECTED", "Message could not be processed.");
+    }
+
     const [listing, currentUserId, adminUserId] = await Promise.all([
       resolveListing(writeClient, payload.listing_id),
       resolveCurrentUserId(),
@@ -511,6 +480,29 @@ export async function POST(request: NextRequest) {
       threadId,
       createdAt: message.created_at,
     });
+
+    await sendContactUserConfirmation({
+      payload,
+      listing,
+      messageId: message.id,
+      createdAt: message.created_at,
+    });
+
+    if (listing?.id && ownerId === listing.owner_id) {
+      await notifyOwnerListingContactReceived({
+        client: writeClient,
+        listingId: listing.id,
+        messageId: message.id,
+        senderName: payload.name,
+        senderEmail: payload.email,
+        messagePreview: payload.message,
+      }).catch((error) => {
+        console.error("Owner listing contact notification failed", {
+          messageId: message.id,
+          error: error instanceof Error ? error.message : "unknown",
+        });
+      });
+    }
 
     invalidateAdminMessageViews();
 

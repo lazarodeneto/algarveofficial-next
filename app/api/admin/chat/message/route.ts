@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
+import { notifyUserMessageReceived } from "@/lib/communication/notification-service";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 
 const UUID_PATTERN =
@@ -72,7 +73,24 @@ export async function POST(request: NextRequest) {
     return adminErrorResponse(500, "CHAT_THREAD_UPDATE_FAILED", threadUpdateError.message);
   }
 
-  return NextResponse.json({ ok: true, data: message });
+  const notification = await notifyUserMessageReceived({
+    client: auth.writeClient,
+    threadId,
+    messageId: message.id,
+    messagePreview: messageText,
+  }).catch((error) => ({
+    sent: false,
+    skipped: false,
+    reason: error instanceof Error ? error.message : "message_notification_failed",
+  }));
+
+  return NextResponse.json({
+    ok: true,
+    data: message,
+    ...(!notification.sent && !notification.skipped
+      ? { warnings: ["message_notification_failed"] }
+      : {}),
+  });
 }
 
 export async function DELETE(request: NextRequest) {

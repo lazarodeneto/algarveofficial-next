@@ -3,32 +3,17 @@ import { m } from "framer-motion";
 import { Mail, Loader2, CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-
-// Generate a simple browser fingerprint hash for rate limiting
-async function generateBrowserHash(): Promise<string> {
-  const data = [
-    navigator.userAgent,
-    navigator.language,
-    screen.width,
-    screen.height,
-    new Date().getTimezoneOffset(),
-  ].join("|");
-  
-  const encoder = new TextEncoder();
-  const dataBuffer = encoder.encode(data);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", dataBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
-}
+import { useNewsletterSignup } from "@/hooks/useNewsletterSignup";
 
 export function NewsletterSection() {
   const { t } = useTranslation();
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
+  const [submittedAt, setSubmittedAt] = useState<number | null>(null);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const { subscribe, isSubmitting } = useNewsletterSignup("newsletter");
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,38 +30,25 @@ export function NewsletterSection() {
       return;
     }
 
-    setIsSubmitting(true);
-    
-    try {
-      // Generate a simple hash from browser fingerprint for rate limiting
-      const ipHash = await generateBrowserHash();
-      
-      const { data, error } = await supabase.rpc("subscribe_newsletter", {
-        _email: email.toLowerCase().trim(),
-        _full_name: undefined,
-        _source: "newsletter",
-        _ip_hash: ipHash,
-      });
+    const status = await subscribe({
+      email,
+      honeypot,
+      submittedAt,
+      source: "newsletter",
+    });
 
-      if (error) throw error;
-
-      const result = data as { success: boolean; error?: string; message?: string };
-      
-      if (result.success) {
-        setIsSubscribed(true);
-        toast.success(t('newsletter.welcomeMessage'));
-      } else if (result.error?.includes("Too many requests")) {
-        toast.error(t('newsletter.errorRateLimit'));
-      } else {
-        toast.info(t('newsletter.alreadySubscribed'));
-        setIsSubscribed(true);
-      }
-    } catch (error) {
-      console.error("Subscription error:", error);
-      toast.error(t('newsletter.errorGeneric'));
-    } finally {
-      setIsSubmitting(false);
+    if (status === "rate_limited") {
+      toast.error(t('newsletter.errorRateLimit'));
+      return;
     }
+
+    if (status === "error") {
+      toast.error(t('newsletter.errorGeneric'));
+      return;
+    }
+
+    setIsSubscribed(true);
+    toast.success(t('newsletter.welcomeMessage'));
   };
 
   if (isSubscribed) {
@@ -140,10 +112,20 @@ export function NewsletterSection() {
               <Input
                 type="email"
                 value={email}
+                onFocus={() => setSubmittedAt((value) => value ?? Date.now())}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t('newsletter.placeholder')}
                 className="pl-10 h-12 bg-background border-border/50 focus:border-primary"
                 disabled={isSubmitting}
+              />
+              <input
+                type="text"
+                value={honeypot}
+                onChange={(event) => setHoneypot(event.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                className="hidden"
+                aria-hidden="true"
               />
             </div>
             <Button

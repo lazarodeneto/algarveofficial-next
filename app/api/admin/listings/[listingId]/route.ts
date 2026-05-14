@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import type { Database } from "@/integrations/supabase/types";
+import {
+  notifyListingStatusChanged,
+  notifyListingTierChanged,
+} from "@/lib/communication/listing-notifications";
 import { logAdminMutation } from "@/lib/server/admin-audit-log";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
@@ -11,6 +15,10 @@ import { getDisallowedSlugInputError, getSlugValidationError, normalizeSlug } fr
 
 type ListingUpdate = Database["public"]["Tables"]["listings"]["Update"];
 type ListingUpdateRecord = Record<string, unknown>;
+type ListingLifecycleSnapshot = Pick<
+  Database["public"]["Tables"]["listings"]["Row"],
+  "id" | "status" | "tier" | "is_curated"
+>;
 
 type ListingImageInput = {
   url: string;
@@ -101,6 +109,8 @@ const LISTING_URL_COLUMNS = new Set([
   "tiktok_url",
   "telegram_url",
 ]);
+
+const ADMIN_ONLY_LISTING_FIELDS = ["tier", "is_curated"] as const;
 
 function parseListingImages(raw: unknown): ListingImageInput[] | undefined {
   if (raw === undefined) return undefined;
@@ -204,6 +214,47 @@ export async function PATCH(
   }
   if (typeof body.is_curated === "boolean") {
     updates.is_curated = body.is_curated;
+  }
+
+  let previousLifecycle: ListingLifecycleSnapshot | null = null;
+  const shouldNotifyStatusChange = typeof updates.status === "string";
+  const shouldNotifyTierChange = typeof updates.tier === "string";
+  const adminOnlyFieldsInPayload = ADMIN_ONLY_LISTING_FIELDS.filter((field) =>
+    Object.prototype.hasOwnProperty.call(updates, field),
+  );
+  const shouldCheckAdminOnlyFields = auth.role !== "admin" && adminOnlyFieldsInPayload.length > 0;
+  if (shouldNotifyStatusChange || shouldNotifyTierChange || shouldCheckAdminOnlyFields) {
+    const { data: lifecycle, error: lifecycleError } = await auth.userClient
+      .from("listings")
+      .select("id, status, tier, is_curated")
+      .eq("id", listingId)
+      .maybeSingle();
+
+    if (lifecycleError) {
+      return adminErrorResponse(400, "LISTING_LIFECYCLE_READ_FAILED", lifecycleError.message);
+    }
+
+    if (!lifecycle?.id) {
+      return adminErrorResponse(404, "LISTING_NOT_FOUND", "Listing was not found.");
+    }
+
+    previousLifecycle = lifecycle as ListingLifecycleSnapshot;
+
+    if (shouldCheckAdminOnlyFields) {
+      const changedAdminOnlyField = adminOnlyFieldsInPayload.find(
+        (field) => updates[field] !== previousLifecycle?.[field],
+      );
+
+      if (changedAdminOnlyField) {
+        return adminErrorResponse(
+          403,
+          "AUTH_FORBIDDEN",
+          changedAdminOnlyField === "tier"
+            ? "Only administrators can modify listing tier."
+            : "Only administrators can modify listing curation status.",
+        );
+      }
+    }
   }
 
   if (typeof updates.slug === "string") {
@@ -358,6 +409,49 @@ export async function PATCH(
     return adminErrorResponse(400, "LISTING_READ_FAILED", readError.message);
   }
 
+  const notificationWarnings: string[] = [];
+  if (listing && previousLifecycle) {
+    if (
+      shouldNotifyStatusChange &&
+      typeof listing.status === "string" &&
+      previousLifecycle.status !== listing.status
+    ) {
+      const notification = await notifyListingStatusChanged({
+        client: auth.writeClient,
+        listingId,
+        status: listing.status,
+        previousStatus: previousLifecycle.status,
+      }).catch((error) => ({
+        sent: false,
+        skipped: false,
+        reason: error instanceof Error ? error.message : "listing_status_notification_failed",
+      }));
+      if (!notification.sent && !notification.skipped) {
+        notificationWarnings.push("listing_status_notification_failed");
+      }
+    }
+
+    if (
+      shouldNotifyTierChange &&
+      typeof listing.tier === "string" &&
+      previousLifecycle.tier !== listing.tier
+    ) {
+      const notification = await notifyListingTierChanged({
+        client: auth.writeClient,
+        listingId,
+        tier: listing.tier,
+        previousTier: previousLifecycle.tier,
+      }).catch((error) => ({
+        sent: false,
+        skipped: false,
+        reason: error instanceof Error ? error.message : "listing_tier_notification_failed",
+      }));
+      if (!notification.sent && !notification.skipped) {
+        notificationWarnings.push("listing_tier_notification_failed");
+      }
+    }
+  }
+
   logAdminMutation({
     userId: auth.userId,
     action: "admin.listings.update",
@@ -369,7 +463,11 @@ export async function PATCH(
     },
   });
 
-  return NextResponse.json({ ok: true, data: listing ?? null });
+  return NextResponse.json({
+    ok: true,
+    data: listing ?? null,
+    ...(notificationWarnings.length > 0 ? { warnings: Array.from(new Set(notificationWarnings)) } : {}),
+  });
 }
 
 export async function DELETE(

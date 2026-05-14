@@ -100,15 +100,13 @@ function insertedPayloads(outboxInsert: ReturnType<typeof vi.fn>) {
 
 afterEach(() => {
   vi.clearAllMocks();
-  delete process.env.NEXT_PUBLIC_SITE_URL;
-  delete process.env.EMAIL_FROM;
-  delete process.env.EMAIL_REPLY_TO;
-  delete process.env.RESEND_TRANSACTIONAL_FROM;
+  vi.unstubAllEnvs();
 });
 
 describe("business claim email notifications", () => {
   it("queues claimant and admin emails when a claim is submitted", async () => {
-    process.env.NEXT_PUBLIC_SITE_URL = "https://algarveofficial.test";
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://algarveofficial.test");
+    vi.stubEnv("CLAIM_NOTIFICATION_EMAIL", "claims@algarveofficial.com");
     const emailClient = makeEmailClient();
 
     const warnings = await notifyBusinessClaimSubmitted(
@@ -124,7 +122,7 @@ describe("business claim email notifications", () => {
 
     expect(claimantEmail).toEqual(
       expect.objectContaining({
-        idempotency_key: "business-claim:claim-123:submitted-claimant",
+        idempotency_key: "business-claim/claim-123/user",
         payload: expect.objectContaining({
           to: ["maria@atlantic.example"],
           subject: "We received your AlgarveOfficial business claim",
@@ -141,7 +139,7 @@ describe("business claim email notifications", () => {
 
     expect(adminEmail).toEqual(
       expect.objectContaining({
-        idempotency_key: "business-claim:claim-123:submitted-admin",
+        idempotency_key: "business-claim/claim-123/admin",
         payload: expect.objectContaining({
           to: ["claims@algarveofficial.com"],
           subject: "New business claim submitted",
@@ -153,7 +151,7 @@ describe("business claim email notifications", () => {
   });
 
   it("queues approved claimant email with owner dashboard next step", async () => {
-    process.env.NEXT_PUBLIC_SITE_URL = "https://algarveofficial.test";
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://algarveofficial.test");
     const emailClient = makeEmailClient();
 
     const warnings = await notifyBusinessClaimReview(
@@ -167,7 +165,7 @@ describe("business claim email notifications", () => {
 
     expect(approvedEmail).toEqual(
       expect.objectContaining({
-        idempotency_key: "business-claim:claim-123:approved-claimant",
+        idempotency_key: "business-claim/claim-123/review-approved",
         payload: expect.objectContaining({
           to: ["maria@atlantic.example"],
           subject: "Your AlgarveOfficial business claim was approved",

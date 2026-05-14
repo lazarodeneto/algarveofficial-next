@@ -4,6 +4,10 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import {
+  notifyListingClaimReviewed,
+  notifyListingStatusChanged,
+} from "@/lib/communication/listing-notifications";
 import { createClient as createCookieClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { INBOX_CACHE_TAG, type InboxItem, type InboxSource, type InboxStatus } from "./types";
@@ -331,6 +335,13 @@ export async function approveInboxItem(input: ActionInput): Promise<InboxActionR
         .maybeSingle();
       if (error) return { ok: false, error: error.message };
       if (!data) return { ok: false, error: "Listing is no longer pending review." };
+      await notifyListingStatusChanged({
+        client,
+        listingId: sourceRowId,
+        status: "published",
+        previousStatus: "pending_review",
+        reason: "approved_from_inbox",
+      }).catch(() => null);
     } else if (source === "review_moderation") {
       const { data, error } = await client
         .from("listing_reviews")
@@ -400,6 +411,13 @@ export async function rejectInboxItem(input: RejectInput): Promise<InboxActionRe
         .maybeSingle();
       if (error) return { ok: false, error: error.message };
       if (!data) return { ok: false, error: "Listing is no longer pending review." };
+      await notifyListingStatusChanged({
+        client,
+        listingId: sourceRowId,
+        status: "rejected",
+        previousStatus: "pending_review",
+        reason,
+      }).catch(() => null);
     } else if (source === "review_moderation") {
       const { data, error } = await client
         .from("listing_reviews")
@@ -441,6 +459,12 @@ export async function rejectInboxItem(input: RejectInput): Promise<InboxActionRe
         .maybeSingle();
       if (error) return { ok: false, error: error.message };
       if (!data) return { ok: false, error: "Partner request is no longer pending." };
+      await notifyListingClaimReviewed({
+        client,
+        claimId: sourceRowId,
+        status: "rejected",
+        reason,
+      }).catch(() => null);
     }
     return await upsertInboxArchive(
       client,

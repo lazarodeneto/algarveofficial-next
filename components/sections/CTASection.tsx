@@ -6,6 +6,11 @@ import Image from "next/image";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { cmsText, isSafeHomeCtaHref, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
+const ctaCardTitleStyle = {
+  fontFamily: "var(--font-fira-sans), 'Fira Sans', sans-serif",
+  fontWeight: 700,
+};
+
 export function CTASection({
   copy,
   listingCount,
@@ -47,7 +52,7 @@ export function CTASection({
                 className="group rounded-sm border border-border/70 bg-background/80 p-4 text-left transition-all duration-200 hover:border-primary/45 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 dark:border-white/[0.14] dark:bg-white/[0.08] dark:hover:bg-primary/10"
               >
                 <UserRound className="mx-auto h-5 w-5 text-primary lg:mx-0" strokeWidth={1.8} />
-                <h3 className="mt-3 text-sm font-semibold text-foreground">
+                <h3 className="mt-3 text-[21px] leading-tight text-foreground" style={ctaCardTitleStyle}>
                   {t("sections.homepage.cta.visitorTitle")}
                 </h3>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
@@ -59,7 +64,7 @@ export function CTASection({
                 className="group rounded-sm border border-border/70 bg-background/80 p-4 text-left transition-all duration-200 hover:border-primary/45 hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/45 dark:border-white/[0.14] dark:bg-white/[0.08] dark:hover:bg-primary/10"
               >
                 <Building2 className="mx-auto h-5 w-5 text-primary lg:mx-0" strokeWidth={1.8} />
-                <h3 className="mt-3 text-sm font-semibold text-foreground">
+                <h3 className="mt-3 text-[21px] leading-tight text-foreground" style={ctaCardTitleStyle}>
                   {t("sections.homepage.cta.businessTitle")}
                 </h3>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">

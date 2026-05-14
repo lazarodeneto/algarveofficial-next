@@ -6,6 +6,8 @@ import {
   LISTING_CHANGE_REQUESTS_SETUP_MESSAGE,
   isMissingListingChangeRequestsSchemaError,
 } from "@/lib/admin/listing-change-requests/queries";
+import { notifyListingUpdateSubmittedToAdmin } from "@/lib/communication/listing-notifications";
+import { requireAuthenticatedOwner } from "@/lib/server/owner-auth";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 
@@ -82,13 +84,6 @@ function errorResponse(status: number, code: string, message: string, details?: 
   );
 }
 
-async function getCurrentUser() {
-  const supabase = await createServerClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-  return data.user;
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -146,10 +141,8 @@ function jsonValuesEqual(left: Json, right: Json) {
 }
 
 export async function GET(request: NextRequest) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return errorResponse(401, "AUTH_REQUIRED", "Sign in to view listing change requests.");
-  }
+  const auth = await requireAuthenticatedOwner(request);
+  if ("error" in auth) return auth.error;
 
   const listingId = request.nextUrl.searchParams.get("listingId");
   const parsedListingId = z.string().uuid().safeParse(listingId);
@@ -164,7 +157,7 @@ export async function GET(request: NextRequest) {
     .from("listings")
     .select("id, owner_id")
     .eq("id", parsedListingId.data)
-    .eq("owner_id", user.id)
+    .eq("owner_id", auth.userId)
     .maybeSingle();
 
   if (listingError) {
@@ -179,7 +172,7 @@ export async function GET(request: NextRequest) {
     .from("listing_change_requests")
     .select("id, listing_id, owner_id, field_name, old_value, requested_value, status, reviewed_at, admin_note, created_at, updated_at")
     .eq("listing_id", parsedListingId.data)
-    .eq("owner_id", user.id)
+    .eq("owner_id", auth.userId)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -208,10 +201,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getCurrentUser();
-  if (!user) {
-    return errorResponse(401, "AUTH_REQUIRED", "Sign in before submitting listing change requests.");
-  }
+  const auth = await requireAuthenticatedOwner(request);
+  if ("error" in auth) return auth.error;
 
   let body: unknown = null;
   try {
@@ -238,7 +229,7 @@ export async function POST(request: NextRequest) {
     .from("listings")
     .select(LISTING_SELECT)
     .eq("id", payload.listingId)
-    .eq("owner_id", user.id)
+    .eq("owner_id", auth.userId)
     .maybeSingle();
 
   if (listingError) {
@@ -278,7 +269,7 @@ export async function POST(request: NextRequest) {
     .from("listing_change_requests")
     .select("field_name")
     .eq("listing_id", listing.id)
-    .eq("owner_id", user.id)
+    .eq("owner_id", auth.userId)
     .eq("status", "pending")
     .in("field_name", fieldNames);
 
@@ -304,7 +295,7 @@ export async function POST(request: NextRequest) {
     .insert(
       normalizedChanges.map((change) => ({
         listing_id: listing.id,
-        owner_id: user.id,
+        owner_id: auth.userId,
         field_name: change.fieldName,
         old_value: change.oldValue,
         requested_value: change.requestedValue,
@@ -328,6 +319,16 @@ export async function POST(request: NextRequest) {
 
     return errorResponse(500, "CHANGE_REQUEST_INSERT_FAILED", insertError.message);
   }
+
+  const insertedRows = inserted ?? [];
+  await notifyListingUpdateSubmittedToAdmin({
+    listingId: listing.id,
+    listingTitle: listing.name ?? "Untitled listing",
+    ownerEmail: auth.email,
+    ownerName: auth.email,
+    requestIds: insertedRows.map((row) => row.id),
+    fieldNames: normalizedChanges.map((change) => change.fieldName),
+  }).catch(() => null);
 
   return NextResponse.json({ ok: true, data: inserted ?? [] }, { status: 201 });
 }

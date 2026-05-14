@@ -2,7 +2,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-import { normalizePublicContactEmail, PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
+import { PRIMARY_CONTACT_EMAIL } from "@/lib/contactEmail";
+import { getClaimNotificationRecipients, getDefaultFrom } from "@/lib/email/email-config";
+import { sendEmail } from "@/lib/email/send-email";
+import { claimAdminNotificationTemplate } from "@/lib/email/templates/claim-admin-notification";
+import { claimUserConfirmationTemplate } from "@/lib/email/templates/claim-user-confirmation";
+import {
+  enforceFormAbuseProtection,
+  extractFormAbuseFields,
+} from "@/lib/security/form-abuse-protection";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isValidExternalUrlInput, normalizeExternalUrlForStorage } from "@/lib/url-input";
@@ -55,30 +63,13 @@ function normalizeOptional(value: string | undefined) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
 function requestTypeLabel(requestType: "new-listing" | "claim-business") {
   return requestType === "new-listing" ? "New Listing Request" : "Claim Existing Business";
 }
 
-function toDisplayValue(value: string | null | undefined) {
-  return value && value.trim().length > 0 ? value.trim() : "Not provided";
-}
-
-function toMultilineHtml(value: string | null | undefined) {
-  const normalized = toDisplayValue(value);
-  return escapeHtml(normalized).replace(/\n/g, "<br />");
-}
-
 function getTransactionalFromAddress() {
-  return process.env.RESEND_TRANSACTIONAL_FROM?.trim()
+  return getDefaultFrom()
+    || process.env.RESEND_TRANSACTIONAL_FROM?.trim()
     || process.env.EMAIL_FROM?.trim()
     || DEFAULT_TRANSACTIONAL_FROM;
 }
@@ -86,81 +77,44 @@ function getTransactionalFromAddress() {
 function buildPartnerClaimAlertEmail(args: {
   claimId: string;
   claimCreatedAt: string;
-  recipient: string;
+  recipients: string[];
   payload: z.infer<typeof partnerClaimSchema>;
 }) {
-  const { claimId, claimCreatedAt, recipient, payload } = args;
+  const { claimId, claimCreatedAt, recipients, payload } = args;
   const businessName = payload.businessName.trim();
   const website = normalizeExternalUrlForStorage(payload.businessWebsite);
   const phone = normalizeOptional(payload.phone);
-  const subject = `New Partner Claim — ${businessName} (${requestTypeLabel(payload.requestType)})`;
-  const listingId = payload.listingId ?? "Not provided";
-
-  const html = `
-<!DOCTYPE html>
-<html>
-<body style="font-family:sans-serif;color:#111;max-width:680px;margin:0 auto;padding:24px">
-  <h2 style="margin-bottom:6px">New Partner Claim Submitted</h2>
-  <p style="color:#6b7280;margin-top:0">Immediate alert from AlgarveOfficial partner intake</p>
-  <table style="border-collapse:collapse;width:100%;margin:16px 0">
-    <tr><td style="padding:6px 0;color:#6b7280;width:170px">Claim ID</td><td style="padding:6px 0"><strong>${escapeHtml(claimId)}</strong></td></tr>
-    <tr><td style="padding:6px 0;color:#6b7280">Submitted At (UTC)</td><td style="padding:6px 0">${escapeHtml(claimCreatedAt)}</td></tr>
-    <tr><td style="padding:6px 0;color:#6b7280">Request Type</td><td style="padding:6px 0">${escapeHtml(requestTypeLabel(payload.requestType))}</td></tr>
-    <tr><td style="padding:6px 0;color:#6b7280">Business Name</td><td style="padding:6px 0"><strong>${escapeHtml(businessName)}</strong></td></tr>
-    <tr><td style="padding:6px 0;color:#6b7280">Business Website</td><td style="padding:6px 0">${escapeHtml(toDisplayValue(website))}</td></tr>
-    <tr><td style="padding:6px 0;color:#6b7280">Listing ID</td><td style="padding:6px 0">${escapeHtml(listingId)}</td></tr>
-    <tr><td style="padding:6px 0;color:#6b7280">Contact Name</td><td style="padding:6px 0">${escapeHtml(payload.contactName.trim())}</td></tr>
-    <tr><td style="padding:6px 0;color:#6b7280">Contact Email</td><td style="padding:6px 0"><a href="mailto:${escapeHtml(payload.email.trim())}">${escapeHtml(payload.email.trim())}</a></td></tr>
-    <tr><td style="padding:6px 0;color:#6b7280">Phone</td><td style="padding:6px 0">${escapeHtml(toDisplayValue(phone))}</td></tr>
-  </table>
-  <hr style="border:none;border-top:1px solid #e5e7eb;margin:16px 0" />
-  <p style="margin:0 0 6px 0;color:#6b7280">Business details from submitter:</p>
-  <p style="white-space:normal;line-height:1.65;margin:0">${toMultilineHtml(payload.message)}</p>
-</body>
-</html>`.trim();
-
-  const text = [
-    "New Partner Claim Submitted",
-    "",
-    `Claim ID: ${claimId}`,
-    `Submitted At (UTC): ${claimCreatedAt}`,
-    `Request Type: ${requestTypeLabel(payload.requestType)}`,
-    `Business Name: ${businessName}`,
-    `Business Website: ${toDisplayValue(website)}`,
-    `Listing ID: ${listingId}`,
-    `Contact Name: ${payload.contactName.trim()}`,
-    `Contact Email: ${payload.email.trim()}`,
-    `Phone: ${toDisplayValue(phone)}`,
-    "",
-    "Business details from submitter:",
-    payload.message.trim(),
-  ].join("\n");
+  const template = claimAdminNotificationTemplate({
+    claimId,
+    requestType: requestTypeLabel(payload.requestType),
+    businessName,
+    claimantName: payload.contactName.trim(),
+    claimantEmail: payload.email.trim(),
+    claimantPhone: phone,
+    claimantRole: payload.requestType === "claim-business" ? "Business owner or representative" : "New listing requester",
+    message: payload.message.trim(),
+    proof: website,
+    listingTitle: payload.listingId ? businessName : null,
+    listingUrl: payload.listingId ? `/listing/${payload.listingId}` : null,
+    submittedAt: claimCreatedAt,
+    adminUrl: `/admin/claims`,
+  });
 
   return {
-    to: [recipient],
+    to: recipients,
     from: getTransactionalFromAddress(),
-    subject,
-    html,
-    text,
+    subject: template.subject,
+    html: template.html,
+    text: template.text,
     reply_to: payload.email.trim(),
   };
 }
 
 type ServiceRoleClient = NonNullable<ReturnType<typeof createServiceRoleClient>>;
 
-async function resolvePartnerClaimAlertRecipient(writeClient: ServiceRoleClient) {
-  try {
-    const { data, error } = await writeClient
-      .from("contact_settings")
-      .select("forwarding_email")
-      .eq("id", "default")
-      .maybeSingle();
-
-    if (error) return PRIMARY_CONTACT_EMAIL;
-    return normalizePublicContactEmail(data?.forwarding_email ?? PRIMARY_CONTACT_EMAIL);
-  } catch {
-    return PRIMARY_CONTACT_EMAIL;
-  }
+function resolvePartnerClaimAlertRecipients() {
+  const configured = getClaimNotificationRecipients();
+  return configured.length > 0 ? configured : [PRIMARY_CONTACT_EMAIL];
 }
 
 function getOutboxAlertKey(alert: unknown) {
@@ -272,6 +226,22 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = parsed.data;
+  const abuseFields = extractFormAbuseFields(body);
+  const abuse = await enforceFormAbuseProtection({
+    request,
+    client: writeClient,
+    scope: "partner_claim",
+    email: payload.email,
+    honeypot: abuseFields.honeypot,
+    submittedAt: abuseFields.submittedAt,
+    maxAttempts: 5,
+    windowSeconds: 60 * 60,
+  });
+
+  if (!abuse.allowed) {
+    return errorResponse(400, "PARTNER_CLAIM_REJECTED", "Claim request could not be processed.");
+  }
+
   const listingReferenceError = await validateClaimListingReference(writeClient, payload);
   if (listingReferenceError) return listingReferenceError;
 
@@ -299,23 +269,86 @@ export async function POST(request: NextRequest) {
   }
 
   const warnings: string[] = [];
-  const alertRecipient = await resolvePartnerClaimAlertRecipient(writeClient);
+  const alertRecipients = resolvePartnerClaimAlertRecipients();
   const outboxPayload = buildPartnerClaimAlertEmail({
     claimId: data.id,
     claimCreatedAt: data.created_at,
-    recipient: alertRecipient,
+    recipients: alertRecipients,
     payload,
+  });
+  const adminIdempotencyKey = `listing-claim/${data.id}/admin`;
+
+  const adminEmailResult = await sendEmail({
+    to: alertRecipients,
+    replyTo: payload.email.trim(),
+    subject: outboxPayload.subject,
+    html: outboxPayload.html,
+    text: outboxPayload.text,
+    templateKey: "claim_admin_notification",
+    relatedEntityType: "listing_claim",
+    relatedEntityId: data.id,
+    idempotencyKey: adminIdempotencyKey,
+    metadata: {
+      requestType: payload.requestType,
+      listingId: payload.listingId ?? null,
+    },
+    tags: [
+      { name: "template", value: "claim_admin_notification" },
+      { name: "source", value: "listing_claim" },
+    ],
+  });
+
+  const userTemplate = claimUserConfirmationTemplate({
+    claimantName: payload.contactName.trim(),
+    businessName: payload.businessName.trim(),
+    claimId: data.id,
+    listingUrl: payload.listingId ? `/listing/${payload.listingId}` : null,
+  });
+
+  const userEmailResult = await sendEmail({
+    to: payload.email.trim(),
+    subject: userTemplate.subject,
+    html: userTemplate.html,
+    text: userTemplate.text,
+    templateKey: "claim_user_confirmation",
+    relatedEntityType: "listing_claim",
+    relatedEntityId: data.id,
+    idempotencyKey: `listing-claim/${data.id}/user`,
+    metadata: {
+      requestType: payload.requestType,
+      listingId: payload.listingId ?? null,
+    },
+    tags: [
+      { name: "template", value: "claim_user_confirmation" },
+      { name: "source", value: "listing_claim" },
+    ],
+  });
+
+  if (!userEmailResult.success && !userEmailResult.skipped) {
+    console.error("Partner claim confirmation email failed", {
+      claimId: data.id,
+      error: userEmailResult.error ?? userEmailResult.reason ?? "unknown",
+    });
+  }
+
+  if (adminEmailResult.success) {
+    return NextResponse.json({ ok: true, data }, { status: 201 });
+  }
+
+  console.error("Direct partner claim alert email failed; falling back to outbox", {
+    claimId: data.id,
+    error: adminEmailResult.error ?? adminEmailResult.reason ?? "unknown",
   });
 
   const { error: outboxError } = await writeClient
     .from("external_outbox" as never)
     .insert({
       provider: RESEND_OUTBOX_PROVIDER,
-      operation: RESEND_OUTBOX_OPERATION,
-      payload: outboxPayload,
-      source: RESEND_OUTBOX_SOURCE,
-      idempotency_key: `partner-claim-alert:${data.id}`,
-    } as never);
+        operation: RESEND_OUTBOX_OPERATION,
+        payload: outboxPayload,
+        source: RESEND_OUTBOX_SOURCE,
+        idempotency_key: adminIdempotencyKey,
+      } as never);
 
   if (outboxError) {
     console.error("Failed to enqueue partner claim email alert", {

@@ -38,6 +38,8 @@ export function NewsletterSignupPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [email, setEmail] = useState("");
+  const [honeypot, setHoneypot] = useState("");
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const hasMarketingConsent = canUseCategory("marketing");
 
   const isEligiblePath = useMemo(
@@ -90,7 +92,11 @@ export function NewsletterSignupPopup() {
     async (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
-      const status = await subscribe({ email });
+      const status = await subscribe({
+        email,
+        honeypot,
+        submittedAt: startedAt,
+      });
 
       if (status === "empty_email") {
         toast.error(t("newsletter.errorEmpty"));
@@ -123,7 +129,7 @@ export function NewsletterSignupPopup() {
           : t("newsletter.welcomeMessage"),
       );
     },
-    [email, subscribe, t],
+    [email, honeypot, startedAt, subscribe, t],
   );
 
   if (!isOpen || !isEligiblePath || !isLoaded || !hasMarketingConsent) return null;
@@ -205,11 +211,21 @@ export function NewsletterSignupPopup() {
                 <Input
                   type="email"
                   value={email}
+                  onFocus={() => setStartedAt((value) => value ?? Date.now())}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder={t("newsletter.placeholder")}
                   autoComplete="email"
                   className="h-12 pl-10"
                   disabled={isSubmitting}
+                />
+                <input
+                  type="text"
+                  value={honeypot}
+                  onChange={(event) => setHoneypot(event.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
                 />
               </div>
               <Button type="submit" variant="gold" size="lg" className="h-12 w-full" disabled={isSubmitting}>

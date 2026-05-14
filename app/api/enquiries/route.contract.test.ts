@@ -22,7 +22,10 @@ describe("public enquiry delivery", () => {
   it("persists public messages to chat and enqueues the forwarding copy", () => {
     const source = readFileSync(ROUTE_PATH, "utf8");
 
-    expect(source).toContain('MESSAGE_FORWARD_COPY_EMAIL = "lazaro@deneto.ch"');
+    expect(source).toContain("getContactNotificationRecipients");
+    expect(source).toContain("contactAdminNotificationTemplate");
+    expect(source).toContain("contactUserConfirmationTemplate");
+    expect(source).toContain("sendEmail");
     expect(source).toContain('.from("chat_threads")');
     expect(source).toContain('.from("chat_messages")');
     expect(source).toContain('.from("external_outbox" as never)');

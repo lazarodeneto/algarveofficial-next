@@ -1,9 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({
   createServiceRoleClient: vi.fn(),
   createServerClient: vi.fn(),
+  sendEmail: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/service", () => ({
@@ -12,6 +13,10 @@ vi.mock("@/lib/supabase/service", () => ({
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: mocks.createServerClient,
+}));
+
+vi.mock("@/lib/email/send-email", () => ({
+  sendEmail: mocks.sendEmail,
 }));
 
 vi.mock("next/cache", () => ({
@@ -163,6 +168,18 @@ function mockGuestAuth() {
   });
 }
 
+beforeEach(() => {
+  vi.stubEnv("CONTACT_NOTIFICATION_EMAIL", "alerts@algarveofficial.com");
+  mocks.sendEmail.mockResolvedValue({
+    success: false,
+    provider: "resend",
+    providerEmailId: null,
+    error: null,
+    skipped: true,
+    reason: "email_not_configured",
+  });
+});
+
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.unstubAllGlobals();
@@ -241,23 +258,33 @@ describe("enquiry route runtime", () => {
         provider: "resend",
         operation: "resend.send_email",
         source: "public-message-forward",
-        idempotency_key: "public-message-forward:message-1",
+        idempotency_key: "enquiry/message-1/admin",
         payload: expect.objectContaining({
-          to: ["alerts@algarveofficial.com", "lazaro@deneto.ch"],
+          to: ["alerts@algarveofficial.com"],
           from: "AlgarveOfficial <info@algarveofficial.com>",
           subject: expect.stringContaining("Website Contact Form"),
           reply_to: "sender@example.com",
         }),
       }),
     );
+    expect(mocks.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        templateKey: "contact_admin_notification",
+        idempotencyKey: "enquiry/message-1/admin",
+      }),
+    );
     expect(writeClient.spies.rpc).toHaveBeenCalledWith("trigger_process_outbox");
   });
 
-  it("sends the forwarding email directly with Resend when RESEND_API_KEY is configured", async () => {
-    vi.stubEnv("RESEND_API_KEY", "test-resend-key");
-    vi.stubEnv("EMAIL_FROM", "AlgarveOfficial <info@algarveofficial.com>");
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
-    vi.stubGlobal("fetch", fetchMock);
+  it("uses the central email wrapper when direct Resend sending succeeds", async () => {
+    mocks.sendEmail.mockResolvedValue({
+      success: true,
+      provider: "resend",
+      providerEmailId: "email-1",
+      error: null,
+      skipped: false,
+      reason: null,
+    });
     const writeClient = makeWriteClient();
     mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
     mockGuestAuth();
@@ -267,26 +294,14 @@ describe("enquiry route runtime", () => {
 
     expect(response.status).toBe(201);
     expect(payload.warnings).toEqual([]);
-    expect(fetchMock).toHaveBeenCalledWith(
-      "https://api.resend.com/emails",
+    expect(mocks.sendEmail).toHaveBeenCalledWith(
       expect.objectContaining({
-        method: "POST",
-        headers: expect.objectContaining({
-          Authorization: "Bearer test-resend-key",
-          "Content-Type": "application/json",
-          "Idempotency-Key": "public-message-forward:message-1",
-        }),
-        body: expect.stringContaining("sender@example.com"),
+        templateKey: "contact_admin_notification",
+        relatedEntityType: "enquiry",
+        idempotencyKey: "enquiry/message-1/admin",
       }),
     );
-    expect(writeClient.spies.outboxInsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        source: "public-message-forward",
-        idempotency_key: "public-message-forward:message-1",
-        status: "sent",
-        attempts: 1,
-      }),
-    );
+    expect(writeClient.spies.outboxInsert).not.toHaveBeenCalled();
     expect(writeClient.spies.rpc).not.toHaveBeenCalled();
     expect(writeClient.spies.from).not.toHaveBeenCalledWith("admin_external_outbox_health");
   });

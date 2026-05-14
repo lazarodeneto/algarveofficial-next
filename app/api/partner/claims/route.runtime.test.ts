@@ -1,9 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({
   createServiceRoleClient: vi.fn(),
   createServerClient: vi.fn(),
+  sendEmail: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/service", () => ({
@@ -12,6 +13,10 @@ vi.mock("@/lib/supabase/service", () => ({
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: mocks.createServerClient,
+}));
+
+vi.mock("@/lib/email/send-email", () => ({
+  sendEmail: mocks.sendEmail,
 }));
 
 import { POST as postPartnerClaimRoute } from "@/app/api/partner/claims/route";
@@ -135,8 +140,20 @@ function makeWriteClient({
   };
 }
 
+beforeEach(() => {
+  mocks.sendEmail.mockResolvedValue({
+    success: false,
+    provider: "resend",
+    providerEmailId: null,
+    error: null,
+    skipped: true,
+    reason: "email_not_configured",
+  });
+});
+
 afterEach(() => {
   vi.clearAllMocks();
+  vi.unstubAllEnvs();
 });
 
 describe("partner claim route runtime", () => {
@@ -185,6 +202,7 @@ describe("partner claim route runtime", () => {
   });
 
   it("inserts a claim, enqueues outbox email alert, and triggers immediate processing", async () => {
+    vi.stubEnv("CLAIM_NOTIFICATION_EMAIL", "alerts@algarveofficial.com");
     const writeClient = makeWriteClient();
     mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
     const getUser = vi.fn().mockResolvedValue({
@@ -204,7 +222,6 @@ describe("partner claim route runtime", () => {
       }),
     );
     expect(writeClient.spies.from).toHaveBeenCalledWith("listing_claims");
-    expect(writeClient.spies.from).toHaveBeenCalledWith("contact_settings");
     expect(writeClient.spies.from).toHaveBeenCalledWith("external_outbox");
     expect(writeClient.spies.from).toHaveBeenCalledWith("admin_external_outbox_health");
     expect(writeClient.spies.claimInsert).toHaveBeenCalledWith(
@@ -220,13 +237,19 @@ describe("partner claim route runtime", () => {
         provider: "resend",
         operation: "resend.send_email",
         source: "partner-claim-alert",
-        idempotency_key: "partner-claim-alert:claim-1",
+        idempotency_key: "listing-claim/claim-1/admin",
         payload: expect.objectContaining({
           to: ["alerts@algarveofficial.com"],
           from: "AlgarveOfficial <info@algarveofficial.com>",
           subject: expect.stringContaining("Golden Beach Resort"),
           reply_to: "maria@golden-beach.example",
         }),
+      }),
+    );
+    expect(mocks.sendEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        templateKey: "claim_admin_notification",
+        idempotencyKey: "listing-claim/claim-1/admin",
       }),
     );
     expect(writeClient.spies.rpc).toHaveBeenCalledWith("trigger_process_outbox");
@@ -453,10 +476,8 @@ describe("partner claim route runtime", () => {
     expect(writeClient.spies.rpc).toHaveBeenCalledWith("trigger_process_outbox");
   });
 
-  it("falls back to primary contact email when forwarding email lookup fails", async () => {
-    const writeClient = makeWriteClient({
-      contactSettingsError: { message: "lookup failed" },
-    });
+  it("falls back to primary contact email when claim notification env is not configured", async () => {
+    const writeClient = makeWriteClient();
     mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
     mocks.createServerClient.mockResolvedValue({
       auth: {

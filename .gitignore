@@ -39,11 +39,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files — never commit these
-.env*
-.env.local
-.env.local.save
-.env.*.local
+# env files — never commit real environment values
+.env
+.env.*
+!.env.example
 
 # Claude Code local settings contain approved command history which may include secrets
 .claude/settings.local.json
@@ -61,6 +60,3 @@ output/
 .codex/
 /*.png
 golf-cards-current.png
-
-.env.local
-.env

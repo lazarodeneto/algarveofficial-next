@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 
 export type NewsletterSignupStatus =
   | "success"
@@ -13,25 +12,11 @@ interface NewsletterSignupPayload {
   email: string;
   fullName?: string | null;
   source?: string;
+  honeypot?: string | null;
+  submittedAt?: number | null;
 }
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-async function generateBrowserHash(): Promise<string> {
-  const data = [
-    navigator.userAgent,
-    navigator.language,
-    screen.width,
-    screen.height,
-    new Date().getTimezoneOffset(),
-  ].join("|");
-
-  const encoder = new TextEncoder();
-  const dataBuffer = encoder.encode(data);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", dataBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((byte) => byte.toString(16).padStart(2, "0")).join("").slice(0, 32);
-}
 
 export function useNewsletterSignup(defaultSource = "newsletter") {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,23 +31,26 @@ export function useNewsletterSignup(defaultSource = "newsletter") {
       setIsSubmitting(true);
 
       try {
-        const ipHash = await generateBrowserHash();
-
-        const { data, error } = await supabase.rpc("subscribe_newsletter", {
-          _email: normalizedEmail,
-          _full_name: payload.fullName ?? undefined,
-          _source: payload.source ?? defaultSource,
-          _ip_hash: ipHash,
+        const response = await fetch("/api/newsletter/subscribe", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify({
+            email: normalizedEmail,
+            fullName: payload.fullName ?? null,
+            source: payload.source ?? defaultSource,
+            source_url: typeof window !== "undefined" ? window.location.href : null,
+            locale: typeof document !== "undefined" ? document.documentElement.lang : null,
+            honeypot: payload.honeypot ?? "",
+            submittedAt: payload.submittedAt ?? null,
+          }),
         });
 
-        if (error) throw error;
+        if (response.status === 429) return "rate_limited";
+        if (!response.ok) return "error";
 
-        const result = data as { success?: boolean; error?: string; message?: string } | null;
-        const message = `${result?.error ?? ""} ${result?.message ?? ""}`.toLowerCase();
-
-        if (result?.success) return "success";
-        if (message.includes("too many requests")) return "rate_limited";
-        return "already_subscribed";
+        return "success";
       } catch (error) {
         console.error("Newsletter signup error:", error);
         return "error";

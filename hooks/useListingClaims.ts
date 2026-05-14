@@ -7,6 +7,27 @@ import {
   invalidateListingMutationQueries,
 } from '@/lib/query-invalidation';
 
+async function sendListingClaimNotification(args: {
+  claimId: string;
+  action: "approved" | "rejected";
+  listingId?: string | null;
+  reason?: string | null;
+}) {
+  try {
+    await fetch(`/api/admin/listing-claims/${encodeURIComponent(args.claimId)}/notification`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        action: args.action,
+        listingId: args.listingId ?? null,
+        reason: args.reason ?? null,
+      }),
+    });
+  } catch (error) {
+    console.warn("Could not send listing claim notification:", error);
+  }
+}
+
 export interface ListingClaim {
   id: string;
   listing_id: string | null;
@@ -161,6 +182,11 @@ export function useUpdateClaimStatus() {
         .eq('id', claimId);
 
       if (error) throw error;
+      await sendListingClaimNotification({
+        claimId,
+        action: status,
+        reason: rejectionReason ?? null,
+      });
     },
     onSuccess: () => {
       void invalidateAdminInboxQueries(queryClient);
@@ -201,6 +227,11 @@ export function useApproveAndAssignClaim() {
       if (!result.success) {
         throw new Error(result.error || 'Failed to approve claim');
       }
+      await sendListingClaimNotification({
+        claimId,
+        action: "approved",
+        listingId,
+      });
       return result;
     },
     onSuccess: async (result, variables) => {

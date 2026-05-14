@@ -3,6 +3,10 @@ import { z } from "zod";
 
 import { notifyBusinessClaimSubmitted } from "@/lib/claims/business-claim-email";
 import { calculateBusinessClaimConfidence } from "@/lib/claims/business-claim-scoring";
+import {
+  enforceFormAbuseProtection,
+  extractFormAbuseFields,
+} from "@/lib/security/form-abuse-protection";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { isValidExternalUrlInput, normalizeExternalUrlForStorage } from "@/lib/url-input";
@@ -103,6 +107,22 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = parsed.data;
+  const abuseFields = extractFormAbuseFields(body);
+  const abuse = await enforceFormAbuseProtection({
+    request,
+    client: writeClient,
+    scope: "business_claim",
+    email: payload.claimantEmail,
+    honeypot: abuseFields.honeypot,
+    submittedAt: abuseFields.submittedAt,
+    maxAttempts: 5,
+    windowSeconds: 60 * 60,
+  });
+
+  if (!abuse.allowed) {
+    return errorResponse(400, "BUSINESS_CLAIM_REJECTED", "Claim request could not be processed.");
+  }
+
   const { data: listing, error: listingError } = await writeClient
     .from("listings")
     .select("id, name, slug, status, claim_status, website_url, contact_phone")

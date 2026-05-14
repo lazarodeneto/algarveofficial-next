@@ -181,12 +181,18 @@ export default function Footer() {
   const { t } = useTranslation();
   const l = useLocalePath();
   const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [newsletterHoneypot, setNewsletterHoneypot] = useState("");
+  const [newsletterStartedAt, setNewsletterStartedAt] = useState<number | null>(null);
   const { subscribe, isSubmitting } = useNewsletterSignup("footer-newsletter");
 
   const handleNewsletterSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const status = await subscribe({ email: newsletterEmail });
+    const status = await subscribe({
+      email: newsletterEmail,
+      honeypot: newsletterHoneypot,
+      submittedAt: newsletterStartedAt,
+    });
 
     if (status === "empty_email") {
       toast.error(t("newsletter.errorEmpty"));
@@ -214,7 +220,8 @@ export default function Footer() {
         : t("newsletter.welcomeMessage"),
     );
     setNewsletterEmail("");
-  }, [newsletterEmail, subscribe, t]);
+    setNewsletterHoneypot("");
+  }, [newsletterEmail, newsletterHoneypot, newsletterStartedAt, subscribe, t]);
 
   // Render a section column
   const renderSection = (
@@ -319,11 +326,21 @@ export default function Footer() {
                   id="footer-newsletter-email"
                   type="email"
                   value={newsletterEmail}
+                  onFocus={() => setNewsletterStartedAt((value) => value ?? Date.now())}
                   onChange={(event) => setNewsletterEmail(event.target.value)}
                   placeholder={t("newsletter.placeholder")}
                   autoComplete="email"
                   className="h-11 min-w-0 text-body-xs"
                   disabled={isSubmitting}
+                />
+                <input
+                  type="text"
+                  value={newsletterHoneypot}
+                  onChange={(event) => setNewsletterHoneypot(event.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                  className="hidden"
+                  aria-hidden="true"
                 />
                 <Button
                   type="submit"

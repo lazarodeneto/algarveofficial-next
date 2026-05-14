@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import type { TablesUpdate } from "@/integrations/supabase/types";
+import { notifyListingTierChanged } from "@/lib/communication/listing-notifications";
 import { adminErrorResponse, requireAdminWriteClient } from "@/lib/server/admin-auth";
 import { validatePayload, jsonErrorResponse } from "@/lib/api/api-validation";
 import { bulkTierUpdateSchema } from "@/lib/forms/admin-schemas";
@@ -50,6 +51,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false, error: "Invalid tier value." }, { status: 400 });
   }
 
+  const { data: currentListings, error: currentListingsError } = await auth.writeClient
+    .from("listings")
+    .select("id, tier")
+    .in("id", ids);
+
+  if (currentListingsError) {
+    return adminErrorResponse(400, "BULK_TIER_READ_FAILED", currentListingsError.message);
+  }
+
   const { error } = await auth.writeClient
     .from("listings")
     .update({ tier: tier as TablesUpdate<"listings">["tier"] })
@@ -59,5 +69,28 @@ export async function POST(request: NextRequest) {
     return adminErrorResponse(400, "BULK_TIER_UPDATE_FAILED", error.message);
   }
 
-  return NextResponse.json({ ok: true, updated: ids.length, tier });
+  const notificationResults = await Promise.allSettled(
+    (currentListings ?? [])
+      .filter((listing) => listing.tier !== tier)
+      .map((listing) =>
+        notifyListingTierChanged({
+          client: auth.writeClient,
+          listingId: listing.id,
+          tier,
+          previousTier: listing.tier,
+        }),
+      ),
+  );
+  const notificationFailures = notificationResults.filter(
+    (item) =>
+      item.status === "rejected" ||
+      (item.status === "fulfilled" && !item.value.sent && !item.value.skipped),
+  ).length;
+
+  return NextResponse.json({
+    ok: true,
+    updated: ids.length,
+    tier,
+    ...(notificationFailures > 0 ? { warnings: ["listing_tier_notification_failed"] } : {}),
+  });
 }

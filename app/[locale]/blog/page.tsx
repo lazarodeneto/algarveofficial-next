@@ -90,6 +90,7 @@ const BLOG_SERVER_KEYS = [
   "serverPages.blog.emptyTitle",
   "serverPages.blog.emptyDescription",
   "serverPages.blog.postsAria",
+  "serverPages.blog.featuredPostAria",
   "serverPages.blog.minRead",
 ] as const;
 
@@ -98,6 +99,7 @@ const BLOG_SERVER_FALLBACK: Record<(typeof BLOG_SERVER_KEYS)[number], string> = 
   "serverPages.blog.emptyTitle": "No published articles yet",
   "serverPages.blog.emptyDescription": "Published AlgarveOfficial stories will appear here.",
   "serverPages.blog.postsAria": "Published blog posts",
+  "serverPages.blog.featuredPostAria": "Featured blog post",
   "serverPages.blog.minRead": "min read",
 };
 
@@ -158,7 +160,7 @@ function BlogServerShell({
         ) : null}
 
         {featuredPost ? (
-          <section className="mb-8" aria-label="Featured blog post">
+          <section className="mb-8" aria-label={blogCopy(copy, "serverPages.blog.featuredPostAria")}>
             <Link
               href={buildLocalizedPath(locale, `/blog/${featuredPost.slug}`)}
               className="group grid overflow-hidden rounded-lg border border-border bg-card shadow-sm transition hover:border-primary/40 lg:grid-cols-[1.05fr_0.95fr]"
