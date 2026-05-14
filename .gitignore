@@ -61,3 +61,6 @@ output/
 .codex/
 /*.png
 golf-cards-current.png
+
+.env.local
+.env
