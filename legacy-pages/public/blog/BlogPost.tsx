@@ -261,6 +261,13 @@ export default function BlogPost({
   const shouldLinkFamilyMentions = shouldLinkFamilyAttractionsInArticle(post.slug);
   const categoryLabel = t(BLOG_TRANSLATION_KEYS[post.category], blogCategoryLabels[post.category]);
   const primaryTopic = post.tags?.[0] ?? categoryLabel;
+  const familyListingsCountLabel = t("blog.familyAttractionListingsCount", {
+    count: familyListings.length,
+    defaultValue: `${familyListings.length} published listing${familyListings.length === 1 ? "" : "s"}`,
+  });
+  const familyDetailsLabel = t("blog.viewAttractionDetails", "View attraction details");
+  const familyRelatedEyebrow = t("blog.relatedFamilyListings", "Related family listings");
+  const familyRelatedTitle = t("blog.familyAttractionsMentioned", "Family attractions mentioned in this article");
   const articleHtml = stripDuplicateArticleTitleHeading(
     formatArticleContent(post.content, post.title),
     post.title,
@@ -500,10 +507,10 @@ export default function BlogPost({
                 activeListingId={activeFamilyListingId}
                 onListingSelect={setActiveFamilyListingId}
                 anchorId="family-attraction-listing-cards"
-                badgeLabel={`${familyListings.length} published listing${familyListings.length === 1 ? "" : "s"}`}
-                detailsLabel="View attraction details"
-                eyebrow="Related family listings"
-                title="Family attractions mentioned in this article"
+                badgeLabel={familyListingsCountLabel}
+                detailsLabel={familyDetailsLabel}
+                eyebrow={familyRelatedEyebrow}
+                title={familyRelatedTitle}
               />
             ) : null}
           </m.div>
