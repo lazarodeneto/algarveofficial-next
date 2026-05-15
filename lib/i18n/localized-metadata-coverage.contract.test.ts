@@ -18,6 +18,7 @@ const PUBLIC_LOCALIZED_PAGES = [
   "events/page.tsx",
   "events/[slug]/page.tsx",
   "experiences/page.tsx",
+  "flights/page.tsx",
   "golf/page.tsx",
   "guides/[slug]/page.tsx",
   "invest/page.tsx",

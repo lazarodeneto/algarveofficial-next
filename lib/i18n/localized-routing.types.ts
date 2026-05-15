@@ -10,6 +10,7 @@ export type StaticRouteKey =
   | "events"
   | "experiences"
   | "beaches"
+  | "flights"
   | "forgot-password"
   | "golf"
   | "invest"

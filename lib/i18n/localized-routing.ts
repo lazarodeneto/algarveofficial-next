@@ -74,6 +74,7 @@ export const ROUTE_FAMILY_DEFINITIONS: Record<string, RouteFamilyDefinition> = {
       "events",
       "experiences",
       "beaches",
+      "flights",
       "golf",
       "invest",
       "map",

@@ -29,6 +29,7 @@ describe("MobileBottomNav", () => {
     render(<MobileBottomNav />);
 
     expect(screen.getByRole("link", { name: "Stay" })).toHaveAttribute("href", "/stay");
+    expect(screen.getByRole("link", { name: "Flights" })).toHaveAttribute("href", "/flights");
     expect(screen.getByRole("link", { name: "Experiences" })).toHaveAttribute("href", "/experiences");
     expect(screen.getByRole("link", { name: "Beaches" })).toHaveAttribute("href", "/beaches");
     expect(screen.getByRole("link", { name: "Wellness" })).toHaveAttribute("href", "/category/wellness-spas");

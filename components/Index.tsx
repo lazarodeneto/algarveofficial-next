@@ -265,8 +265,8 @@ const Index = () => {
 
   // Compute which sections to render and in what order
   const sectionsToRender = useMemo(() => {
-    if (isLoading || !settings) {
-      // Return default order while loading
+    if (isLoading || !settings || !settings.id) {
+      // Return default order while loading or if settings are missing
       return DEFAULT_SECTION_ORDER.map(id => ({ id, enabled: true }));
     }
 
@@ -326,7 +326,7 @@ const Index = () => {
           <HeroSection />
         </CmsBlock>
         <div className="mx-auto w-full content-max density">
-          {sectionsToRender.map(renderSection)}
+          {settings ? sectionsToRender.map(renderSection) : null}
         </div>
         <SoftReveal className="min-w-0">
           <HomeFinalEndcap />

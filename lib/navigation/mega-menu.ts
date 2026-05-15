@@ -73,6 +73,13 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
         icon: BedDouble,
       },
       {
+        labelKey: "nav.flights",
+        fallbackLabel: "Flights",
+        href: buildStaticRouteData("flights"),
+        description: "Faro flights, airport context, and arrival planning.",
+        icon: Plane,
+      },
+      {
         labelKey: "nav.beaches",
         fallbackLabel: "Beaches",
         href: buildStaticRouteData("beaches"),

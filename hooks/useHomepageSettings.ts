@@ -162,13 +162,15 @@ export function useHomepageSettings() {
       }
       return (data ?? null) as HomepageSettings | null;
     },
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   const { data: translation, isLoading: isTranslationLoading } = useQuery({
     queryKey: homepageSettingsTranslationQueryKey(settings?.id ?? null, locale),
     enabled: Boolean(settings?.id) && locale !== "en",
-    staleTime: 0,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       if (!settings?.id || locale === "en") return null;
 

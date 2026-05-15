@@ -8,6 +8,7 @@ import {
   Mail,
   Map,
   MapPinHouse,
+  Plane,
   Sparkles,
   Waves,
   type LucideIcon,
@@ -15,6 +16,7 @@ import {
 
 export const PUBLIC_NAV_ICONS: Record<string, LucideIcon> = {
   "nav.stay": BedDouble,
+  "nav.flights": Plane,
   "nav.experiences": Binoculars,
   "nav.beaches": Waves,
   "categories.wellnessSpas": Sparkles,

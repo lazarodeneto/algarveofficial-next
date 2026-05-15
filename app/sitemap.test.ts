@@ -102,6 +102,7 @@ describe("sitemap slug SEO", () => {
     expect(urls).toContain("https://algarveofficial.com/destinations/golden-triangle");
     expect(urls).toContain("https://algarveofficial.com/category/restaurants");
     expect(urls).toContain("https://algarveofficial.com/properties");
+    expect(urls).toContain("https://algarveofficial.com/flights");
     expect(urls).not.toContain("https://algarveofficial.com/real-estate");
     expect(urls.some((url) => new URL(url).pathname.startsWith("/en/"))).toBe(false);
 

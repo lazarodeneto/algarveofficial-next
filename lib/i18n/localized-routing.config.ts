@@ -10,6 +10,7 @@ export const STATIC_ROUTE_SEGMENTS: Record<StaticRouteKey, string> = {
   events: "events",
   experiences: "experiences",
   beaches: "beaches",
+  flights: "flights",
   "forgot-password": "forgot-password",
   golf: "golf",
   invest: "invest",

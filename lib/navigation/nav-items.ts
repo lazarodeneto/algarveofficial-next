@@ -19,6 +19,7 @@ export const PRIMARY_NAV_ITEMS: NavItem[] = [
 
 export const PUBLIC_SIDEBAR_NAV_ITEMS: NavItem[] = [
   { labelKey: "nav.stay", fallbackLabel: "Stay", href: "/stay" },
+  { labelKey: "nav.flights", fallbackLabel: "Flights", href: "/flights" },
   { labelKey: "nav.experiences", fallbackLabel: "Experiences", href: "/experiences" },
   { labelKey: "nav.beaches", fallbackLabel: "Beaches", href: "/beaches" },
   { labelKey: "categories.wellnessSpas", fallbackLabel: "Wellness", href: "/category/wellness-spas" },

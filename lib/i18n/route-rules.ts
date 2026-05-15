@@ -45,6 +45,7 @@ export const PUBLIC_SEO_PAGES = new Set([
   "events",
   "experiences",
   "beaches",
+  "flights",
   "golf",
   "invest",
   "map",

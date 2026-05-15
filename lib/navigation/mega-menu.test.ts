@@ -35,9 +35,11 @@ describe("public header mega menu", () => {
     const visitTransportation = visit?.items.find(
       (item) => item.labelKey === "categoryNames.transportation",
     );
+    const visitFlights = visit?.items.find((item) => item.labelKey === "nav.flights");
     const liveGolf = live?.items.find((item) => item.labelKey === "nav.golf");
 
     expect(buildLocalizedPath("en", visitTransportation!.href)).toBe("/category/transportation");
+    expect(buildLocalizedPath("en", visitFlights!.href)).toBe("/flights");
     expect(buildLocalizedPath("en", liveGolf!.href)).toBe("/golf");
   });
 

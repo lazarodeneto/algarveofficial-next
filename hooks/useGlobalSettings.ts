@@ -93,10 +93,10 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       if (error) throw error;
       return (data ?? []) as GlobalSetting[];
     },
-    staleTime: 0,
-    refetchOnMount: shouldUseCmsRuntime || isCmsPreviewRuntime ? "always" : undefined,
-    refetchOnWindowFocus: shouldUseCmsRuntime ? "always" : undefined,
-    refetchOnReconnect: shouldUseCmsRuntime ? "always" : undefined,
+    staleTime: 5 * 60 * 1000,
+    refetchOnMount: (shouldUseCmsRuntime || isCmsPreviewRuntime) ? "always" : false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
 
   useEffect(() => {

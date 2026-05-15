@@ -42,7 +42,7 @@ export function useHomepageListingSegment(
         queryClient.getQueryData<ListingWithRelations[]>(publishedListingsQueryKey({}, locale)) ?? [];
       return getSegmentListings(segment, publishedListings);
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 60 * 1000,
     gcTime: 5 * 60 * 1000,
   });
 

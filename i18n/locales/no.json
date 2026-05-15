@@ -3084,7 +3084,8 @@
     "stay": "Bo",
     "terms": "Vilkår for bruk",
     "visit": "Besøk",
-    "yourSpace": "Ditt Område"
+    "yourSpace": "Ditt Område",
+    "flights": "Fly"
   },
   "navigation": {
     "skipToContent": "Skip to main content"
@@ -4392,6 +4393,58 @@
       },
       "subtitle": "AlgarveOfficial sells visibility, credibility and qualified discovery. We do not sell guaranteed bookings, traffic or revenue.",
       "title": "Trust standards protect the platform"
+    }
+  },
+  "flights": {
+    "meta": {
+      "title": "Flights to the Algarve | AlgarveOfficial",
+      "description": "Plan flights to Faro and nearby airports for Algarve holidays, golf trips, relocation visits, and long-stay travel."
+    },
+    "hero": {
+      "badge": "Arrive well",
+      "title": "Flights to the Algarve",
+      "subtitle": "Plan flights into Faro and nearby airports, then continue your Algarve trip with trusted local guides, places, and services.",
+      "helper": "Useful airport context without leaving AlgarveOfficial.",
+      "primaryCta": "Find places to stay",
+      "secondaryCta": "Open the map"
+    },
+    "airports": {
+      "title": "Choose the right airport",
+      "description": "Faro is the closest airport for most Algarve trips, while Lisbon and Seville can work for longer itineraries.",
+      "faro": {
+        "title": "Faro Airport",
+        "description": "The main Algarve airport, best for most coastal stays, golf trips, and short breaks."
+      },
+      "lisbon": {
+        "title": "Lisbon Airport",
+        "description": "A useful alternative for longer itineraries, city stopovers, and some long-haul routes."
+      },
+      "seville": {
+        "title": "Seville Airport",
+        "description": "Practical for the eastern Algarve when flight times or fares are better."
+      }
+    },
+    "tripTypes": {
+      "title": "Plan around your trip",
+      "description": "Choose the airport and onward route that fit the way you want to travel.",
+      "shortBreak": {
+        "title": "Short breaks",
+        "description": "Choose Faro for the simplest arrival and keep transfers short."
+      },
+      "golf": {
+        "title": "Golf trips",
+        "description": "Match tee times, accommodation, and airport transfers before you book."
+      },
+      "relocation": {
+        "title": "Relocation visits",
+        "description": "Compare airport access with property viewings, schools, services, and local areas."
+      }
+    },
+    "links": {
+      "title": "Continue planning with AlgarveOfficial",
+      "description": "After choosing your arrival route, compare stays, places, maps, and local guides in one trusted platform.",
+      "stay": "Find places to stay",
+      "map": "Open the map"
     }
   }
 }
