@@ -48,6 +48,7 @@ const RESERVED_ROUTE_SEGMENTS = new Set([
   "live",
   "login",
   "map",
+  "newsletter",
   "owner",
   "partner",
   "partners",
