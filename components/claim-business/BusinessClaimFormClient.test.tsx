@@ -139,10 +139,16 @@ async function openFormAndFillRequiredFields() {
 
 describe("BusinessClaimFormClient", () => {
   const fetchMock = vi.fn();
+  const scrollIntoViewMock = vi.fn();
 
   beforeEach(() => {
     fetchMock.mockReset();
+    scrollIntoViewMock.mockReset();
     vi.stubGlobal("fetch", fetchMock);
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      value: scrollIntoViewMock,
+    });
     mocks.useAuth.mockReturnValue({
       user: null,
       isAuthenticated: true,
@@ -177,6 +183,38 @@ describe("BusinessClaimFormClient", () => {
 
     expect(screen.getByLabelText(tx["claimBusinessForm.proofDocumentLabel"])).toBeInTheDocument();
     expect(screen.getByText(tx["claimBusinessForm.documentUploadNote"])).toBeInTheDocument();
+  });
+
+  it("shows the selected tier chip before the submit action", async () => {
+    renderClaimForm();
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: tx["claimBusinessForm.yesContinue"] }));
+
+    expect(screen.getByTestId("selected-tier-chip")).toHaveTextContent(
+      tx["claimBusinessPartnership.tiers.verified.name"],
+    );
+
+    await user.click(screen.getByRole("button", { name: tx["claimBusinessPartnership.tiers.unverified.cta"] }));
+
+    expect(screen.getByTestId("selected-tier-chip")).toHaveTextContent(
+      tx["claimBusinessPartnership.tiers.unverified.name"],
+    );
+  });
+
+  it("validates and scrolls to the first missing field when a tier CTA is chosen", async () => {
+    renderClaimForm();
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole("button", { name: tx["claimBusinessForm.yesContinue"] }));
+    await user.click(screen.getByRole("button", { name: tx["claimBusinessPartnership.tiers.verified.cta"] }));
+
+    const nameInput = screen.getByLabelText(tx["claimBusinessForm.fullName"]);
+    expect(await screen.findByText(tx["claimBusinessForm.validation.name"])).toBeInTheDocument();
+    expect(nameInput).toHaveAttribute("aria-invalid", "true");
+    expect(nameInput).toHaveClass("border-destructive");
+    await waitFor(() => expect(scrollIntoViewMock).toHaveBeenCalled());
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("submits the free tier without starting Stripe checkout", async () => {

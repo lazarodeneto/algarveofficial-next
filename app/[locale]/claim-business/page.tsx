@@ -20,6 +20,7 @@ import {
   ClaimBusinessPricingCards,
   ClaimBusinessTrustAndVisibility,
 } from "@/components/claim-business/ClaimBusinessPartnershipSections";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,7 +28,7 @@ import { Input } from "@/components/ui/input";
 import { getBusinessClaimCtaState } from "@/components/listing/BusinessClaimCTA";
 import type { Tables } from "@/integrations/supabase/types";
 import { buildClaimTierPricingDetails, getClaimPricingSnapshot } from "@/lib/claims/claim-pricing";
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { isValidLocale, SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/config";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
@@ -386,6 +387,12 @@ export default async function ClaimBusinessPage({
   const requestNewListingHref = buildLocalizedPath(locale, "/partner", {
     query: { type: "new-listing" },
   });
+  const localeSwitchPaths = Object.fromEntries(
+    SUPPORTED_LOCALES.map((supportedLocale) => [
+      supportedLocale,
+      pageQuery(supportedLocale, query, page),
+    ]),
+  );
 
   return (
     <main className="min-h-screen bg-background text-foreground">
@@ -394,12 +401,21 @@ export default async function ClaimBusinessPage({
           <section className="overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-sm backdrop-blur">
             <div className="grid gap-0 lg:grid-cols-[minmax(0,1.18fr)_minmax(20rem,0.82fr)]">
               <div className="p-6 md:p-10 lg:p-12">
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C6961C]">
-                  AlgarveOfficial
-                </p>
-                <h1 className="mt-4 max-w-4xl font-serif text-4xl leading-tight text-foreground md:text-5xl">
-                  {tx["claimBusinessSearch.title"]}
-                </h1>
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C6961C]">
+                      AlgarveOfficial
+                    </p>
+                    <h1 className="mt-4 max-w-4xl font-serif text-4xl leading-tight text-foreground md:text-5xl">
+                      {tx["claimBusinessSearch.title"]}
+                    </h1>
+                  </div>
+                  <LanguageSwitcher
+                    localeSwitchPaths={localeSwitchPaths}
+                    containerClassName="w-full sm:w-auto sm:pt-1"
+                    selectClassName="h-11 min-w-[10rem] rounded-full border-border/70 bg-background px-4 py-2 text-sm text-foreground shadow-sm"
+                  />
+                </div>
                 <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
                   {tx["claimBusinessSearch.description"]}
                 </p>

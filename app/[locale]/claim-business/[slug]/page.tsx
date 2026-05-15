@@ -5,6 +5,7 @@ import {
   BusinessClaimFormClient,
   type ClaimFormListing,
 } from "@/components/claim-business/BusinessClaimFormClient";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import {
   CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS,
   ClaimBusinessComparisonTable,
@@ -12,7 +13,7 @@ import {
   ClaimBusinessTrustAndVisibility,
 } from "@/components/claim-business/ClaimBusinessPartnershipSections";
 import { buildClaimTierPricingDetails, getClaimPricingSnapshot } from "@/lib/claims/claim-pricing";
-import { isValidLocale, type Locale } from "@/lib/i18n/config";
+import { isValidLocale, SUPPORTED_LOCALES, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
@@ -226,6 +227,12 @@ export default async function ClaimBusinessSlugPage({
   const claimPath = `/claim-business/${canonicalSlug}`;
   const listingHref = buildLocalizedPath(locale, `/listing/${canonicalSlug}`);
   const searchHref = buildLocalizedPath(locale, "/claim-business");
+  const localeSwitchPaths = Object.fromEntries(
+    SUPPORTED_LOCALES.map((supportedLocale) => [
+      supportedLocale,
+      buildLocalizedPath(supportedLocale, claimPath),
+    ]),
+  );
   const loginHref = buildLocalizedPath(locale, "/login", {
     query: {
       next: buildLocalizedPath(locale, claimPath),
@@ -237,16 +244,25 @@ export default async function ClaimBusinessSlugPage({
     <main className="min-h-screen bg-background text-foreground">
       <div className="app-container pb-20 pt-28 lg:pt-32">
         <div className="mx-auto max-w-6xl space-y-8">
-          <section className="max-w-4xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C6961C]">
-              AlgarveOfficial
-            </p>
-            <h1 className="mt-4 font-serif text-4xl leading-tight text-foreground md:text-5xl">
-              {tx["claimBusinessForm.title"]}
-            </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-              {tx["claimBusinessForm.description"]}
-            </p>
+          <section className="max-w-5xl">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+              <div className="max-w-4xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C6961C]">
+                  AlgarveOfficial
+                </p>
+                <h1 className="mt-4 font-serif text-4xl leading-tight text-foreground md:text-5xl">
+                  {tx["claimBusinessForm.title"]}
+                </h1>
+                <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
+                  {tx["claimBusinessForm.description"]}
+                </p>
+              </div>
+              <LanguageSwitcher
+                localeSwitchPaths={localeSwitchPaths}
+                containerClassName="w-full sm:w-auto sm:pt-1"
+                selectClassName="h-11 min-w-[10rem] rounded-full border-border/70 bg-card px-4 py-2 text-sm text-foreground shadow-sm"
+              />
+            </div>
           </section>
 
         {sp?.checkout === "success" ? (

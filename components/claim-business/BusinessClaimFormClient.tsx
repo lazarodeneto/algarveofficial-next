@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -117,6 +117,13 @@ const PROOF_DOCUMENT_TYPES = new Set([
   "image/webp",
 ]);
 const MAX_PROOF_DOCUMENT_BYTES = 4 * 1024 * 1024;
+const invalidFieldClassName = "border-destructive focus-visible:ring-destructive/35";
+const fieldErrorOrder = [
+  "claimantName",
+  "claimantEmail",
+  "message",
+  "proofDocument",
+] as const;
 
 function isLikelyEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
@@ -141,6 +148,18 @@ function tierLabel(value: string, tx: Record<string, string>) {
   if (value === "verified") return tx["claimBusinessPartnership.tiers.verified.name"];
   if (value === "signature") return tx["claimBusinessPartnership.tiers.signature.name"];
   return value;
+}
+
+function tierChipClassName(tier: ClaimPartnershipTier) {
+  if (tier === "verified") {
+    return "border-emerald-500/45 bg-emerald-500/10 text-emerald-700";
+  }
+
+  if (tier === "signature") {
+    return "border-[#C7A35A]/55 bg-[#C7A35A]/15 text-[#7B5411]";
+  }
+
+  return "border-[#D4A62A]/45 bg-[#D4A62A]/12 text-[#8A6413]";
 }
 
 function isPaidTier(value: ClaimPartnershipTier): value is Exclude<ClaimPartnershipTier, "free"> {
@@ -195,6 +214,9 @@ export function BusinessClaimFormClient({
 }: BusinessClaimFormClientProps) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const submitButtonRef = useRef<HTMLButtonElement | null>(null);
+  const fieldRefs = useRef<Record<string, HTMLElement | null>>({});
   const [confirmed, setConfirmed] = useState(false);
   const [claimantName, setClaimantName] = useState("");
   const [claimantEmail, setClaimantEmail] = useState("");
@@ -248,6 +270,44 @@ export function BusinessClaimFormClient({
     });
   }, [pricing, selectedTier]);
 
+  function clearFieldError(field: string) {
+    setFieldErrors((current) => {
+      if (!current[field]) return current;
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
+
+  function setFieldRef(field: string) {
+    return (node: HTMLElement | null) => {
+      fieldRefs.current[field] = node;
+    };
+  }
+
+  function scrollToFirstFieldError(errors: Record<string, string>) {
+    const firstErrorField = fieldErrorOrder.find((field) => Boolean(errors[field]));
+    if (!firstErrorField) return;
+
+    const target = fieldRefs.current[firstErrorField];
+    if (!target) return;
+
+    window.requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.focus({ preventScroll: true });
+    });
+  }
+
+  function scrollToSubmitAction() {
+    const target = submitButtonRef.current;
+    if (!target) return;
+
+    window.requestAnimationFrame(() => {
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+      target.focus({ preventScroll: true });
+    });
+  }
+
   function validate() {
     const nextErrors: Record<string, string> = {};
 
@@ -272,7 +332,11 @@ export function BusinessClaimFormClient({
     }
 
     setFieldErrors(nextErrors);
-    return Object.keys(nextErrors).length === 0;
+    const isValid = Object.keys(nextErrors).length === 0;
+    if (!isValid) {
+      scrollToFirstFieldError(nextErrors);
+    }
+    return isValid;
   }
 
   function clearProofDocument() {
@@ -363,10 +427,13 @@ export function BusinessClaimFormClient({
     }
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function submitClaim(intendedTier: ClaimPartnershipTier) {
     setError(null);
     setCheckoutError(null);
+
+    if (isSubmitting || checkoutInProgress || isLoading) {
+      return;
+    }
 
     if (!isAuthenticated) {
       router.push(loginHref);
@@ -378,7 +445,6 @@ export function BusinessClaimFormClient({
     }
 
     setIsSubmitting(true);
-    const intendedTier = selectedTier;
     try {
       const response = await fetch("/api/business-claims", {
         method: "POST",
@@ -421,6 +487,18 @@ export function BusinessClaimFormClient({
       setError(tx["claimBusinessForm.submitError"]);
     } finally {
       setIsSubmitting(false);
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await submitClaim(selectedTier);
+  }
+
+  function handleTierSelect(tier: ClaimPartnershipTier) {
+    setSelectedTier(tier);
+    if (validate()) {
+      scrollToSubmitAction();
     }
   }
 
@@ -605,7 +683,7 @@ export function BusinessClaimFormClient({
                   </div>
                 </div>
               ) : (
-                <form className="space-y-8" onSubmit={handleSubmit}>
+                <form ref={formRef} className="space-y-8" onSubmit={handleSubmit}>
                   {!isAuthenticated && !isLoading ? (
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
@@ -651,21 +729,31 @@ export function BusinessClaimFormClient({
                       <div className="space-y-2">
                         <Label htmlFor="claimant-name">{tx["claimBusinessForm.fullName"]}</Label>
                         <Input
+                          ref={setFieldRef("claimantName")}
                           id="claimant-name"
                           value={claimantName}
-                          onChange={(event) => setClaimantName(event.target.value)}
+                          onChange={(event) => {
+                            setClaimantName(event.target.value);
+                            clearFieldError("claimantName");
+                          }}
                           aria-invalid={Boolean(fieldErrors.claimantName)}
+                          className={cn(fieldErrors.claimantName && invalidFieldClassName)}
                         />
                         {fieldErrors.claimantName ? <p className="text-xs text-destructive">{fieldErrors.claimantName}</p> : null}
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="claimant-email">{tx["claimBusinessForm.workEmail"]}</Label>
                         <Input
+                          ref={setFieldRef("claimantEmail")}
                           id="claimant-email"
                           type="email"
                           value={claimantEmail}
-                          onChange={(event) => setClaimantEmail(event.target.value)}
+                          onChange={(event) => {
+                            setClaimantEmail(event.target.value);
+                            clearFieldError("claimantEmail");
+                          }}
                           aria-invalid={Boolean(fieldErrors.claimantEmail)}
+                          className={cn(fieldErrors.claimantEmail && invalidFieldClassName)}
                         />
                         {fieldErrors.claimantEmail ? <p className="text-xs text-destructive">{fieldErrors.claimantEmail}</p> : null}
                       </div>
@@ -691,11 +779,16 @@ export function BusinessClaimFormClient({
                     <div className="space-y-2">
                       <Label htmlFor="claim-message">{tx["claimBusinessForm.message"]}</Label>
                       <Textarea
+                        ref={setFieldRef("message")}
                         id="claim-message"
                         value={message}
-                        onChange={(event) => setMessage(event.target.value)}
+                        onChange={(event) => {
+                          setMessage(event.target.value);
+                          clearFieldError("message");
+                        }}
                         rows={5}
                         aria-invalid={Boolean(fieldErrors.message)}
+                        className={cn(fieldErrors.message && invalidFieldClassName)}
                       />
                       {fieldErrors.message ? <p className="text-xs text-destructive">{fieldErrors.message}</p> : null}
                     </div>
@@ -733,20 +826,18 @@ export function BusinessClaimFormClient({
                         <div className="space-y-2">
                           <Label htmlFor="proof-document">{tx["claimBusinessForm.proofDocumentLabel"]}</Label>
                           <Input
+                            ref={setFieldRef("proofDocument")}
                             key={proofDocumentInputKey}
                             id="proof-document"
                             type="file"
                             accept={PROOF_DOCUMENT_ACCEPT}
                             aria-describedby="proof-document-help"
                             aria-invalid={Boolean(fieldErrors.proofDocument)}
+                            className={cn(fieldErrors.proofDocument && invalidFieldClassName)}
                             onChange={(event) => {
                               const nextFile = event.target.files?.[0] ?? null;
                               setProofDocument(nextFile);
-                              setFieldErrors((current) => {
-                                const next = { ...current };
-                                delete next.proofDocument;
-                                return next;
-                              });
+                              clearFieldError("proofDocument");
                             }}
                           />
                           <p id="proof-document-help" className="text-xs leading-5 text-muted-foreground">
@@ -785,7 +876,7 @@ export function BusinessClaimFormClient({
                       pricing={pricing}
                       selectedTier={selectedTier}
                       selectedBillingPeriods={selectedBillingPeriods}
-                      onSelectTier={setSelectedTier}
+                      onSelectTier={handleTierSelect}
                       compact
                     />
                     {isPaidTier(selectedTier) && (pricing?.[selectedTier]?.options.length ?? 0) > 1 ? (
@@ -835,7 +926,17 @@ export function BusinessClaimFormClient({
                   </section>
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <span
+                      data-testid="selected-tier-chip"
+                      className={cn(
+                        "inline-flex w-fit items-center rounded-full border px-4 py-2 text-sm font-semibold",
+                        tierChipClassName(selectedTier),
+                      )}
+                    >
+                      {tierLabel(selectedTier, tx)}
+                    </span>
                     <Button
+                      ref={submitButtonRef}
                       type="submit"
                       disabled={isSubmitting || isLoading || checkoutInProgress}
                       className="w-full whitespace-normal text-center leading-5 sm:w-auto"

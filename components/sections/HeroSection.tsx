@@ -285,7 +285,7 @@ export function HeroSection() {
   }, [hasPosterUrl, hasVideoUrl, isHeroSettingsLoading, mediaType, shouldSkipVideo]);
 
   return (
-    <div className="px-0 pb-4 pt-0 sm:pb-5 lg:px-6 lg:pt-[calc(5rem+10px)]">
+    <div className="px-0 pb-4 pt-[calc(4.75rem+8px)] sm:pb-5 sm:pt-[calc(5rem+10px)] lg:px-6">
       <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
         <div className="absolute inset-0 bg-black">

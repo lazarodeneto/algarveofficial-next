@@ -71,8 +71,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const isHeroHeader = isHomepage && !isScrolled;
 
   // Mirror mobile menu state to DOM for CSS failsafe (production caching workaround)
   useEffect(() => {
@@ -146,19 +144,6 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Show header border only after user scrolls.
-  useEffect(() => {
-    const onScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, []);
-
   return (
     <>
       {searchOpen ? <CommandSearch open={searchOpen} onOpenChange={setSearchOpen} /> : null}
@@ -169,18 +154,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
           isUserScrolling && !mobileMenuOpen && "-translate-y-full",
         )}
       >
-        <div
-          className={cn(
-            "absolute inset-0 transition-all duration-300",
-            isScrolled
-              ? "border-b border-black/10 bg-white/[0.78] shadow-[0_18px_48px_-38px_rgba(15,23,42,0.42)] backdrop-blur-2xl supports-[backdrop-filter]:bg-white/[0.62] dark:border-white/12 dark:bg-neutral-950/[0.72] dark:supports-[backdrop-filter]:bg-neutral-950/[0.58]"
-              : isHeroHeader
-                ? "border-b border-transparent bg-transparent shadow-none backdrop-blur-none"
-                : "border-b border-transparent bg-transparent backdrop-blur-none lg:bg-[hsl(var(--background)/0.88)] lg:backdrop-blur-xl dark:lg:bg-[hsl(var(--background)/0.55)]",
-          )}
-        />
-
-        <nav className="relative mx-auto max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:pr-8 xl:pl-11 2xl:pr-10 2xl:pl-14">
+        <nav className="top-header-nav relative max-w-[1680px] px-3 sm:px-5 lg:px-4 xl:pr-8 xl:pl-11 2xl:pr-10 2xl:pl-14">
           <div className="flex h-[4.5rem] sm:h-20 items-center gap-2 sm:gap-3 lg:gap-2.5 xl:gap-5">
             {/* Logo */}
             <div className="flex-shrink-0 min-w-0 overflow-hidden lg:max-w-[10.25rem] min-[1440px]:mr-3 min-[1440px]:max-w-[14.5rem] 2xl:mr-5 2xl:max-w-none">
@@ -206,7 +180,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
             {/* Primary Navigation */}
             <div className="hidden min-w-0 flex-1 items-center justify-center min-[960px]:flex min-[1280px]:justify-start">
-              <HeaderMegaMenu overHero={isHomepage && !isScrolled} />
+              <HeaderMegaMenu />
             </div>
 
             {/* Laptop Actions (1024-1359): compact utility row */}
