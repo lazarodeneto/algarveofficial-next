@@ -95,6 +95,20 @@ export async function POST(request: NextRequest) {
   }
 
   const claimId = typeof body?.claim_id === "string" ? body.claim_id.trim() : "";
+  const tier = normalizePaidTier(body?.tier);
+  const billingPeriod = normalizeCheckoutBillingPeriod(body?.billing_period);
+
+  if (!tier || !billingPeriod) {
+    return NextResponse.json({ error: "Invalid pricing selection." }, { status: 400 });
+  }
+
+  if (claimId && billingPeriod !== "monthly") {
+    return NextResponse.json(
+      { error: "Claim checkout requires monthly pricing." },
+      { status: 400 },
+    );
+  }
+
   const auth = claimId
     ? await requireAuthenticatedClaimant()
     : await requireAuthenticatedOwner(request);
@@ -108,13 +122,6 @@ export async function POST(request: NextRequest) {
   const stripe = getStripeServerClient();
   if (!stripe) {
     return NextResponse.json({ error: "Stripe not configured." }, { status: 503 });
-  }
-
-  const tier = normalizePaidTier(body?.tier);
-  const billingPeriod = normalizeCheckoutBillingPeriod(body?.billing_period);
-
-  if (!tier || !billingPeriod) {
-    return NextResponse.json({ error: "Invalid pricing selection." }, { status: 400 });
   }
 
   let checkoutClaimId: string | null = null;

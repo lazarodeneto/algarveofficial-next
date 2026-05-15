@@ -42,10 +42,6 @@ function getTierPriceOptions(snapshot: PricingCatalogSnapshot, tier: Exclude<Cla
     tierSnapshot.currentMonthly ??
     tierSnapshot.monthly ??
     null,
-    tierSnapshot.currentYearly ??
-    tierSnapshot.yearly ??
-    null,
-    tierSnapshot.promo,
   ];
   const seen = new Set<string>();
 

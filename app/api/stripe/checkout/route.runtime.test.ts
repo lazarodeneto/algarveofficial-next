@@ -357,6 +357,30 @@ describe("stripe checkout route runtime", () => {
     expect(mocks.sessionsCreate).not.toHaveBeenCalled();
   });
 
+  it("rejects non-monthly claim checkout before creating a Stripe session", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "claimant-123", email: "owner@test.com" } },
+          error: null,
+        }),
+      },
+    });
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ tier: "verified", billing_period: "yearly", claim_id: CLAIM_ID }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual({ error: "Claim checkout requires monthly pricing." });
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
+  });
+
   it("pre-fills customer_email when no existing customer", async () => {
     mocks.getStripeServerClient.mockReturnValue({
       checkout: {
