@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
+import { isValidElement } from "react";
 
 import { hashNewsletterToken } from "@/lib/newsletter/newsletter-tokens";
 
@@ -32,6 +33,8 @@ import {
   POST as updateNewsletterPreferences,
 } from "@/app/api/newsletter/preferences/route";
 import { GET as unsubscribeNewsletter } from "@/app/api/newsletter/unsubscribe/route";
+import NewsletterPreferencesPage from "@/app/newsletter/preferences/page";
+import LocalizedNewsletterPreferencesPage from "@/app/[locale]/newsletter/preferences/page";
 
 function jsonRequest(body: unknown) {
   return new NextRequest("http://localhost/api/newsletter/subscribe", {
@@ -182,6 +185,24 @@ afterEach(() => {
 });
 
 describe("newsletter API routes", () => {
+  it("renders unprefixed and locale-prefixed preference pages for email links", async () => {
+    const unprefixed = await NewsletterPreferencesPage({
+      searchParams: Promise.resolve({ token: "preference-token" }),
+    });
+    const localized = await LocalizedNewsletterPreferencesPage({
+      params: Promise.resolve({ locale: "en" }),
+      searchParams: Promise.resolve({ token: ["localized-preference-token"] }),
+    });
+
+    expect(isValidElement<{ token: string }>(unprefixed)).toBe(true);
+    expect(isValidElement<{ token: string }>(localized)).toBe(true);
+    if (!isValidElement<{ token: string }>(unprefixed) || !isValidElement<{ token: string }>(localized)) {
+      throw new Error("Expected newsletter preference pages to render preference form elements.");
+    }
+    expect(unprefixed.props.token).toBe("preference-token");
+    expect(localized.props.token).toBe("localized-preference-token");
+  });
+
   it("validates newsletter email input", async () => {
     const response = await subscribeNewsletter(jsonRequest({ email: "bad" }));
     expect(response.status).toBe(400);

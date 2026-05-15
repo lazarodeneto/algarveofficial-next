@@ -4,6 +4,7 @@ import type { Database } from "@/integrations/supabase/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 type ServiceClient = SupabaseClient<Database>;
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export interface NewsletterSubscriberForSync {
   id: string;
@@ -65,6 +66,31 @@ function getContactTargets() {
   };
 }
 
+function isValidAudienceId(value: string | null | undefined): value is string {
+  return Boolean(value && UUID_PATTERN.test(value));
+}
+
+function resolveContactTargets() {
+  const targets = getContactTargets();
+  const hasModernTarget = Boolean(targets.segmentId || targets.topicId);
+  const audienceId = hasModernTarget
+    ? null
+    : isValidAudienceId(targets.audienceId)
+      ? targets.audienceId
+      : null;
+  const warning = targets.audienceId && !audienceId
+    ? hasModernTarget
+      ? "legacy_audience_ignored_for_segment_topic_sync"
+      : "legacy_audience_id_invalid"
+    : null;
+
+  return {
+    ...targets,
+    audienceId,
+    warning,
+  };
+}
+
 async function updateLocalSyncStatus(args: {
   client?: ServiceClient | null;
   subscriberId: string;
@@ -91,9 +117,13 @@ export async function upsertNewsletterContact(subscriber: NewsletterSubscriberFo
     return result({ skipped: true, status: "skipped", reason: "email_not_configured" });
   }
 
-  const targets = getContactTargets();
+  const targets = resolveContactTargets();
   if (!targets.segmentId && !targets.topicId && !targets.audienceId) {
-    return result({ skipped: true, status: "skipped", reason: "newsletter_resend_target_not_configured" });
+    return result({
+      skipped: true,
+      status: "skipped",
+      reason: targets.warning ?? "newsletter_resend_target_not_configured",
+    });
   }
 
   const client = getResendClient();
@@ -191,7 +221,7 @@ export async function updateNewsletterTopicSubscription(
 export async function markNewsletterContactUnsubscribed(email: string) {
   if (!isEmailConfigured()) return result({ skipped: true, status: "skipped", reason: "email_not_configured" });
 
-  const targets = getContactTargets();
+  const targets = resolveContactTargets();
   try {
     if (targets.topicId) {
       await updateNewsletterTopicSubscription(email, "opt_out", targets.topicId);
@@ -217,33 +247,44 @@ export async function syncNewsletterSubscriberToResend(args: {
   const { client, subscriber } = args;
 
   try {
-    const targets = getContactTargets();
+    const targets = resolveContactTargets();
     const sync = await upsertNewsletterContact(subscriber);
+    const warnings = [targets.warning].filter((warning): warning is string => Boolean(warning));
+    const downstreamResults: NewsletterContactSyncResult[] = [];
 
     if (sync.success && targets.segmentId) {
-      await addNewsletterContactToSegment(subscriber.email, targets.segmentId);
+      downstreamResults.push(await addNewsletterContactToSegment(subscriber.email, targets.segmentId));
     }
 
     if (sync.success && targets.topicId) {
-      await updateNewsletterTopicSubscription(subscriber.email, "opt_in", targets.topicId);
+      downstreamResults.push(await updateNewsletterTopicSubscription(subscriber.email, "opt_in", targets.topicId));
     }
+
+    const failedDownstream = downstreamResults.find((downstream) => !downstream.success && !downstream.skipped);
+    const finalSync = failedDownstream
+      ? result({
+        providerContactId: sync.providerContactId,
+        reason: failedDownstream.reason ?? "newsletter_resend_target_sync_failed",
+      })
+      : sync;
 
     await updateLocalSyncStatus({
       client,
       subscriberId: subscriber.id,
       patch: {
-        resend_contact_id: sync.providerContactId,
-        resend_sync_status: sync.status,
-        resend_synced_at: sync.success ? new Date().toISOString() : null,
+        resend_contact_id: finalSync.providerContactId,
+        resend_sync_status: finalSync.status,
+        resend_synced_at: finalSync.success ? new Date().toISOString() : null,
         resend_segment_id: targets.segmentId,
         resend_topic_id: targets.topicId,
         metadata: {
-          resend_sync_reason: sync.reason,
+          resend_sync_reason: finalSync.reason,
+          resend_sync_warnings: warnings,
         },
       },
     });
 
-    return sync;
+    return finalSync;
   } catch (error) {
     const reason = safeErrorMessage(error);
     await updateLocalSyncStatus({
