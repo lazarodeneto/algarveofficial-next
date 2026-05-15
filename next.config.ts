@@ -179,6 +179,10 @@ const nextConfig: NextConfig = {
       { source: "/visit/:city/fine-dining", destination: "/visit/:city/restaurants", permanent: true },
       { source: "/visit/:city/golf-tournaments", destination: "/visit/:city/golf", permanent: true },
       { source: "/visit/:city/prime-real-estate", destination: "/visit/:city/real-estate", permanent: true },
+      { source: "/pt", destination: "/pt-pt", permanent: true },
+      { source: "/en", destination: "/", permanent: true },
+      { source: "/pt/:path*", destination: "/pt-pt/:path*", permanent: true },
+      { source: "/en/:path*", destination: "/:path*", permanent: true },
     ];
   },
 
