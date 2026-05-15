@@ -36,6 +36,7 @@ import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { buildCategoryRouteData as buildPublicCategoryRouteData } from "@/lib/public-route-builders";
 import { getAllowedListingGalleryImageInputs } from "@/lib/listings/gallery-images";
 import { getListingTierRules } from "@/lib/listingTierRules";
+import { publicListingTranslationOrNull } from "@/lib/listings/publicListingTranslations";
 
 export const revalidate = 3600;
 
@@ -243,7 +244,7 @@ async function fetchAllTranslations(listingId: string) {
 
   const { data: allTranslations, error } = await supabase
     .from("listing_translations")
-    .select("language_code, title, description, seo_title, seo_description")
+    .select("language_code, title, short_description, description, seo_title, seo_description, translation_status, translation_source, updated_at")
     .eq("listing_id", listingId);
 
   if (error) throw error;
@@ -256,7 +257,7 @@ async function fetchAllTranslations(listingId: string) {
   for (const locale of SUPPORTED_LOCALES) {
     const dbLocale = locale === "en" ? "en" : locale;
     const found = (allTranslations ?? []).find((t) => t.language_code === dbLocale);
-    translations[locale] = found as ListingTranslationRow | null;
+    translations[locale] = publicListingTranslationOrNull(found as ListingTranslationRow | null);
   }
 
   return translations;

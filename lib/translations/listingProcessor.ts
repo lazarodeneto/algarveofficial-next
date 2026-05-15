@@ -10,7 +10,7 @@ import {
 type TranslationStatus = Database["public"]["Enums"]["translation_status"];
 
 type TranslationServiceClient = {
-  from<T = unknown>(table: string): {
+  from(table: string): {
     select(columns?: string): unknown;
     update(payload: Record<string, unknown>): unknown;
     upsert(payload: Record<string, unknown>, options?: Record<string, unknown>): unknown;
@@ -46,7 +46,13 @@ interface TranslationJobDetail {
   listing_id: string;
   target_lang: string;
   attempts: number | null;
+  allow_manual_overwrite?: boolean | null;
   listing: ListingSourceRow | ListingSourceRow[] | null;
+}
+
+interface ExistingTranslationRow {
+  translation_status: TranslationStatus | null;
+  translation_source: "manual" | "automatic" | null;
 }
 
 interface ListingSourceText {
@@ -57,7 +63,7 @@ interface ListingSourceText {
   seo_description: string | null;
 }
 
-interface ListingTranslatedText extends ListingSourceText {}
+type ListingTranslatedText = ListingSourceText;
 
 export interface TranslationJobProcessResult {
   jobId: string;
@@ -106,6 +112,9 @@ const FIELD_LIMITS: Record<keyof ListingSourceText, number> = {
   seo_description: 320,
 };
 
+const MANUAL_TRANSLATION_CONFLICT_MESSAGE =
+  "MANUAL_TRANSLATION_EXISTS: Manual translation preserved. Confirm overwrite before running automatic translation.";
+
 function asQuery<T>(value: unknown): ThenableQuery<T> {
   return value as ThenableQuery<T>;
 }
@@ -135,6 +144,29 @@ function sourceHash(source: ListingSourceText): string {
       `${source.title ?? ""}${source.short_description ?? ""}${source.description ?? ""}${source.seo_title ?? ""}${source.seo_description ?? ""}`,
     )
     .digest("hex");
+}
+
+function isProtectedManualTranslation(row: ExistingTranslationRow | null | undefined): boolean {
+  return row?.translation_source === "manual" || row?.translation_status === "edited";
+}
+
+async function fetchExistingTranslation(
+  client: TranslationServiceClient,
+  listingId: string,
+  targetLang: string,
+): Promise<ExistingTranslationRow | null> {
+  const { data, error } =
+    await asQuery<ExistingTranslationRow>(
+      client
+        .from("listing_translations")
+        .select("translation_status, translation_source"),
+    )
+      .eq("listing_id", listingId)
+      .eq("language_code", targetLang)
+      .maybeSingle();
+
+  if (error) throw error;
+  return data;
 }
 
 function parseOpenAiJson(content: string): Partial<ListingTranslatedText> {
@@ -291,9 +323,28 @@ async function markJobFailed(
         attempts: (job.attempts ?? 0) + 1,
         last_error: errorMessage.slice(0, 2000),
         locked_at: null,
+        allow_manual_overwrite: false,
         updated_at: now,
       }),
   ).eq("id", job.id);
+}
+
+async function preserveManualTranslation(
+  client: TranslationServiceClient,
+  jobId: string,
+  now: string,
+) {
+  await asQuery(
+    client
+      .from("translation_jobs")
+      .update({
+        status: "failed" satisfies TranslationStatus,
+        last_error: MANUAL_TRANSLATION_CONFLICT_MESSAGE,
+        locked_at: null,
+        allow_manual_overwrite: false,
+        updated_at: now,
+      }),
+  ).eq("id", jobId);
 }
 
 export async function processListingTranslationJob(
@@ -320,7 +371,7 @@ export async function processListingTranslationJob(
       client
         .from("translation_jobs")
         .select(
-          "id, listing_id, target_lang, attempts, listing:listings!inner(id, name, short_description, description, meta_title, meta_description, content_updated_at)",
+          "id, listing_id, target_lang, attempts, allow_manual_overwrite, listing:listings!inner(id, name, short_description, description, meta_title, meta_description, content_updated_at)",
         ),
     )
       .eq("id", job.id)
@@ -333,8 +384,31 @@ export async function processListingTranslationJob(
     if (!listing?.id) throw new Error("Translation job listing was not found.");
 
     const source = buildSourceText(listing);
+    const allowManualOverwrite = detail.allow_manual_overwrite === true;
+    const existingTranslation = await fetchExistingTranslation(client, detail.listing_id, detail.target_lang);
+    if (isProtectedManualTranslation(existingTranslation) && !allowManualOverwrite) {
+      await preserveManualTranslation(client, job.id, now);
+      return {
+        jobId: job.id,
+        status: "failed",
+        provider: selection.provider,
+        errorMessage: MANUAL_TRANSLATION_CONFLICT_MESSAGE,
+      };
+    }
+
     const translated = await translateListingText(selection.provider, source, detail.target_lang);
     const hash = sourceHash(source);
+
+    const latestTranslation = await fetchExistingTranslation(client, detail.listing_id, detail.target_lang);
+    if (isProtectedManualTranslation(latestTranslation) && !allowManualOverwrite) {
+      await preserveManualTranslation(client, job.id, now);
+      return {
+        jobId: job.id,
+        status: "failed",
+        provider: selection.provider,
+        errorMessage: MANUAL_TRANSLATION_CONFLICT_MESSAGE,
+      };
+    }
 
     const { error: translationError } = await (client
       .from("listing_translations")
@@ -345,6 +419,7 @@ export async function processListingTranslationJob(
           ...translated,
           source_hash: hash,
           translation_status: "auto" satisfies TranslationStatus,
+          translation_source: "automatic",
           translated_at: now,
           updated_at: now,
         },
@@ -361,6 +436,7 @@ export async function processListingTranslationJob(
           attempts: (detail.attempts ?? job.attempts ?? 0) + 1,
           last_error: null,
           locked_at: null,
+          allow_manual_overwrite: false,
           source_updated_at: listing.content_updated_at ?? now,
           updated_at: now,
         }),

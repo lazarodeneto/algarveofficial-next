@@ -36,6 +36,8 @@ export const CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS = [
   "claimBusinessPartnership.pricing.subtitle",
   "claimBusinessPartnership.pricing.selectionHint",
   "claimBusinessPartnership.pricing.compareCta",
+  "claimBusinessPartnership.pricing.annualOptionLabel",
+  "claimBusinessPartnership.pricing.annualEstimateLabel",
   "claimBusinessPartnership.tiers.unverified.name",
   "claimBusinessPartnership.tiers.unverified.price",
   "claimBusinessPartnership.tiers.unverified.priceNote",
@@ -297,6 +299,56 @@ function tierClasses(tier: ClaimPartnershipTier, selected: boolean | undefined) 
   );
 }
 
+interface AnnualPricingDisplay {
+  priceLabel: string;
+  cadenceLabel: string;
+  supportingLabel: string | null;
+  billingPeriod: ClaimPricingBillingPeriod | "estimated_yearly";
+}
+
+function getConfiguredAnnualPricingOption(
+  pricingDetail: ClaimTierPricingDetails[ClaimPartnershipTier] | undefined,
+): AnnualPricingDisplay | null {
+  return pricingDetail?.options.find((option) => option.billingPeriod === "yearly") ?? null;
+}
+
+function buildEstimatedAnnualPriceLabel(priceLabel: string | undefined) {
+  const match = priceLabel?.match(/^(.*?)(\d+(?:[.,]\d+)?)(.*)$/);
+  if (!match) return null;
+
+  const [, prefix, rawValue, suffix] = match;
+  const monthlyValue = Number(rawValue.replace(",", "."));
+  if (!Number.isFinite(monthlyValue) || monthlyValue <= 0) return null;
+
+  const annualValue = monthlyValue * 10;
+  const formattedValue = new Intl.NumberFormat("en-GB", {
+    maximumFractionDigits: Number.isInteger(annualValue) ? 0 : 2,
+    minimumFractionDigits: Number.isInteger(annualValue) ? 0 : 2,
+  }).format(annualValue);
+
+  return `${prefix}${formattedValue}${suffix}`.trim();
+}
+
+function getAnnualPricingDisplay(
+  tx: Record<string, string>,
+  pricingDetail: ClaimTierPricingDetails[ClaimPartnershipTier] | undefined,
+  displayedPricing: ClaimTierPricingDetails[ClaimPartnershipTier] | ClaimTierPricingDetails[ClaimPartnershipTier]["options"][number] | undefined,
+): AnnualPricingDisplay | null {
+  const configuredAnnual = getConfiguredAnnualPricingOption(pricingDetail);
+  if (configuredAnnual) return configuredAnnual;
+  if (displayedPricing?.billingPeriod !== "monthly") return null;
+
+  const estimatedPriceLabel = buildEstimatedAnnualPriceLabel(displayedPricing.priceLabel);
+  if (!estimatedPriceLabel) return null;
+
+  return {
+    priceLabel: estimatedPriceLabel,
+    cadenceLabel: tx["claimBusinessSearch.pricing.yearlyCadence"] ?? "/year",
+    supportingLabel: tx["claimBusinessPartnership.pricing.annualEstimateLabel"] ?? null,
+    billingPeriod: "estimated_yearly",
+  };
+}
+
 export function ClaimBusinessPricingCards({
   tx,
   pricing,
@@ -346,6 +398,11 @@ export function ClaimBusinessPricingCards({
           const priceLabel = displayedPricing?.priceLabel ?? tx[`claimBusinessPartnership.tiers.${keyPrefix}.price`];
           const priceNote = displayedPricing?.cadenceLabel ?? tx[`claimBusinessPartnership.tiers.${keyPrefix}.priceNote`];
           const supportingLabel = displayedPricing?.supportingLabel;
+          const annualPricingOption =
+            tier === "free" ? null : getAnnualPricingDisplay(tx, pricingDetail, displayedPricing);
+          const showAnnualPricingOption =
+            Boolean(annualPricingOption) &&
+            annualPricingOption?.billingPeriod !== displayedPricing?.billingPeriod;
 
           return (
             <article
@@ -385,6 +442,22 @@ export function ClaimBusinessPricingCards({
                   <p className="mt-2 text-xs leading-5 text-muted-foreground">
                     {supportingLabel}
                   </p>
+                ) : null}
+                {showAnnualPricingOption && annualPricingOption ? (
+                  <div className="mt-3 rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-sm">
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                      <span className="font-semibold text-foreground">
+                        {tx["claimBusinessPartnership.pricing.annualOptionLabel"]}
+                      </span>
+                      <span className="font-semibold text-foreground">{annualPricingOption.priceLabel}</span>
+                      <span className="text-muted-foreground">{annualPricingOption.cadenceLabel}</span>
+                    </div>
+                    {annualPricingOption.supportingLabel ? (
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        {annualPricingOption.supportingLabel}
+                      </p>
+                    ) : null}
+                  </div>
                 ) : null}
                 <p className="mt-4 min-h-[5.25rem] text-sm leading-6 text-muted-foreground">
                   {tx[`claimBusinessPartnership.tiers.${keyPrefix}.positioning`]}

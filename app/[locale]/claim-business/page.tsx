@@ -1,15 +1,32 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import * as Sentry from "@sentry/nextjs";
-import { AlertTriangle, Building2, CheckCircle2, Clock3, MapPin, Search } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  BadgeEuro,
+  Building2,
+  CheckCircle2,
+  Clock3,
+  MapPin,
+  Search,
+} from "lucide-react";
 
 import ListingImage from "@/components/ListingImage";
+import {
+  CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS,
+  ClaimBusinessComparisonTable,
+  ClaimBusinessFaqSection,
+  ClaimBusinessPricingCards,
+  ClaimBusinessTrustAndVisibility,
+} from "@/components/claim-business/ClaimBusinessPartnershipSections";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { getBusinessClaimCtaState } from "@/components/listing/BusinessClaimCTA";
 import type { Tables } from "@/integrations/supabase/types";
+import { buildClaimTierPricingDetails, getClaimPricingSnapshot } from "@/lib/claims/claim-pricing";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
@@ -38,6 +55,46 @@ const CLAIM_SEARCH_FIELDS = `
   city:cities(id, name, slug),
   category:categories(id, name, slug, image_url)
 `;
+
+const CLAIM_SEARCH_TRANSLATION_KEYS = [
+  "claimBusinessSearch.title",
+  "claimBusinessSearch.description",
+  "claimBusinessSearch.placeholder",
+  "claimBusinessSearch.searchButton",
+  "claimBusinessSearch.resultsSummary",
+  "claimBusinessSearch.resultsSummaryWithCount",
+  "claimBusinessSearch.emptyTitle",
+  "claimBusinessSearch.emptyDescription",
+  "claimBusinessSearch.searchErrorTitle",
+  "claimBusinessSearch.searchErrorDescription",
+  "claimBusinessSearch.startTitle",
+  "claimBusinessSearch.startDescription",
+  "claimBusinessSearch.viewListing",
+  "claimBusinessSearch.claimButton",
+  "claimBusinessSearch.pendingButton",
+  "claimBusinessSearch.managedButton",
+  "claimBusinessSearch.status.unclaimed",
+  "claimBusinessSearch.status.pending",
+  "claimBusinessSearch.status.claimed",
+  "claimBusinessSearch.cantFindTitle",
+  "claimBusinessSearch.cantFindDescription",
+  "claimBusinessSearch.newListingButton",
+  "claimBusinessSearch.previous",
+  "claimBusinessSearch.next",
+  "claimBusinessSearch.page",
+  "claimBusinessSearch.pricing.monthlyCadence",
+  "claimBusinessSearch.pricing.yearlyCadence",
+  "claimBusinessSearch.pricing.promoCadence",
+  "claimBusinessSearch.pricing.monthlyEquivalent",
+  "claimBusinessSearch.pricing.unavailablePrice",
+  "claimBusinessSearch.pricing.unavailableNote",
+  "claimBusinessSearch.pricing.freeNote",
+  "claimBusinessForm.paymentCheckoutNote",
+  "common.free",
+  "common.verified",
+  "common.signature",
+  ...CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS,
+] as const;
 
 type ClaimSearchListing = Pick<
   Tables<"listings">,
@@ -277,6 +334,17 @@ function ClaimListingCard({
   );
 }
 
+async function getClaimSearchTranslations(locale: Locale) {
+  const localized = await getServerTranslations(locale, [...CLAIM_SEARCH_TRANSLATION_KEYS]);
+  if (locale === "en") return localized;
+
+  const english = await getServerTranslations("en", [...CLAIM_SEARCH_TRANSLATION_KEYS]);
+  return {
+    ...english,
+    ...localized,
+  };
+}
+
 export async function generateMetadata({
   params,
 }: ClaimBusinessPageProps): Promise<Metadata> {
@@ -306,36 +374,12 @@ export default async function ClaimBusinessPage({
   const sp = await searchParams;
   const query = sanitizeSearchTerm(getSearchParamValue(sp, "q"));
   const page = parsePage(getSearchParamValue(sp, "page"));
-  const [{ listings, total, error }, tx] = await Promise.all([
+  const [{ listings, total, error }, tx, pricingSnapshot] = await Promise.all([
     searchClaimListings(query, page),
-    getServerTranslations(locale, [
-      "claimBusinessSearch.title",
-      "claimBusinessSearch.description",
-      "claimBusinessSearch.placeholder",
-      "claimBusinessSearch.searchButton",
-      "claimBusinessSearch.resultsSummary",
-      "claimBusinessSearch.resultsSummaryWithCount",
-      "claimBusinessSearch.emptyTitle",
-      "claimBusinessSearch.emptyDescription",
-      "claimBusinessSearch.searchErrorTitle",
-      "claimBusinessSearch.searchErrorDescription",
-      "claimBusinessSearch.startTitle",
-      "claimBusinessSearch.startDescription",
-      "claimBusinessSearch.viewListing",
-      "claimBusinessSearch.claimButton",
-      "claimBusinessSearch.pendingButton",
-      "claimBusinessSearch.managedButton",
-      "claimBusinessSearch.status.unclaimed",
-      "claimBusinessSearch.status.pending",
-      "claimBusinessSearch.status.claimed",
-      "claimBusinessSearch.cantFindTitle",
-      "claimBusinessSearch.cantFindDescription",
-      "claimBusinessSearch.newListingButton",
-      "claimBusinessSearch.previous",
-      "claimBusinessSearch.next",
-      "claimBusinessSearch.page",
-    ]),
+    getClaimSearchTranslations(locale),
+    getClaimPricingSnapshot(),
   ]);
+  const pricing = buildClaimTierPricingDetails(pricingSnapshot, tx);
   const hasSearchError = Boolean(error);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const hasQuery = query.length >= MIN_SEARCH_LENGTH;
@@ -345,40 +389,87 @@ export default async function ClaimBusinessPage({
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="app-container pt-28 pb-20 lg:pt-32">
-        <section className="rounded-2xl border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-10">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C6961C]">
-            AlgarveOfficial
-          </p>
-          <h1 className="mt-4 max-w-4xl font-serif text-4xl leading-tight text-foreground md:text-5xl">
-            {tx["claimBusinessSearch.title"]}
-          </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-            {tx["claimBusinessSearch.description"]}
-          </p>
+      <div className="app-container pb-20 pt-28 lg:pt-32">
+        <div className="mx-auto max-w-6xl">
+          <section className="overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-sm backdrop-blur">
+            <div className="grid gap-0 lg:grid-cols-[minmax(0,1.18fr)_minmax(20rem,0.82fr)]">
+              <div className="p-6 md:p-10 lg:p-12">
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C6961C]">
+                  AlgarveOfficial
+                </p>
+                <h1 className="mt-4 max-w-4xl font-serif text-4xl leading-tight text-foreground md:text-5xl">
+                  {tx["claimBusinessSearch.title"]}
+                </h1>
+                <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
+                  {tx["claimBusinessSearch.description"]}
+                </p>
 
-          <form
-            action={buildLocalizedPath(locale, "/claim-business")}
-            className="mt-8 flex flex-col gap-3 md:flex-row"
-          >
-            <label className="relative flex-1">
-              <span className="sr-only">{tx["claimBusinessSearch.placeholder"]}</span>
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                name="q"
-                defaultValue={query}
-                placeholder={tx["claimBusinessSearch.placeholder"]}
-                className="h-[3.25rem] rounded-full pl-12 text-base"
-                autoComplete="off"
-              />
-            </label>
-            <Button type="submit" className="h-[3.25rem] px-8">
-              {tx["claimBusinessSearch.searchButton"]}
-            </Button>
-          </form>
-        </section>
+                <form
+                  action={buildLocalizedPath(locale, "/claim-business")}
+                  className="mt-8 grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]"
+                >
+                  <label className="relative min-w-0">
+                    <span className="sr-only">{tx["claimBusinessSearch.placeholder"]}</span>
+                    <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      name="q"
+                      defaultValue={query}
+                      placeholder={tx["claimBusinessSearch.placeholder"]}
+                      className="h-[3.25rem] rounded-full pl-12 text-base"
+                      autoComplete="off"
+                    />
+                  </label>
+                  <Button type="submit" className="h-[3.25rem] px-8">
+                    {tx["claimBusinessSearch.searchButton"]}
+                  </Button>
+                </form>
 
-        <section className="mt-10 space-y-5">
+                <div className="mt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-start xl:flex-row xl:items-center">
+                  <Button asChild variant="secondary" className="w-full sm:w-auto">
+                    <Link href="#claim-business-search">
+                      {tx["claimBusinessSearch.claimButton"]}
+                      <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="secondary" className="w-full sm:w-auto">
+                    <Link href="#claim-pricing-title">
+                      {tx["claimBusinessPartnership.pricing.compareCta"]}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+
+              <aside className="border-t border-border/60 bg-gradient-to-br from-[#D4A62A]/10 via-background/75 to-background p-6 md:p-8 lg:border-l lg:border-t-0">
+                <BadgeEuro className="h-7 w-7 text-[#C6961C]" aria-hidden="true" />
+                <h2 className="mt-5 font-serif text-2xl font-semibold leading-tight text-foreground">
+                  {tx["claimBusinessPartnership.faq.items.payBeforeApproval.question"]}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                  {tx["claimBusinessForm.paymentCheckoutNote"]}
+                </p>
+                <div className="mt-6 grid gap-3 text-sm">
+                  {["claim", "approvalTime", "afterPaid"].map((key) => (
+                    <div key={key} className="rounded-xl border border-border/55 bg-background/70 p-4">
+                      <p className="font-semibold leading-5 text-foreground">
+                        {tx[`claimBusinessPartnership.faq.items.${key}.question`]}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </aside>
+            </div>
+          </section>
+
+          <div className="mt-16">
+            <ClaimBusinessPricingCards
+              tx={tx}
+              pricing={pricing}
+              ctaHref="#claim-business-search"
+            />
+          </div>
+        </div>
+
+        <section id="claim-business-search" className="mx-auto mt-16 max-w-6xl scroll-mt-28 space-y-5">
           {hasQuery ? (
             <div className="flex flex-col gap-2 border-b border-border/70 pb-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -475,7 +566,7 @@ export default async function ClaimBusinessPage({
           ) : null}
         </section>
 
-        <section className="mt-12 rounded-2xl border border-[#D4A62A]/25 bg-gradient-to-br from-[#D4A62A]/10 via-card to-card p-6 md:p-8">
+        <section className="mx-auto mt-12 max-w-6xl rounded-2xl border border-[#D4A62A]/25 bg-gradient-to-br from-[#D4A62A]/10 via-card to-card p-6 md:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="font-serif text-3xl text-foreground">
@@ -492,6 +583,12 @@ export default async function ClaimBusinessPage({
             </Button>
           </div>
         </section>
+
+        <div className="mx-auto mt-16 max-w-6xl space-y-16">
+          <ClaimBusinessComparisonTable tx={tx} pricing={pricing} />
+          <ClaimBusinessTrustAndVisibility tx={tx} />
+          <ClaimBusinessFaqSection tx={tx} />
+        </div>
       </div>
     </main>
   );

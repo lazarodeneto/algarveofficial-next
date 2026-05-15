@@ -12,7 +12,7 @@ import {
   recordEmailSuccess,
 } from "@/lib/email/email-events";
 import { getResendClient } from "@/lib/email/resend-client";
-import type { EmailTag, SendEmailInput, SendEmailResult } from "@/lib/email/email-types";
+import type { EmailAttachment, EmailTag, SendEmailInput, SendEmailResult } from "@/lib/email/email-types";
 
 const TAG_PATTERN = /^[A-Za-z0-9_-]{1,256}$/;
 
@@ -55,6 +55,23 @@ function sanitizeTags(tags: EmailTag[] | null | undefined) {
     }))
     .filter((tag) => TAG_PATTERN.test(tag.name) && TAG_PATTERN.test(tag.value))
     .slice(0, 75);
+
+  return sanitized.length > 0 ? sanitized : undefined;
+}
+
+function sanitizeAttachments(attachments: EmailAttachment[] | null | undefined) {
+  if (!attachments) return undefined;
+
+  const sanitized = attachments
+    .filter((attachment) => attachment.content || attachment.path)
+    .map((attachment) => ({
+      content: attachment.content,
+      filename: attachment.filename,
+      path: attachment.path,
+      contentType: attachment.contentType,
+      contentId: attachment.contentId,
+    }))
+    .slice(0, 3);
 
   return sanitized.length > 0 ? sanitized : undefined;
 }
@@ -153,6 +170,7 @@ export async function sendEmail(input: SendEmailInput): Promise<SendEmailResult>
         html: input.html,
         text: input.text,
         tags: sanitizeTags(input.tags),
+        attachments: sanitizeAttachments(input.attachments),
       },
       input.idempotencyKey ? { idempotencyKey: input.idempotencyKey } : undefined,
     );

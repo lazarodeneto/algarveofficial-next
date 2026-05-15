@@ -25,6 +25,14 @@ export interface EmailTag {
   value: string;
 }
 
+export interface EmailAttachment {
+  content?: string | Buffer;
+  filename?: string | false;
+  path?: string;
+  contentType?: string;
+  contentId?: string;
+}
+
 export interface SendEmailInput {
   to: string | string[];
   cc?: string | string[] | null;
@@ -40,6 +48,7 @@ export interface SendEmailInput {
   idempotencyKey?: string | null;
   metadata?: Record<string, unknown> | null;
   tags?: EmailTag[] | null;
+  attachments?: EmailAttachment[] | null;
   allowSkip?: boolean;
 }
 

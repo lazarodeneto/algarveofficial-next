@@ -14,6 +14,7 @@ import { translateCategoryName } from "@/lib/translateCategory";
 import { supabase } from "@/integrations/supabase/client";
 import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
+import { PUBLIC_LISTING_TRANSLATION_STATUSES } from "@/lib/listings/publicListingTranslations";
 
 export type CuratedContext = {
   type: 'home';
@@ -89,9 +90,10 @@ export function CuratedExcellence({
       if (!listingIds.length || targetLang === "en") return [];
       const { data, error } = await supabase
         .from("listing_translations")
-        .select("listing_id, title, short_description")
+        .select("listing_id, title, short_description, translation_status")
         .in("listing_id", listingIds)
-        .eq("language_code", targetLang);
+        .eq("language_code", targetLang)
+        .in("translation_status", [...PUBLIC_LISTING_TRANSLATION_STATUSES]);
 
       if (error) throw error;
       return data || [];

@@ -5,11 +5,13 @@ import {
   BusinessClaimFormClient,
   type ClaimFormListing,
 } from "@/components/claim-business/BusinessClaimFormClient";
-import { CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS } from "@/components/claim-business/ClaimBusinessPartnershipSections";
 import {
-  buildClaimTierPricingDetails,
-  getClaimPricingSnapshot,
-} from "@/lib/claims/claim-pricing";
+  CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS,
+  ClaimBusinessComparisonTable,
+  ClaimBusinessFaqSection,
+  ClaimBusinessTrustAndVisibility,
+} from "@/components/claim-business/ClaimBusinessPartnershipSections";
+import { buildClaimTierPricingDetails, getClaimPricingSnapshot } from "@/lib/claims/claim-pricing";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { getServerTranslations } from "@/lib/i18n/server";
@@ -68,6 +70,9 @@ const CLAIM_FORM_TRANSLATION_KEYS = [
   "claimBusinessForm.proofNotes",
   "claimBusinessForm.proofNotesPlaceholder",
   "claimBusinessForm.documentUploadNote",
+  "claimBusinessForm.proofDocumentLabel",
+  "claimBusinessForm.proofDocumentSelected",
+  "claimBusinessForm.proofDocumentRemove",
   "claimBusinessForm.tierTitle",
   "claimBusinessForm.tier.free",
   "claimBusinessForm.tier.freeDescription",
@@ -76,8 +81,8 @@ const CLAIM_FORM_TRANSLATION_KEYS = [
   "claimBusinessForm.tier.signature",
   "claimBusinessForm.tier.signatureDescription",
   "claimBusinessForm.paymentLaterNote",
-  "claimBusinessForm.paymentCheckoutNote",
   "claimBusinessForm.paymentFreeNote",
+  "claimBusinessForm.paymentCheckoutNote",
   "claimBusinessForm.submit",
   "claimBusinessForm.submitFree",
   "claimBusinessForm.submitPaid",
@@ -94,6 +99,9 @@ const CLAIM_FORM_TRANSLATION_KEYS = [
   "claimBusinessForm.validation.name",
   "claimBusinessForm.validation.email",
   "claimBusinessForm.validation.message",
+  "claimBusinessForm.validation.proofDocumentRequired",
+  "claimBusinessForm.validation.proofDocumentType",
+  "claimBusinessForm.validation.proofDocumentSize",
   "claimBusinessForm.unavailable.claimedTitle",
   "claimBusinessForm.unavailable.claimedDescription",
   "claimBusinessForm.unavailable.pendingTitle",
@@ -107,17 +115,23 @@ const CLAIM_FORM_TRANSLATION_KEYS = [
   "claimBusinessForm.confirmationNextStep",
   "claimBusinessForm.confirmationPaidNextStep",
   "claimBusinessForm.status.pending",
-  "claimBusinessSearch.pricing.freeNote",
+  "claimBusinessForm.checkoutStatus.successTitle",
+  "claimBusinessForm.checkoutStatus.successDescription",
+  "claimBusinessForm.checkoutStatus.cancelTitle",
+  "claimBusinessForm.checkoutStatus.cancelDescription",
   "claimBusinessSearch.pricing.monthlyCadence",
   "claimBusinessSearch.pricing.yearlyCadence",
   "claimBusinessSearch.pricing.promoCadence",
   "claimBusinessSearch.pricing.monthlyEquivalent",
+  "claimBusinessSearch.pricing.unavailablePrice",
   "claimBusinessSearch.pricing.unavailableNote",
+  "claimBusinessSearch.pricing.freeNote",
   ...CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS,
 ] as const;
 
 interface ClaimBusinessSlugPageProps {
   params: Promise<{ locale: string; slug: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 function isUuid(value: string) {
@@ -148,6 +162,17 @@ async function getClaimListing(slugOrId: string) {
   const { data, error } = await query.eq("status", "published").maybeSingle();
   if (error) throw error;
   return (data as unknown as ClaimFormListing | null) ?? null;
+}
+
+async function getClaimFormTranslations(locale: Locale) {
+  const localized = await getServerTranslations(locale, [...CLAIM_FORM_TRANSLATION_KEYS]);
+  if (locale === "en") return localized;
+
+  const english = await getServerTranslations("en", [...CLAIM_FORM_TRANSLATION_KEYS]);
+  return {
+    ...english,
+    ...localized,
+  };
 }
 
 export async function generateMetadata({
@@ -182,12 +207,14 @@ export async function generateMetadata({
 
 export default async function ClaimBusinessSlugPage({
   params,
+  searchParams,
 }: ClaimBusinessSlugPageProps) {
   const { locale: rawLocale, slug } = await params;
+  const sp = await searchParams;
   const locale = isValidLocale(rawLocale) ? (rawLocale as Locale) : "en";
   const [listing, tx, pricingSnapshot] = await Promise.all([
     getClaimListing(slug),
-    getServerTranslations(locale, [...CLAIM_FORM_TRANSLATION_KEYS]),
+    getClaimFormTranslations(locale),
     getClaimPricingSnapshot(),
   ]);
 
@@ -195,7 +222,6 @@ export default async function ClaimBusinessSlugPage({
     notFound();
   }
 
-  const pricing = buildClaimTierPricingDetails(pricingSnapshot, tx);
   const canonicalSlug = listing.slug ?? listing.id;
   const claimPath = `/claim-business/${canonicalSlug}`;
   const listingHref = buildLocalizedPath(locale, `/listing/${canonicalSlug}`);
@@ -205,21 +231,45 @@ export default async function ClaimBusinessSlugPage({
       next: buildLocalizedPath(locale, claimPath),
     },
   });
+  const pricing = buildClaimTierPricingDetails(pricingSnapshot, tx);
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <div className="app-container space-y-8 pb-20 pt-28 lg:pt-32">
-        <section className="max-w-4xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C6961C]">
-            AlgarveOfficial
-          </p>
-          <h1 className="mt-4 font-serif text-4xl leading-tight text-foreground md:text-5xl">
-            {tx["claimBusinessForm.title"]}
-          </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
-            {tx["claimBusinessForm.description"]}
-          </p>
-        </section>
+      <div className="app-container pb-20 pt-28 lg:pt-32">
+        <div className="mx-auto max-w-6xl space-y-8">
+          <section className="max-w-4xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#C6961C]">
+              AlgarveOfficial
+            </p>
+            <h1 className="mt-4 font-serif text-4xl leading-tight text-foreground md:text-5xl">
+              {tx["claimBusinessForm.title"]}
+            </h1>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
+              {tx["claimBusinessForm.description"]}
+            </p>
+          </section>
+
+        {sp?.checkout === "success" ? (
+          <section className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5">
+            <h2 className="font-serif text-2xl text-foreground">
+              {tx["claimBusinessForm.checkoutStatus.successTitle"]}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {tx["claimBusinessForm.checkoutStatus.successDescription"]}
+            </p>
+          </section>
+        ) : null}
+
+        {sp?.checkout === "cancel" ? (
+          <section className="rounded-2xl border border-amber-500/35 bg-amber-500/10 p-5">
+            <h2 className="font-serif text-2xl text-foreground">
+              {tx["claimBusinessForm.checkoutStatus.cancelTitle"]}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {tx["claimBusinessForm.checkoutStatus.cancelDescription"]}
+            </p>
+          </section>
+        ) : null}
 
         <BusinessClaimFormClient
           listing={listing}
@@ -229,6 +279,11 @@ export default async function ClaimBusinessSlugPage({
           tx={tx}
           pricing={pricing}
         />
+
+          <ClaimBusinessComparisonTable tx={tx} pricing={pricing} />
+          <ClaimBusinessTrustAndVisibility tx={tx} />
+          <ClaimBusinessFaqSection tx={tx} />
+        </div>
       </div>
     </main>
   );

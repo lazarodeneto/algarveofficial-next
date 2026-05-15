@@ -52,6 +52,21 @@ function jsonRequest(body: unknown) {
   }) as unknown as Parameters<typeof postBusinessClaim>[0];
 }
 
+function formDataRequest(body: Record<string, string>, file?: File) {
+  const formData = new FormData();
+  Object.entries(body).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+  if (file) {
+    formData.append("proofDocument", file);
+  }
+
+  return new NextRequest("http://localhost/api/business-claims", {
+    method: "POST",
+    body: formData,
+  }) as unknown as Parameters<typeof postBusinessClaim>[0];
+}
+
 function makeWriteClient({
   listing = {
     id: LISTING_ID,
@@ -110,11 +125,20 @@ function makeWriteClient({
     }
     throw new Error(`Unexpected table ${table}`);
   });
+  const storageUpload = vi.fn().mockResolvedValue({ data: { path: "proof.pdf" }, error: null });
+  const storageRemove = vi.fn().mockResolvedValue({ data: null, error: null });
+  const storageFrom = vi.fn(() => ({
+    upload: storageUpload,
+    remove: storageRemove,
+  }));
 
   return {
-    client: { from },
+    client: { from, storage: { from: storageFrom } },
     spies: {
       from,
+      storageFrom,
+      storageUpload,
+      storageRemove,
       listingSelect,
       listingLookupEq,
       listingMaybeSingle,
@@ -248,6 +272,53 @@ describe("business claims route", () => {
       claim_status: "claim_pending",
       claim_verification_method: "business_email_domain",
     });
+  });
+
+  it("uploads a proof document for document verification claims", async () => {
+    mockAuthenticatedUser();
+    const writeClient = makeWriteClient();
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+    mocks.notifyBusinessClaimSubmitted.mockResolvedValue([]);
+
+    const response = await postBusinessClaim(
+      formDataRequest(
+        {
+          ...validPayload(),
+          verificationMethod: "document_upload",
+        },
+        new File(["proof"], "ownership.pdf", { type: "application/pdf" }),
+      ),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(payload).toEqual(expect.objectContaining({ ok: true }));
+    expect(writeClient.spies.storageFrom).toHaveBeenCalledWith("business-claim-proofs");
+    expect(writeClient.spies.storageUpload).toHaveBeenCalledWith(
+      expect.stringMatching(new RegExp(`^${LISTING_ID}/`)),
+      expect.any(Buffer),
+      expect.objectContaining({
+        contentType: "application/pdf",
+        upsert: false,
+      }),
+    );
+    expect(writeClient.spies.claimInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        verification_method: "document_upload",
+        proof_url: expect.stringMatching(/^business-claim-proofs\//),
+      }),
+    );
+    expect(mocks.notifyBusinessClaimSubmitted).toHaveBeenCalledWith(
+      writeClient.client,
+      expect.objectContaining({
+        proofUrl: expect.stringMatching(/^business-claim-proofs\//),
+        proofDocument: expect.objectContaining({
+          filename: "ownership.pdf",
+          contentType: "application/pdf",
+          content: expect.any(Buffer),
+        }),
+      }),
+    );
   });
 
   it("requires an authenticated user", async () => {

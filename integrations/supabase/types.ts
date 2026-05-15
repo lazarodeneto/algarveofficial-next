@@ -2403,6 +2403,7 @@ export type Database = {
           source_hash: string | null
           title: string
           translated_at: string | null
+          translation_source: "manual" | "automatic"
           translation_status: Database["public"]["Enums"]["translation_status"]
           updated_at: string
         }
@@ -2418,6 +2419,7 @@ export type Database = {
           source_hash?: string | null
           title: string
           translated_at?: string | null
+          translation_source?: "manual" | "automatic"
           translation_status?: Database["public"]["Enums"]["translation_status"]
           updated_at?: string
         }
@@ -2433,6 +2435,7 @@ export type Database = {
           source_hash?: string | null
           title?: string
           translated_at?: string | null
+          translation_source?: "manual" | "automatic"
           translation_status?: Database["public"]["Enums"]["translation_status"]
           updated_at?: string
         }
@@ -3355,6 +3358,7 @@ export type Database = {
       }
       translation_jobs: {
         Row: {
+          allow_manual_overwrite: boolean
           attempts: number
           created_at: string
           id: string
@@ -3367,6 +3371,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allow_manual_overwrite?: boolean
           attempts?: number
           created_at?: string
           id?: string
@@ -3379,6 +3384,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allow_manual_overwrite?: boolean
           attempts?: number
           created_at?: string
           id?: string

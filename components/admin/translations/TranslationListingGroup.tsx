@@ -541,7 +541,7 @@ function LocaleRow({
             )}
             <ActionButton
               icon={<Pencil className="h-3 w-3" />}
-              label="Edit"
+              label="Manual"
               onClick={() => onEdit(job)}
               variant="edit"
             />

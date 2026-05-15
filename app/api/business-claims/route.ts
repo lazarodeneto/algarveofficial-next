@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -30,6 +31,16 @@ const verificationMethodSchema = z.enum([
 ]);
 
 const selectedTierSchema = z.enum(["free", "verified", "signature"]);
+const PROOF_DOCUMENT_BUCKET = "business-claim-proofs";
+const MAX_PROOF_DOCUMENT_BYTES = 4 * 1024 * 1024;
+const ALLOWED_PROOF_DOCUMENT_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
 
 const businessClaimSchema = z.object({
   listingId: z.string().uuid(),
@@ -47,6 +58,11 @@ const businessClaimSchema = z.object({
   selectedTier: selectedTierSchema,
   verificationMethod: verificationMethodSchema,
 });
+
+interface ParsedBusinessClaimRequest {
+  body: unknown;
+  proofDocument: File | null;
+}
 
 function errorResponse(status: number, code: string, message: string, details?: unknown) {
   return NextResponse.json(
@@ -67,6 +83,102 @@ function normalizeOptional(value: string | undefined) {
   return trimmed && trimmed.length > 0 ? trimmed : null;
 }
 
+function isFileLike(value: unknown): value is File {
+  return typeof File !== "undefined" && value instanceof File;
+}
+
+async function parseBusinessClaimRequest(request: NextRequest): Promise<ParsedBusinessClaimRequest> {
+  const contentType = request.headers.get("content-type") ?? "";
+  if (contentType.toLowerCase().includes("multipart/form-data")) {
+    const formData = await request.formData();
+    const body: Record<string, unknown> = {};
+    let proofDocument: File | null = null;
+
+    for (const [key, value] of formData.entries()) {
+      if (key === "proofDocument" && isFileLike(value) && value.size > 0) {
+        proofDocument = value;
+        continue;
+      }
+
+      if (typeof value === "string") {
+        body[key] = value;
+      }
+    }
+
+    return { body, proofDocument };
+  }
+
+  return {
+    body: await request.json(),
+    proofDocument: null,
+  };
+}
+
+function sanitizeFileName(value: string) {
+  const sanitized = value
+    .normalize("NFKD")
+    .replace(/[^\w.\- ]+/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .slice(0, 120);
+
+  return sanitized || "proof-document";
+}
+
+function validateProofDocument(file: File | null) {
+  if (!file) return null;
+  if (file.size > MAX_PROOF_DOCUMENT_BYTES) {
+    return "Proof document must be 4 MB or smaller.";
+  }
+  if (!ALLOWED_PROOF_DOCUMENT_TYPES.has(file.type)) {
+    return "Proof document must be a PDF, Word document, JPG, PNG or WebP file.";
+  }
+  return null;
+}
+
+async function uploadProofDocument({
+  client,
+  claimId,
+  listingId,
+  file,
+}: {
+  client: ReturnType<typeof createServiceRoleClient>;
+  claimId: string;
+  listingId: string;
+  file: File;
+}) {
+  if (!client) throw new Error("Storage client is not configured.");
+
+  const content = Buffer.from(await file.arrayBuffer());
+  const storagePath = `${listingId}/${claimId}/${randomUUID()}-${sanitizeFileName(file.name)}`;
+  const { error } = await client.storage
+    .from(PROOF_DOCUMENT_BUCKET)
+    .upload(storagePath, content, {
+      contentType: file.type,
+      upsert: false,
+    });
+
+  if (error) {
+    throw new Error(error.message || "Proof document upload failed.");
+  }
+
+  return {
+    proofUrl: `${PROOF_DOCUMENT_BUCKET}/${storagePath}`,
+    storagePath,
+    filename: sanitizeFileName(file.name),
+    contentType: file.type,
+    content,
+  };
+}
+
+async function removeUploadedProofDocument(
+  client: ReturnType<typeof createServiceRoleClient>,
+  storagePath: string | null | undefined,
+) {
+  if (!client || !storagePath) return;
+  await client.storage.from(PROOF_DOCUMENT_BUCKET).remove([storagePath]);
+}
+
 async function getCurrentUserId() {
   const supabase = await createServerClient();
   const { data, error } = await supabase.auth.getUser();
@@ -80,13 +192,14 @@ export async function POST(request: NextRequest) {
     return errorResponse(401, "AUTH_REQUIRED", "Sign in before submitting a business claim.");
   }
 
-  let body: unknown = null;
+  let parsedRequest: ParsedBusinessClaimRequest;
   try {
-    body = await request.json();
+    parsedRequest = await parseBusinessClaimRequest(request);
   } catch {
-    return errorResponse(400, "INVALID_JSON", "Request body must be valid JSON.");
+    return errorResponse(400, "INVALID_REQUEST_BODY", "Request body must be valid JSON or form data.");
   }
 
+  const body = parsedRequest.body;
   const parsed = businessClaimSchema.safeParse(body);
   if (!parsed.success) {
     return errorResponse(
@@ -107,6 +220,19 @@ export async function POST(request: NextRequest) {
   }
 
   const payload = parsed.data;
+  const proofDocumentError = validateProofDocument(parsedRequest.proofDocument);
+  if (proofDocumentError) {
+    return errorResponse(400, "BUSINESS_CLAIM_PROOF_DOCUMENT_INVALID", proofDocumentError);
+  }
+
+  if (payload.verificationMethod === "document_upload" && !parsedRequest.proofDocument) {
+    return errorResponse(
+      400,
+      "BUSINESS_CLAIM_PROOF_DOCUMENT_REQUIRED",
+      "A proof document is required for document upload verification.",
+    );
+  }
+
   const abuseFields = extractFormAbuseFields(body);
   const abuse = await enforceFormAbuseProtection({
     request,
@@ -164,10 +290,30 @@ export async function POST(request: NextRequest) {
     listingWebsite: listing.website_url,
     listingPhone: listing.contact_phone,
   });
+  const claimId = randomUUID();
+  let uploadedProofDocument: Awaited<ReturnType<typeof uploadProofDocument>> | null = null;
+
+  if (parsedRequest.proofDocument) {
+    try {
+      uploadedProofDocument = await uploadProofDocument({
+        client: writeClient,
+        claimId,
+        listingId: listing.id,
+        file: parsedRequest.proofDocument,
+      });
+    } catch (error) {
+      return errorResponse(
+        500,
+        "BUSINESS_CLAIM_PROOF_UPLOAD_FAILED",
+        error instanceof Error ? error.message : "Proof document upload failed.",
+      );
+    }
+  }
 
   const { data: claim, error: insertError } = await writeClient
     .from("business_claims")
     .insert({
+      id: claimId,
       listing_id: listing.id,
       claimant_user_id: userId,
       claimant_name: payload.claimantName.trim(),
@@ -179,6 +325,7 @@ export async function POST(request: NextRequest) {
       selected_tier: payload.selectedTier,
       verification_method: payload.verificationMethod,
       proof_notes: proofNotes,
+      proof_url: uploadedProofDocument?.proofUrl ?? null,
       message: payload.message.trim(),
       status: "pending",
       confidence_score: confidenceScore,
@@ -187,6 +334,8 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (insertError) {
+    await removeUploadedProofDocument(writeClient, uploadedProofDocument?.storagePath);
+
     if (insertError.code === "23505") {
       return errorResponse(
         409,
@@ -210,6 +359,8 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (updateError || !updatedListing) {
+    await removeUploadedProofDocument(writeClient, uploadedProofDocument?.storagePath);
+
     const cleanupMessage = updateError
       ? `Cancelled after listing claim_status update failed: ${updateError.message}`
       : "Cancelled because listing claim_status changed before submission could be completed.";
@@ -244,6 +395,14 @@ export async function POST(request: NextRequest) {
     selectedTier: payload.selectedTier,
     status: claim.status,
     createdAt: claim.created_at,
+    proofUrl: uploadedProofDocument?.proofUrl ?? null,
+    proofDocument: uploadedProofDocument
+      ? {
+          filename: uploadedProofDocument.filename,
+          content: uploadedProofDocument.content,
+          contentType: uploadedProofDocument.contentType,
+        }
+      : null,
   });
 
   return NextResponse.json(

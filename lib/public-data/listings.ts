@@ -10,6 +10,7 @@ import {
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import { addLocaleToPathname } from "@/lib/i18n/locale-utils";
 import { getListingTierRules } from "@/lib/listingTierRules";
+import { PUBLIC_LISTING_TRANSLATION_STATUSES } from "@/lib/listings/publicListingTranslations";
 import {
   ALL_CANONICAL_SLUGS as PROGRAMMATIC_CATEGORY_SLUGS,
   getCanonicalFromUrlSlug,
@@ -85,6 +86,7 @@ type ListingTranslationRow = {
   title: string | null;
   short_description: string | null;
   description: string | null;
+  translation_status?: string | null;
 };
 
 type CityTranslationRow = {
@@ -210,8 +212,9 @@ async function fetchListingTranslations(
   if (locale === "en" || listingIds.length === 0) return [];
   const { data, error } = await supabase
     .from("listing_translations")
-    .select("listing_id, title, short_description, description")
+    .select("listing_id, title, short_description, description, translation_status")
     .eq("language_code", locale)
+    .in("translation_status", [...PUBLIC_LISTING_TRANSLATION_STATUSES])
     .in("listing_id", Array.from(new Set(listingIds)));
   if (error) throw error;
   return (data ?? []) as ListingTranslationRow[];

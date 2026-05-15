@@ -11,6 +11,7 @@ import {
   bulkUpdateTranslationStatus,
   enqueueTranslationJob,
   requeueOutdatedJobs,
+  TranslationAdminApiError,
   updateTranslationStatus,
 } from "@/lib/admin/translations/queries";
 import { invalidateAdminInboxQueries } from "@/lib/query-invalidation";
@@ -21,6 +22,10 @@ import type { ListingJobGroup, ListingRow, TranslationJob } from "@/lib/admin/tr
 interface Props {
   groups:    ListingJobGroup[];
   onRefresh: () => void;
+}
+
+function isManualOverwriteConflict(err: unknown) {
+  return err instanceof TranslationAdminApiError && err.code === "MANUAL_TRANSLATION_EXISTS";
 }
 
 export function TranslationJobsTable({ groups, onRefresh }: Props) {
@@ -52,12 +57,20 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
     void invalidateAdminInboxQueries(queryClient);
   }, [onRefresh, queryClient]);
 
+  const confirmManualOverwrite = useCallback((targetLang: string) => {
+    return window.confirm(
+      `A manual ${targetLang.toUpperCase()} translation already exists. Replace it with a new automatic translation?`,
+    );
+  }, []);
+
   const withLoading = useCallback(
-    async (jobId: string, fn: () => Promise<void>) => {
+    async (jobId: string, fn: () => Promise<boolean | void>) => {
       setLoadingJobId(jobId);
       try {
-        await fn();
-        refreshAfterMutation();
+        const shouldRefresh = await fn();
+        if (shouldRefresh !== false) refreshAfterMutation();
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Translation action failed.");
       } finally {
         setLoadingJobId(null);
       }
@@ -68,21 +81,45 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
   const handleTranslate = useCallback(
     async (job: TranslationJob) => {
       await withLoading(job.id, async () => {
-        await enqueueTranslationJob(supabase, job.listing_id, job.target_lang);
+        try {
+          await enqueueTranslationJob(supabase, job.listing_id, job.target_lang);
+        } catch (err) {
+          if (isManualOverwriteConflict(err) && confirmManualOverwrite(job.target_lang)) {
+            await enqueueTranslationJob(supabase, job.listing_id, job.target_lang, {
+              overwriteManual: true,
+            });
+          } else {
+            if (isManualOverwriteConflict(err)) return false;
+            throw err;
+          }
+        }
         toast.success(`Queued ${job.target_lang.toUpperCase()} translation.`);
+        return true;
       });
     },
-    [supabase, withLoading],
+    [confirmManualOverwrite, supabase, withLoading],
   );
 
   const handleRetry = useCallback(
     async (job: TranslationJob) => {
       await withLoading(job.id, async () => {
-        await enqueueTranslationJob(supabase, job.listing_id, job.target_lang);
+        try {
+          await enqueueTranslationJob(supabase, job.listing_id, job.target_lang);
+        } catch (err) {
+          if (isManualOverwriteConflict(err) && confirmManualOverwrite(job.target_lang)) {
+            await enqueueTranslationJob(supabase, job.listing_id, job.target_lang, {
+              overwriteManual: true,
+            });
+          } else {
+            if (isManualOverwriteConflict(err)) return false;
+            throw err;
+          }
+        }
         toast.success(`Retrying ${job.target_lang.toUpperCase()} translation.`);
+        return true;
       });
     },
-    [supabase, withLoading],
+    [confirmManualOverwrite, supabase, withLoading],
   );
 
   const handleMarkReviewed = useCallback(
@@ -133,20 +170,35 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
       if (jobIds.length === 0) return;
       setGroupActionLoading(true);
       try {
-        await bulkUpdateTranslationStatus(supabase, jobIds, status);
+        try {
+          await bulkUpdateTranslationStatus(supabase, jobIds, status);
+        } catch (err) {
+          if (
+            status === "queued" &&
+            isManualOverwriteConflict(err) &&
+            confirmManualOverwrite(`${jobIds.length} selected`)
+          ) {
+            await bulkUpdateTranslationStatus(supabase, jobIds, status, {
+              overwriteManual: true,
+            });
+          } else {
+            if (isManualOverwriteConflict(err)) return;
+            throw err;
+          }
+        }
         toast.success(
           `${jobIds.length} job${jobIds.length !== 1 ? "s" : ""} ${
             status === "queued" ? "queued" : "marked reviewed"
           }.`,
         );
         refreshAfterMutation();
-      } catch {
-        toast.error("Action failed. Please try again.");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Action failed. Please try again.");
       } finally {
         setGroupActionLoading(false);
       }
     },
-    [supabase, refreshAfterMutation],
+    [confirmManualOverwrite, supabase, refreshAfterMutation],
   );
 
   // ── Toolbar bulk actions ───────────────────────────────────────────────────
@@ -156,19 +208,34 @@ export function TranslationJobsTable({ groups, onRefresh }: Props) {
       setBulkLoading(true);
       try {
         const status = action === "reviewed" ? "reviewed" : "queued";
-        await bulkUpdateTranslationStatus(supabase, selectedJobIds, status);
+        try {
+          await bulkUpdateTranslationStatus(supabase, selectedJobIds, status);
+        } catch (err) {
+          if (
+            status === "queued" &&
+            isManualOverwriteConflict(err) &&
+            confirmManualOverwrite(`${selectedJobIds.length} selected`)
+          ) {
+            await bulkUpdateTranslationStatus(supabase, selectedJobIds, status, {
+              overwriteManual: true,
+            });
+          } else {
+            if (isManualOverwriteConflict(err)) return;
+            throw err;
+          }
+        }
         toast.success(
           `${selectedJobIds.length} job${selectedJobIds.length !== 1 ? "s" : ""} updated.`,
         );
         setSelectedJobIds([]);
         refreshAfterMutation();
-      } catch {
-        toast.error("Bulk update failed.");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Bulk update failed.");
       } finally {
         setBulkLoading(false);
       }
     },
-    [supabase, selectedJobIds, refreshAfterMutation],
+    [confirmManualOverwrite, supabase, selectedJobIds, refreshAfterMutation],
   );
 
   // ── Render ─────────────────────────────────────────────────────────────────

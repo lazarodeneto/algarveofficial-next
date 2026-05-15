@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, ShieldCheck, Users } from "lucide-react";
+import { ArrowLeft, Download, ExternalLink, ShieldCheck, Users } from "lucide-react";
 
 import type { AdminBusinessClaimListItem, BusinessClaimStatus } from "@/lib/admin/business-claims/types";
 import { BusinessClaimReviewActions } from "@/components/admin/business-claims/BusinessClaimReviewActions";
@@ -165,8 +165,18 @@ export function BusinessClaimDetail({
               <DetailRow label="Submitted" value={formatDate(claim.createdAt)} />
               <DetailRow label="Reviewed at" value={formatDate(claim.reviewedAt)} />
               <DetailRow label="Reviewed by" value={claim.reviewedBy} />
-              <div className="md:col-span-2">
-                <DetailRow label="Proof URL" value={claim.proofUrl} />
+              <div className="md:col-span-2 rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Proof document</p>
+                {claim.proofUrl ? (
+                  <Button asChild variant="outline" size="sm" className="mt-2">
+                    <a href={`/api/admin/business-claims/${encodeURIComponent(claim.id)}/proof`}>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download uploaded proof
+                    </a>
+                  </Button>
+                ) : (
+                  <p className="mt-1 text-sm font-medium text-foreground">—</p>
+                )}
               </div>
               <div className="md:col-span-2 rounded-lg border border-border/70 bg-background/60 p-3">
                 <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Proof notes</p>

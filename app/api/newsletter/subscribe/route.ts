@@ -86,7 +86,7 @@ function confirmationUrl(request: NextRequest, token: string) {
 function shouldSendConfirmation(existing: SubscriberRow | null) {
   if (!existing) return true;
   const status = existing.status ?? (existing.is_subscribed ? "subscribed" : "unsubscribed");
-  if (status === "subscribed" || status === "bounced" || status === "complained") return false;
+  if (status === "subscribed" || status === "bounced" || status === "complained" || status === "failed") return false;
   if (!existing.last_confirmation_sent_at) return true;
   return Date.now() - Date.parse(existing.last_confirmation_sent_at) > CONFIRMATION_COOLDOWN_MS;
 }

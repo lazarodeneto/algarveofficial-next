@@ -141,6 +141,7 @@ describe("BusinessClaimFormClient", () => {
   const fetchMock = vi.fn();
 
   beforeEach(() => {
+    fetchMock.mockReset();
     vi.stubGlobal("fetch", fetchMock);
     mocks.useAuth.mockReturnValue({
       user: null,
@@ -163,7 +164,19 @@ describe("BusinessClaimFormClient", () => {
     expect(screen.getByText(tx["claimBusinessPartnership.tiers.unverified.name"])).toBeInTheDocument();
     expect(screen.getAllByText(tx["claimBusinessPartnership.tiers.unverified.price"]).length).toBeGreaterThan(0);
     expect(screen.getByText(tx["claimBusinessPartnership.tiers.verified.price"])).toBeInTheDocument();
-    expect(screen.getByText(tx["claimBusinessPartnership.tiers.signature.price"])).toBeInTheDocument();
+    expect(screen.getAllByText(tx["claimBusinessPartnership.tiers.signature.price"]).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(tx["claimBusinessPartnership.pricing.annualOptionLabel"]).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(tx["claimBusinessPartnership.pricing.annualEstimateLabel"]).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("/year").length).toBeGreaterThan(0);
+  });
+
+  it("shows the proof document upload control in the verification section", async () => {
+    renderClaimForm();
+
+    await userEvent.click(screen.getByRole("button", { name: tx["claimBusinessForm.yesContinue"] }));
+
+    expect(screen.getByLabelText(tx["claimBusinessForm.proofDocumentLabel"])).toBeInTheDocument();
+    expect(screen.getByText(tx["claimBusinessForm.documentUploadNote"])).toBeInTheDocument();
   });
 
   it("submits the free tier without starting Stripe checkout", async () => {
@@ -320,6 +333,8 @@ describe("BusinessClaimFormClient", () => {
 
     renderClaimForm(multiPeriodPricing);
     const user = await openFormAndFillRequiredFields();
+    expect(screen.getAllByText(tx["claimBusinessPartnership.pricing.annualOptionLabel"]).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("/year").length).toBeGreaterThan(0);
     await user.click(screen.getByRole("radio", { name: /€190/i }));
     await user.click(screen.getByRole("button", { name: tx["claimBusinessForm.submitPaid"] }));
 

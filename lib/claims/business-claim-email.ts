@@ -10,7 +10,7 @@ import {
   getSiteUrl as getConfiguredSiteUrl,
 } from "@/lib/email/email-config";
 import { sendEmail } from "@/lib/email/send-email";
-import type { EmailRelatedEntityType, EmailTemplateKey } from "@/lib/email/email-types";
+import type { EmailRelatedEntityType, EmailTemplateKey, SendEmailInput } from "@/lib/email/email-types";
 
 type EmailClient = SupabaseClient<Database>;
 
@@ -51,6 +51,12 @@ export interface BusinessClaimEmailContext {
   createdAt?: string | null;
   reviewNote?: string | null;
   rejectionReason?: string | null;
+  proofUrl?: string | null;
+  proofDocument?: {
+    filename: string;
+    content: Buffer;
+    contentType: string;
+  } | null;
 }
 
 interface EmailJob {
@@ -64,6 +70,7 @@ interface EmailJob {
   relatedEntityType: EmailRelatedEntityType;
   relatedEntityId: string;
   metadata?: Record<string, unknown>;
+  attachments?: SendEmailInput["attachments"];
 }
 
 function getSiteUrl() {
@@ -163,7 +170,7 @@ function emailLayout({
     <h2 style="margin:22px 0 8px;font-size:16px">Next step</h2>
     <p style="margin:0;color:#475569;line-height:1.65">${escapeHtml(nextStep)}</p>
     ${action}
-    <p style="margin:28px 0 0;color:#94a3b8;font-size:12px;line-height:1.5">This email does not include proof documents or sensitive verification attachments.</p>
+    <p style="margin:28px 0 0;color:#94a3b8;font-size:12px;line-height:1.5">Handle ownership proof documents confidentially and only inside AlgarveOfficial review workflows.</p>
   </main>
 </body>
 </html>`.trim();
@@ -250,8 +257,13 @@ function buildAdminSubmittedEmail(ctx: BusinessClaimEmailContext, recipients: st
     ["Claimant", ctx.claimantName],
     ["Claimant email", ctx.claimantEmail],
     ["Listing ID", ctx.listingId],
+    ["Proof document", ctx.proofDocument ? `${ctx.proofDocument.filename} (attached)` : toDisplayValue(ctx.proofUrl)],
   ];
   const nextStep = "Review the structured claim in the admin dashboard.";
+  const proofNote = ctx.proofDocument
+    ? "A proof document is attached to this admin notification and stored privately on the claim record."
+    : null;
+  const note = [listingUrl ? `Public listing: ${listingUrl}` : null, proofNote].filter(Boolean).join("\n");
 
   return {
     to: recipients,
@@ -264,7 +276,7 @@ function buildAdminSubmittedEmail(ctx: BusinessClaimEmailContext, recipients: st
       nextStep,
       actionLabel: "Review claim",
       actionUrl: adminClaimUrl(ctx.claimId),
-      note: listingUrl ? `Public listing: ${listingUrl}` : null,
+      note: note || null,
     }),
     text: textEmail({
       heading: "New business claim submitted",
@@ -273,7 +285,7 @@ function buildAdminSubmittedEmail(ctx: BusinessClaimEmailContext, recipients: st
       nextStep,
       actionLabel: "Review claim",
       actionUrl: adminClaimUrl(ctx.claimId),
-      note: listingUrl ? `Public listing: ${listingUrl}` : null,
+      note: note || null,
     }),
     replyTo: ctx.claimantEmail,
     idempotencyKey: `business-claim/${ctx.claimId}/admin`,
@@ -284,7 +296,17 @@ function buildAdminSubmittedEmail(ctx: BusinessClaimEmailContext, recipients: st
       listingId: ctx.listingId,
       status: ctx.status,
       selectedTier: ctx.selectedTier,
+      hasProofDocument: Boolean(ctx.proofDocument || ctx.proofUrl),
     },
+    attachments: ctx.proofDocument
+      ? [
+          {
+            filename: ctx.proofDocument.filename,
+            content: ctx.proofDocument.content,
+            contentType: ctx.proofDocument.contentType,
+          },
+        ]
+      : undefined,
   };
 }
 
@@ -394,6 +416,7 @@ async function enqueueBusinessClaimEmailJobs(client: EmailClient, jobs: EmailJob
       relatedEntityId: job.relatedEntityId,
       idempotencyKey: job.idempotencyKey,
       metadata: job.metadata,
+      attachments: job.attachments,
       tags: [
         { name: "template", value: job.templateKey },
         { name: "source", value: "business_claim" },

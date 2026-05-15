@@ -215,6 +215,37 @@ describe("newsletter API routes", () => {
     expect(mocks.syncNewsletterSubscriberToResend).not.toHaveBeenCalled();
   });
 
+  it("does not re-enter double opt-in for failed suppressed subscribers", async () => {
+    vi.stubEnv("NEWSLETTER_TOKEN_SECRET", "test-newsletter-secret");
+    const client = makeClient({
+      confirmSubscriber: {
+        id: "subscriber-1",
+        email: "reader@example.com",
+        full_name: null,
+        status: "failed",
+        is_subscribed: false,
+        confirmation_token_hash: null,
+        unsubscribe_token_hash: "unsub-hash",
+        last_confirmation_sent_at: null,
+        created_at: "2026-05-14T12:00:00.000Z",
+      },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(client.client);
+
+    const response = await subscribeNewsletter(jsonRequest({
+      email: "reader@example.com",
+      submittedAt: Date.now() - 2000,
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(202);
+    expect(payload.message).toContain("If this email can be subscribed");
+    expect(client.spies.subscriberInsert).not.toHaveBeenCalled();
+    expect(client.spies.subscriberUpdate).not.toHaveBeenCalled();
+    expect(mocks.sendEmail).not.toHaveBeenCalled();
+    expect(mocks.syncNewsletterSubscriberToResend).not.toHaveBeenCalled();
+  });
+
   it("confirms a pending subscriber and syncs only after confirmation", async () => {
     vi.stubEnv("NEWSLETTER_TOKEN_SECRET", "test-newsletter-secret");
     const token = "confirm-token";

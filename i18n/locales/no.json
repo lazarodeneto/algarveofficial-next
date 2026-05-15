@@ -1197,7 +1197,7 @@
     "confirmationTitle": "Kravforespørselen din er mottatt.",
     "contactTitle": "Kontaktopplysninger",
     "description": "Bekreft oppføringen, fortell oss hvordan du er knyttet til virksomheten, og send inn en manuell eierskapsvurdering.",
-    "documentUploadNote": "Dokumentlagring er ennå ikke aktivert for denne offentlige flyten. Beskriv dokumentet eller beviset du kan levere, så ber teamet om det hvis det trengs.",
+    "documentUploadNote": "Last opp en PDF, Word-dokument, JPG, PNG eller WebP på opptil 4 MB. Den lagres privat og legges ved e-posten til teamets gjennomgang.",
     "fullName": "Fullt navn",
     "isThisYourBusiness": "Er dette din virksomhet?",
     "loginRequiredDescription": "Du kan fylle ut skjemaet nå, men du blir sendt til innlogging før kravet sendes inn.",
@@ -1247,7 +1247,10 @@
     "validation": {
       "email": "Skriv inn en gyldig jobb-e-post.",
       "message": "Legg til minst 10 tegn som forklarer tilknytningen din til virksomheten.",
-      "name": "Skriv inn fullt navn."
+      "name": "Skriv inn fullt navn.",
+      "proofDocumentRequired": "Last opp dokumentasjon for dokumentverifisering.",
+      "proofDocumentSize": "Dokumentasjonen må være 4 MB eller mindre.",
+      "proofDocumentType": "Bruk PDF, Word-dokument, JPG, PNG eller WebP."
     },
     "verification": {
       "businessEmailDomain": "Virksomhetens e-postdomene",
@@ -1261,15 +1264,24 @@
     "viewListing": "Se oppføring",
     "workEmail": "Jobb-e-post",
     "yesContinue": "Ja, fortsett",
-    "checkoutError": "Vi kunne ikke starte sikker checkout. Prøv igjen eller kontakt AlgarveOfficial.",
-    "checkoutErrorTitle": "Checkout ikke startet",
-    "checkoutRedirecting": "Åpner sikker checkout...",
-    "confirmationPaidNextStep": "Kravet ditt er mottatt. Fortsett til Stripe-checkout for å registrere valgt betalt nivå; aktivering avhenger fortsatt av den planlagte godkjenningsflyten.",
-    "continueToCheckout": "Fortsett til sikker checkout",
-    "paymentCheckoutNote": "Betalte krav oppretter kravet først og åpner deretter sikker Stripe-checkout for valgt nivå og faktureringsperiode.",
-    "paymentFreeNote": "Gratis krav sendes direkte til manuell vurdering. Stripe-checkout brukes ikke.",
-    "submitFree": "Send inn gratis krav",
-    "submitPaid": "Send inn og fortsett til checkout"
+    "checkoutError": "Your claim was saved, but secure checkout could not be started. You can retry checkout from this confirmation.",
+    "checkoutErrorTitle": "Checkout not started",
+    "checkoutRedirecting": "Opening secure checkout...",
+    "confirmationPaidNextStep": "Your ownership claim has been saved. Continue to secure checkout for the selected paid tier; premium visibility still remains subject to review, relevance and approval.",
+    "continueToCheckout": "Continue to secure checkout",
+    "paymentCheckoutNote": "Paid tiers continue to secure Stripe checkout after the claim is saved. AlgarveOfficial still reviews ownership and premium placement before publication.",
+    "paymentFreeNote": "The Unverified path is free. No Stripe checkout session is created for a free basic listing request.",
+    "submitFree": "Submit free claim request",
+    "submitPaid": "Submit claim and continue to checkout",
+    "proofDocumentLabel": "Dokumentasjon",
+    "proofDocumentRemove": "Fjern dokumentasjon",
+    "proofDocumentSelected": "Valgt: {{filename}}",
+    "checkoutStatus": {
+      "cancelDescription": "Your ownership claim is still saved for review. No paid tier will be activated unless checkout is completed and approved.",
+      "cancelTitle": "Checkout was cancelled",
+      "successDescription": "Thank you. Stripe will confirm payment securely, and AlgarveOfficial will still review ownership, relevance and quality before premium visibility is approved.",
+      "successTitle": "Checkout received, review pending"
+    }
   },
   "claimBusinessSearch": {
     "cantFindDescription": "Hvis AlgarveOfficial ikke har virksomheten din ennå, kan du starte en ny oppføringsforespørsel via partnerskjemaet.",
@@ -4205,179 +4217,181 @@
     "unavailable": "Vær utilgjengelig"
   },
   "claimBusinessPartnership": {
-    "pricing": {
-      "title": "Choose the claim level that fits your business",
-      "subtitle": "Start free, add verified trust signals, or request Signature visibility for premium placement.",
-      "selectionHint": "Choose a billing period",
-      "compareCta": "Compare tiers"
-    },
-    "tiers": {
-      "unverified": {
-        "name": "Unverified",
-        "price": "Free",
-        "priceNote": "basis",
-        "positioning": "Basic ownership review for existing listings. Keep the claim on record and request essential listing access.",
-        "cta": "Start free claim",
-        "badge": "Basic"
+    "audience": {
+      "badge": "Audience",
+      "items": {
+        "golf": {
+          "description": "Golf travellers comparing courses, resorts and premium leisure options.",
+          "title": "Golf travellers"
+        },
+        "lifestyle": {
+          "description": "Discerning users looking for quality, credibility and local confidence.",
+          "title": "Premium lifestyle consumers"
+        },
+        "property": {
+          "description": "High-intent audiences exploring areas, services and lifestyle fit.",
+          "title": "Property buyers and investors"
+        },
+        "residents": {
+          "description": "People building local routines and choosing reliable services.",
+          "title": "Residents and relocation users"
+        },
+        "visitors": {
+          "description": "Visitors comparing trusted places before they arrive.",
+          "title": "Visitors planning trips"
+        }
       },
-      "verified": {
-        "name": "Verified",
-        "price": "€19",
-        "priceNote": "/month",
-        "positioning": "For legitimate local businesses that want trust, stronger profile signals, and better enquiry readiness.",
-        "cta": "Choose Verified",
-        "badge": "Popular"
-      },
-      "signature": {
-        "name": "Signature",
-        "price": "€190",
-        "priceNote": "/month",
-        "positioning": "Premium partner interest for businesses seeking editorial-quality visibility and curated placement eligibility.",
-        "cta": "Choose Signature",
-        "badge": "Limited"
-      }
-    },
-    "features": {
-      "basicDirectory": "Published directory presence",
-      "basicMap": "Map and category visibility",
-      "basicProfile": "Basic business profile",
-      "publicReview": "Manual ownership review",
-      "limitedVisibility": "Standard ranking and visibility",
-      "noVerifiedBadge": "No verified trust badge",
-      "noPriorityPlacement": "No priority placement",
-      "noPremiumCta": "No premium enquiry CTA",
-      "upgradeAnytime": "Upgrade when ready",
-      "verifiedBadge": "Verified trust badge",
-      "enhancedProfile": "Enhanced profile presentation",
-      "gallery10": "Up to 10 gallery images",
-      "mapPriority": "Stronger map and category presence",
-      "socialLinks": "Website and social links",
-      "whatsapp": "WhatsApp-ready contact path",
-      "ctaButton": "Clear enquiry CTA",
-      "directContact": "Direct contact and enquiry visibility",
-      "strongerVisibility": "Stronger discovery signals",
-      "cancelAnytime": "Cancel anytime",
-      "noContract": "No long-term contract",
-      "everythingVerified": "Everything in Verified",
-      "gallery20": "Up to 20 gallery images",
-      "signatureEligibility": "Signature placement eligibility",
-      "videoInterview": "Video interview eligibility",
-      "videoCommercial": "Video commercial eligibility",
-      "socialMentions": "Social mention eligibility",
-      "priorityVisibility": "Priority visibility consideration",
-      "homepageAddOn": "Homepage add-on eligibility",
-      "curatedPlacement": "Curated placement eligibility",
-      "cityCategoryEligibility": "City and category feature eligibility",
-      "limitedAvailability": "Limited availability",
-      "approvalRequired": "Approval required"
+      "subtitle": "Claimed listings are designed for people already researching where to stay, dine, play, move, invest and spend time in the Algarve.",
+      "title": "Reach the Algarve audiences that matter"
     },
     "comparison": {
-      "title": "Compare claim levels",
-      "subtitle": "See how Unverified, Verified, and Signature differ before choosing the right path.",
       "feature": "Feature",
       "included": "Included",
-      "notIncluded": "Not included"
+      "notIncluded": "Not included",
+      "subtitle": "Compare free visibility with the paid tiers built for stronger credibility and qualified discovery.",
+      "title": "What is included in each tier"
     },
-    "trust": {
-      "title": "Trust, visibility, and credibility for Algarve business owners",
-      "subtitle": "Claiming gives AlgarveOfficial the ownership signals needed to protect quality, improve enquiries, and keep business information credible.",
-      "points": {
-        "review": "Every claim is reviewed before ownership or premium placement is confirmed.",
-        "quality": "Verified and Signature tiers support stronger profile quality and clearer visitor confidence.",
-        "availability": "Premium visibility depends on category fit, listing quality, and placement availability.",
-        "signature": "Signature interest is reviewed before premium editorial-style exposure is activated."
-      }
+    "faq": {
+      "items": {
+        "afterPaid": {
+          "answer": "Your claim is saved first, then you continue to secure Stripe checkout. Stripe handles payment securely, while AlgarveOfficial still reviews ownership and premium placement before activating premium visibility.",
+          "question": "What happens after I choose Verified or Signature?"
+        },
+        "approvalTime": {
+          "answer": "Most ownership reviews are completed within 2-3 business days. Complex claims, incomplete details or premium placement reviews may take longer.",
+          "question": "How long does approval take?"
+        },
+        "cancel": {
+          "answer": "Verified has no long-term contract and can be cancelled anytime. Signature is limited and curated, so our team may review availability and fit before or during activation.",
+          "question": "Can I cancel anytime?"
+        },
+        "claim": {
+          "answer": "Search for your existing AlgarveOfficial listing, confirm it is the right business, choose a tier, then submit ownership details for manual review.",
+          "question": "How do I claim my business?"
+        },
+        "cost": {
+          "answer": "A free basic listing is available through the Unverified tier. Verified is €19/month, and Signature is €190/month for qualified premium listings.",
+          "question": "Is there a cost to be listed?"
+        },
+        "difference": {
+          "answer": "Unverified gives basic directory and map visibility. Verified adds trust, stronger presentation and priority visibility. Signature adds premium editorial-style eligibility, video and curated placement potential where relevant.",
+          "question": "What is the difference between Unverified, Verified and Signature?"
+        },
+        "guarantees": {
+          "answer": "No. AlgarveOfficial sells visibility, credibility and qualified discovery. We do not sell guaranteed bookings, traffic or revenue.",
+          "question": "Does AlgarveOfficial guarantee bookings or traffic?"
+        },
+        "payBeforeApproval": {
+          "answer": "Paid tier checkout can happen after the claim is saved, but payment does not bypass review. Premium visibility remains subject to ownership approval, quality standards, relevance and availability.",
+          "question": "Do I pay before approval?"
+        },
+        "signatureAvailable": {
+          "answer": "No. Signature is limited and subject to quality standards, relevance, imagery, category fit, location, contact quality and available curated placement inventory.",
+          "question": "Is Signature available to every business?"
+        },
+        "upgrade": {
+          "answer": "Yes. You can start with a free basic listing and upgrade later when your business is ready for stronger credibility and visibility.",
+          "question": "Can I upgrade later?"
+        }
+      },
+      "title": "Frequently Asked Questions"
+    },
+    "features": {
+      "approvalRequired": "Subject to quality standards and approval",
+      "basicDirectory": "Basic directory listing",
+      "basicMap": "Basic map visibility",
+      "basicProfile": "Basic business profile",
+      "cancelAnytime": "Cancel anytime",
+      "cityCategoryEligibility": "City/category placement eligibility where relevant",
+      "ctaButton": "CTA button",
+      "curatedPlacement": "Curated placement eligibility",
+      "directContact": "Direct contact from travellers",
+      "enhancedProfile": "Enhanced business profile",
+      "everythingVerified": "Everything in Verified",
+      "gallery10": "Photo gallery up to 10 images",
+      "gallery20": "Photo gallery up to 20 images",
+      "homepageAddOn": "Homepage featured placement add-on",
+      "limitedAvailability": "Limited / exclusive availability",
+      "limitedVisibility": "Limited visibility",
+      "mapPriority": "Map priority placement",
+      "noContract": "No long-term contract",
+      "noPremiumCta": "No premium CTA priority",
+      "noPriorityPlacement": "No priority placement",
+      "noVerifiedBadge": "No verified trust badge",
+      "priorityVisibility": "Priority visibility",
+      "publicReview": "Public listing review before publication",
+      "signatureEligibility": "Signature Selection eligibility",
+      "socialLinks": "Social media links",
+      "socialMentions": "Social media mentions",
+      "strongerVisibility": "Stronger visibility than free/basic listings",
+      "upgradeAnytime": "Can upgrade anytime",
+      "verifiedBadge": "Verified trust badge",
+      "videoCommercial": "Video commercial up to 1 minute",
+      "videoInterview": "Video interview up to 3 minutes",
+      "whatsapp": "WhatsApp integration"
     },
     "placement": {
       "badge": "Placement",
-      "title": "Premium placement remains curated",
-      "subtitle": "Paid interest starts the commercial flow, but AlgarveOfficial keeps placement quality controlled.",
       "items": {
-        "homepage": {
-          "title": "Homepage and campaign opportunities",
-          "description": "Eligible Signature partners may be considered for high-intent promotional surfaces."
-        },
         "fit": {
-          "title": "Category and city fit",
-          "description": "Visibility is matched to relevant locations, categories, and visitor intent."
+          "description": "Visibility is guided by relevance, tier, content quality and available inventory.",
+          "title": "City and category placement depends on fit"
+        },
+        "homepage": {
+          "description": "Featured areas are curated so premium placements keep their value and do not feel crowded.",
+          "title": "Homepage visibility is limited"
         },
         "quality": {
-          "title": "Quality review before activation",
-          "description": "Premium presentation stays aligned with AlgarveOfficial standards and audience trust."
+          "description": "Premium placement is subject to review of imagery, description, location, category and contact quality.",
+          "title": "Quality standards remain in place"
         }
+      },
+      "subtitle": "Paid tiers improve trust and eligibility for stronger placement, while editorial areas remain curated and limited.",
+      "title": "Curated visibility, not overcrowded advertising"
+    },
+    "pricing": {
+      "compareCta": "Compare tiers",
+      "annualOptionLabel": "Årlig",
+      "annualEstimateLabel": "Anslått årlig pris vist for sammenligning.",
+      "selectionHint": "Select the tier you want linked to this claim.",
+      "subtitle": "Start with a free listing, or upgrade to Verified or Signature for stronger credibility, visibility and qualified discovery.",
+      "title": "Choose how your business appears on AlgarveOfficial"
+    },
+    "tiers": {
+      "signature": {
+        "badge": "Limited / Exclusive",
+        "cta": "Apply as Signature",
+        "name": "Signature",
+        "positioning": "Premium editorial-style visibility for standout Algarve businesses, with eligibility for curated homepage, city and category placements where relevant.",
+        "price": "€190",
+        "priceNote": "/month"
+      },
+      "unverified": {
+        "badge": "Free",
+        "cta": "Start with Free Basic Listing",
+        "name": "Unverified",
+        "positioning": "A free basic listing for businesses that want to appear on AlgarveOfficial without premium visibility.",
+        "price": "Free",
+        "priceNote": "basic"
+      },
+      "verified": {
+        "badge": "Recommended",
+        "cta": "Apply as Verified",
+        "name": "Verified",
+        "positioning": "A trust signal for active, legitimate local businesses that want credibility and a stronger listing presence.",
+        "price": "€19",
+        "priceNote": "/month"
       }
     },
-    "audience": {
-      "badge": "Audience",
-      "title": "Reach people already choosing where to go in the Algarve",
-      "subtitle": "Claimed listings support discovery by visitors, residents, golfers, property audiences, and premium lifestyle consumers.",
-      "items": {
-        "visitors": {
-          "title": "Visitors planning trips",
-          "description": "Travelers comparing trusted places before arrival."
-        },
-        "residents": {
-          "title": "Residents and relocation users",
-          "description": "People building local routines and choosing reliable services."
-        },
-        "golf": {
-          "title": "Golf travelers",
-          "description": "Players looking for courses, resorts, restaurants, and premium leisure."
-        },
-        "property": {
-          "title": "Property buyers and investors",
-          "description": "High-intent audiences exploring areas, services, and lifestyle fit."
-        },
-        "lifestyle": {
-          "title": "Premium lifestyle consumers",
-          "description": "Discerning users looking for quality, credibility, and local confidence."
-        }
-      }
-    },
-    "faq": {
-      "title": "Claim-business FAQ",
-      "items": {
-        "claim": {
-          "question": "Why should I claim my business?",
-          "answer": "A claim links your account to an existing AlgarveOfficial listing so ownership can be reviewed and future listing access can be managed safely."
-        },
-        "cost": {
-          "question": "Is claiming free?",
-          "answer": "The Unverified claim path is free. Verified and Signature are paid options using configured Stripe pricing."
-        },
-        "difference": {
-          "question": "What is the difference between Unverified, Verified, and Signature?",
-          "answer": "Unverified records ownership interest. Verified adds trust and stronger profile signals. Signature is for premium partner visibility and curated placement eligibility."
-        },
-        "afterPaid": {
-          "question": "What happens after paid checkout?",
-          "answer": "The claim is already created before checkout. Payment records the selected paid tier and billing period, while activation remains subject to the intended approval flow."
-        },
-        "payBeforeApproval": {
-          "question": "Do paid tiers activate instantly?",
-          "answer": "No. Premium activation should follow the approval and reconciliation flow rather than bypassing review."
-        },
-        "upgrade": {
-          "question": "Can I upgrade later?",
-          "answer": "Yes. You can begin with a free claim and move to a paid tier when the business is ready."
-        },
-        "cancel": {
-          "question": "Can I cancel a paid tier?",
-          "answer": "Paid subscriptions are managed through Stripe billing and the owner subscription workflow."
-        },
-        "guarantees": {
-          "question": "Does Signature guarantee placement?",
-          "answer": "No. Signature indicates premium partner interest and eligibility; placement depends on relevance, quality, and availability."
-        },
-        "approvalTime": {
-          "question": "How long does review take?",
-          "answer": "Most claim reviews are handled manually by the AlgarveOfficial team. Timelines depend on the quality of ownership evidence and current review volume."
-        },
-        "signatureAvailable": {
-          "question": "Is Signature available to every business?",
-          "answer": "No. Signature is limited and remains subject to category fit, listing quality, and AlgarveOfficial editorial standards."
-        }
-      }
+    "trust": {
+      "points": {
+        "availability": "Paid placement remains subject to relevance, quality and availability.",
+        "quality": "Poor-quality, irrelevant or incomplete businesses may be declined for premium visibility.",
+        "review": "Listings may be reviewed before premium placement is approved.",
+        "signature": "Signature visibility is curated and limited."
+      },
+      "subtitle": "AlgarveOfficial sells visibility, credibility and qualified discovery. We do not sell guaranteed bookings, traffic or revenue.",
+      "title": "Trust standards protect the platform"
     }
   }
 }

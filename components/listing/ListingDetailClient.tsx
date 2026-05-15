@@ -96,6 +96,7 @@ import { ClaimedListingTierBadge } from "@/components/listing/ClaimedListingTier
 import { BeachWeatherWidget } from "@/components/listing/BeachWeatherWidget";
 import { ListingTagCloud } from "@/components/listing/ListingTagCloud";
 import { trackListingPerformanceEvent } from "@/lib/analytics/platformTracking";
+import { publicListingTranslationOrNull } from "@/lib/listings/publicListingTranslations";
 
 export type ListingTranslationRow = {
   listing_id: string;
@@ -106,6 +107,7 @@ export type ListingTranslationRow = {
   seo_title: string | null;
   seo_description: string | null;
   translation_status?: string | null;
+  translation_source?: string | null;
   updated_at?: string | null;
 };
 
@@ -853,7 +855,7 @@ function ListingDetailClientInner({
         const { data: target, error: targetError } = await supabase
           .from("listing_translations")
           .select(
-            "listing_id, language_code, title, short_description, description, seo_title, seo_description, translation_status, updated_at",
+            "listing_id, language_code, title, short_description, description, seo_title, seo_description, translation_status, translation_source, updated_at",
           )
           .eq("listing_id", listing.id)
           .eq("language_code", targetLang)
@@ -865,16 +867,16 @@ function ListingDetailClientInner({
           const { data: enRow, error: englishError } = await supabase
             .from("listing_translations")
             .select(
-              "listing_id, language_code, title, short_description, description, seo_title, seo_description, translation_status, updated_at",
+              "listing_id, language_code, title, short_description, description, seo_title, seo_description, translation_status, translation_source, updated_at",
             )
             .eq("listing_id", listing.id)
             .eq("language_code", "en")
             .maybeSingle();
 
           if (englishError) throw englishError;
-          if (!cancelled) setTr((enRow as ListingTranslationRow | null) ?? initialTranslation);
+          if (!cancelled) setTr(publicListingTranslationOrNull(enRow as ListingTranslationRow | null) ?? initialTranslation);
         } else if (!cancelled) {
-          setTr(target as ListingTranslationRow);
+          setTr(publicListingTranslationOrNull(target as ListingTranslationRow) ?? initialTranslation);
         }
       } catch (fetchError) {
         if (!cancelled) setTrError(String((fetchError as Error)?.message ?? fetchError));

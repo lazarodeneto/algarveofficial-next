@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 import {
   getAttentionCounts,
@@ -17,7 +18,7 @@ import {
 export const runtime = "nodejs";
 
 const TARGET_LANGS = new Set(["pt-pt", "fr", "de", "es", "it", "nl", "sv", "no", "da"]);
-const DONE_TRANSLATION_STATUSES: TranslationStatus[] = ["auto", "reviewed", "edited"];
+const AUTO_REQUEUE_STATUSES: TranslationStatus[] = ["auto", "reviewed"];
 const MAX_JOB_IDS = 50;
 const JOB_CONSOLE_PAGE_SIZE = 12;
 const JOB_STATUS_FILTERS = new Set<TranslationStatus>([
@@ -35,8 +36,25 @@ const TRANSLATION_TEXT_FIELDS = [
   "seo_title",
   "seo_description",
 ] as const;
+const TRANSLATION_FIELD_LIMITS = {
+  title: 180,
+  short_description: 500,
+  description: 8000,
+  seo_title: 180,
+  seo_description: 320,
+} as const;
 const UNSAFE_TRANSLATION_CONTENT_PATTERN =
   /<\s*\/?\s*(script|style|iframe|object|embed|noscript|meta|link|base)\b|(?:\s|^)on[a-z]+\s*=|javascript\s*:|srcdoc\s*=/i;
+const translationPayloadSchema = z
+  .object({
+    title: z.string().nullable().optional(),
+    short_description: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+    seo_title: z.string().nullable().optional(),
+    seo_description: z.string().nullable().optional(),
+  })
+  .strict();
+const saveStatusSchema = z.enum(["edited", "reviewed"]);
 
 type TranslationWriteClient = Awaited<ReturnType<typeof requireAdminWriteClient>> extends infer T
   ? T extends { writeClient: infer C }
@@ -95,13 +113,26 @@ interface TranslationJobRow {
 
 interface ListingTranslationRow {
   id?: string;
+  listing_id?: string;
+  language_code?: string;
   title?: string | null;
   short_description?: string | null;
   description?: string | null;
   seo_title?: string | null;
   seo_description?: string | null;
   translation_status?: TranslationStatus;
+  translation_source?: string | null;
   updated_at?: string;
+}
+
+interface ManualTranslationConflict {
+  listingId: string;
+  targetLang: string;
+  updatedAt: string | null;
+}
+
+function isProtectedManualTranslation(row: Pick<ListingTranslationRow, "translation_status" | "translation_source"> | null | undefined) {
+  return row?.translation_source === "manual" || row?.translation_status === "edited";
 }
 
 function adminClient(client: TranslationWriteClient): AdminWriteClientLike {
@@ -115,6 +146,8 @@ interface TranslationJobActionBody {
   listingId?: unknown;
   targetLang?: unknown;
   translation?: unknown;
+  saveStatus?: unknown;
+  overwriteManual?: unknown;
 }
 
 function normalizeId(value: unknown): string | null {
@@ -140,11 +173,11 @@ function normalizeTargetLang(value: unknown): string | null {
   return TARGET_LANGS.has(canonical) ? canonical : null;
 }
 
-function textField(value: unknown, maxLength: number): string | null {
+function textField(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   if (!trimmed) return null;
-  return sanitizeHtmlString(trimmed.slice(0, maxLength)).trim() || null;
+  return sanitizeHtmlString(trimmed).trim() || null;
 }
 
 function unsafeTranslationFields(data: Record<string, unknown>): string[] {
@@ -155,19 +188,42 @@ function unsafeTranslationFields(data: Record<string, unknown>): string[] {
 }
 
 function parseTranslationPayload(raw: unknown) {
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-  const data = raw as Record<string, unknown>;
+  const parsed = translationPayloadSchema.safeParse(raw);
+  if (!parsed.success) return null;
+  const data = parsed.data as Record<string, unknown>;
   const unsafeFields = unsafeTranslationFields(data);
+  const overLimitFields = TRANSLATION_TEXT_FIELDS.filter((field) => {
+    const value = data[field];
+    return typeof value === "string" && value.trim().length > TRANSLATION_FIELD_LIMITS[field];
+  });
+
   return {
     unsafeFields,
+    overLimitFields,
     translation: {
-      title: textField(data.title, 180),
-      short_description: textField(data.short_description, 500),
-      description: textField(data.description, 8000),
-      seo_title: textField(data.seo_title, 180),
-      seo_description: textField(data.seo_description, 320),
+      title: textField(data.title),
+      short_description: textField(data.short_description),
+      description: textField(data.description),
+      seo_title: textField(data.seo_title),
+      seo_description: textField(data.seo_description),
     },
   };
+}
+
+type ListingTranslationPayload = NonNullable<ReturnType<typeof parseTranslationPayload>>["translation"];
+type ListingTranslationField = keyof ListingTranslationPayload;
+
+function requiredFieldsForListing(listing: ListingRow): ListingTranslationField[] {
+  const fields: ListingTranslationField[] = ["title"];
+  if (listing.short_description?.trim()) fields.push("short_description");
+  if (listing.description?.trim()) fields.push("description");
+  if (listing.meta_title?.trim()) fields.push("seo_title");
+  if (listing.meta_description?.trim()) fields.push("seo_description");
+  return fields;
+}
+
+function missingRequiredFields(listing: ListingRow, translation: ListingTranslationPayload): string[] {
+  return requiredFieldsForListing(listing).filter((field) => !translation[field]?.trim());
 }
 
 function slaForTier(tier: string | null | undefined): {
@@ -184,7 +240,10 @@ function slaForTier(tier: string | null | undefined): {
   return { sla_deadline: new Date(now + 24 * 3_600_000).toISOString(), sla_priority: 1 };
 }
 
-function queuePayloadForListing(listing: { tier?: string | null; content_updated_at?: string | null }) {
+function queuePayloadForListing(
+  listing: { tier?: string | null; content_updated_at?: string | null },
+  allowManualOverwrite = false,
+) {
   const sla = slaForTier(listing.tier);
   return {
     status: "queued" as TranslationStatus,
@@ -192,6 +251,7 @@ function queuePayloadForListing(listing: { tier?: string | null; content_updated
     attempts: 0,
     last_error: null,
     locked_at: null,
+    allow_manual_overwrite: allowManualOverwrite,
     source_updated_at: listing.content_updated_at ?? new Date().toISOString(),
     sla_deadline: sla.sla_deadline,
     sla_priority: sla.sla_priority,
@@ -199,8 +259,43 @@ function queuePayloadForListing(listing: { tier?: string | null; content_updated
   };
 }
 
-async function queueExistingJobs(client: TranslationWriteClient, jobIds: string[]) {
-  if (jobIds.length === 0) return 0;
+async function findManualTranslationConflicts(
+  client: TranslationWriteClient,
+  pairs: Array<{ listingId: string; targetLang: string }>,
+): Promise<ManualTranslationConflict[]> {
+  const uniquePairs = Array.from(
+    new Map(pairs.map((pair) => [`${pair.listingId}:${pair.targetLang}`, pair])).values(),
+  );
+  if (uniquePairs.length === 0) return [];
+
+  const listingIds = Array.from(new Set(uniquePairs.map((pair) => pair.listingId)));
+  const targetLangs = Array.from(new Set(uniquePairs.map((pair) => pair.targetLang)));
+  const requestedPairKeys = new Set(uniquePairs.map((pair) => `${pair.listingId}:${pair.targetLang}`));
+
+  const { data, error } = await adminClient(client)
+    .from<ListingTranslationRow[]>("listing_translations")
+    .select("listing_id, language_code, translation_status, translation_source, updated_at")
+    .in("listing_id", listingIds)
+    .in("language_code", targetLangs);
+
+  if (error) throw error;
+
+  return (data ?? [])
+    .filter(isProtectedManualTranslation)
+    .filter((row) => row.listing_id && row.language_code && requestedPairKeys.has(`${row.listing_id}:${row.language_code}`))
+    .map((row) => ({
+      listingId: row.listing_id!,
+      targetLang: row.language_code!,
+      updatedAt: row.updated_at ?? null,
+    }));
+}
+
+async function queueExistingJobs(
+  client: TranslationWriteClient,
+  jobIds: string[],
+  allowManualOverwrite = false,
+) {
+  if (jobIds.length === 0) return { updated: 0, conflicts: [] as ManualTranslationConflict[] };
 
   const db = adminClient(client);
   const { data, error } = await db
@@ -210,28 +305,41 @@ async function queueExistingJobs(client: TranslationWriteClient, jobIds: string[
 
   if (error) throw error;
 
+  const rows = data ?? [];
+  const conflicts = allowManualOverwrite
+    ? []
+    : await findManualTranslationConflicts(
+        client,
+        rows
+          .filter((row) => row.listing_id && row.target_lang)
+          .map((row) => ({ listingId: row.listing_id!, targetLang: row.target_lang! })),
+      );
+
+  if (conflicts.length > 0) return { updated: 0, conflicts };
+
   let updated = 0;
-  for (const row of data ?? []) {
+  for (const row of rows) {
     const listing = (Array.isArray(row.listing) ? row.listing[0] : row.listing) as
       | { tier?: string | null; content_updated_at?: string | null }
       | null;
 
     const { error: updateError } = await db
       .from("translation_jobs")
-      .update(queuePayloadForListing(listing ?? {}))
+      .update(queuePayloadForListing(listing ?? {}, allowManualOverwrite))
       .eq("id", row.id);
 
     if (updateError) throw updateError;
     updated += 1;
   }
 
-  return updated;
+  return { updated, conflicts: [] as ManualTranslationConflict[] };
 }
 
 async function queueListingTarget(
   client: TranslationWriteClient,
   listingId: string,
   targetLang: string,
+  allowManualOverwrite = false,
 ) {
   const db = adminClient(client);
   const { data: listing, error: listingError } = await db
@@ -242,7 +350,14 @@ async function queueListingTarget(
 
   if (listingError) throw listingError;
   if (!listing) {
-    return { updated: 0, notFound: true };
+    return { updated: 0, notFound: true, conflicts: [] as ManualTranslationConflict[] };
+  }
+
+  if (!allowManualOverwrite) {
+    const conflicts = await findManualTranslationConflicts(client, [{ listingId, targetLang }]);
+    if (conflicts.length > 0) {
+      return { updated: 0, notFound: false, conflicts };
+    }
   }
 
   const { error } = await db
@@ -251,13 +366,13 @@ async function queueListingTarget(
       {
         listing_id: listingId,
         target_lang: targetLang,
-        ...queuePayloadForListing(listing),
+        ...queuePayloadForListing(listing, allowManualOverwrite),
       },
       { onConflict: "listing_id,target_lang" },
     );
 
   if (error) throw error;
-  return { updated: 1, notFound: false };
+  return { updated: 1, notFound: false, conflicts: [] as ManualTranslationConflict[] };
 }
 
 async function reviewJobs(client: TranslationWriteClient, jobIds: string[]) {
@@ -285,34 +400,51 @@ async function requeueOutdatedListing(client: TranslationWriteClient, listingId:
   if (!listing?.content_updated_at) return 0;
 
   const { data: staleJobs, error: staleError } = await db
-    .from<Array<{ id: string }>>("translation_jobs")
-    .select("id")
+    .from<Array<{ id: string; listing_id?: string; target_lang?: string }>>("translation_jobs")
+    .select("id, listing_id, target_lang")
     .eq("listing_id", listingId)
-    .in("status", DONE_TRANSLATION_STATUSES)
+    .in("status", AUTO_REQUEUE_STATUSES)
     .not("source_updated_at", "is", null)
     .lt("source_updated_at", listing.content_updated_at);
 
   if (staleError) throw staleError;
-  const ids = (staleJobs ?? []).map((job: { id: string }) => job.id);
-  return queueExistingJobs(client, ids);
+  const rows = staleJobs ?? [];
+  const conflicts = await findManualTranslationConflicts(
+    client,
+    rows
+      .filter((job) => job.listing_id && job.target_lang)
+      .map((job) => ({ listingId: job.listing_id!, targetLang: job.target_lang! })),
+  );
+  const conflictKeys = new Set(conflicts.map((conflict) => `${conflict.listingId}:${conflict.targetLang}`));
+  const ids = rows
+    .filter((job) => !conflictKeys.has(`${job.listing_id}:${job.target_lang}`))
+    .map((job) => job.id);
+  const result = await queueExistingJobs(client, ids);
+  return result.updated;
 }
 
 async function saveTranslationEdit(
   client: TranslationWriteClient,
   listingId: string,
   targetLang: string,
-  translation: NonNullable<ReturnType<typeof parseTranslationPayload>>["translation"],
+  translation: ListingTranslationPayload,
+  saveStatus: "edited" | "reviewed",
 ) {
   const now = new Date().toISOString();
   const db = adminClient(client);
   const { data: listing, error: listingError } = await db
     .from<ListingRow>("listings")
-    .select("id, name")
+    .select("id, name, short_description, description, meta_title, meta_description, tier, content_updated_at")
     .eq("id", listingId)
     .maybeSingle();
 
   if (listingError) throw listingError;
-  if (!listing) return { updated: 0, notFound: true };
+  if (!listing) return { updated: 0, notFound: true, missingFields: [] as string[] };
+
+  const missingFields = missingRequiredFields(listing, translation);
+  if (saveStatus === "reviewed" && missingFields.length > 0) {
+    return { updated: 0, notFound: false, missingFields };
+  }
 
   const { error: translationError } = await db
     .from("listing_translations")
@@ -325,7 +457,8 @@ async function saveTranslationEdit(
         description: translation.description,
         seo_title: translation.seo_title,
         seo_description: translation.seo_description,
-        translation_status: "edited" as TranslationStatus,
+        translation_status: saveStatus as TranslationStatus,
+        translation_source: "manual",
         translated_at: now,
         updated_at: now,
       },
@@ -334,14 +467,29 @@ async function saveTranslationEdit(
 
   if (translationError) throw translationError;
 
+  const sla = slaForTier(listing.tier);
   const { error: jobError } = await db
     .from("translation_jobs")
-    .update({ status: "edited" as TranslationStatus, updated_at: now })
-    .eq("listing_id", listingId)
-    .eq("target_lang", targetLang);
+    .upsert(
+      {
+        listing_id: listingId,
+        target_lang: targetLang,
+        source_lang: "en",
+        status: saveStatus as TranslationStatus,
+        attempts: 0,
+        last_error: null,
+        locked_at: null,
+        allow_manual_overwrite: false,
+        source_updated_at: listing.content_updated_at ?? now,
+        sla_deadline: sla.sla_deadline,
+        sla_priority: sla.sla_priority,
+        updated_at: now,
+      },
+      { onConflict: "listing_id,target_lang" },
+    );
 
   if (jobError) throw jobError;
-  return { updated: 1, notFound: false };
+  return { updated: 1, notFound: false, missingFields: [] as string[] };
 }
 
 export async function GET(request: NextRequest) {
@@ -412,12 +560,12 @@ export async function GET(request: NextRequest) {
     await Promise.all([
       db
         .from<ListingRow>("listings")
-        .select("id, name, slug, short_description, description, meta_title, meta_description, tier, status")
+        .select("id, name, slug, short_description, description, meta_title, meta_description, tier, status, content_updated_at")
         .eq("id", job.listing_id)
         .maybeSingle(),
       db
         .from<ListingTranslationRow>("listing_translations")
-        .select("id, title, short_description, description, seo_title, seo_description, translation_status, updated_at")
+        .select("id, listing_id, language_code, title, short_description, description, seo_title, seo_description, translation_status, translation_source, updated_at")
         .eq("listing_id", job.listing_id)
         .eq("language_code", job.target_lang)
         .maybeSingle(),
@@ -475,16 +623,32 @@ export async function POST(request: NextRequest) {
       const jobIds = normalizeJobIds(body);
       const listingId = normalizeId(body.listingId);
       const targetLang = normalizeTargetLang(body.targetLang);
+      const overwriteManual = body.overwriteManual === true;
 
       if (jobIds.length > 0) {
-        const updated = await queueExistingJobs(auth.writeClient, jobIds);
+        const result = await queueExistingJobs(auth.writeClient, jobIds, overwriteManual);
+        if (result.conflicts.length > 0) {
+          return adminErrorResponse(
+            409,
+            "MANUAL_TRANSLATION_EXISTS",
+            "A manual translation already exists. Confirm overwrite before queueing automatic translation.",
+          );
+        }
+        const updated = result.updated;
         return NextResponse.json({ ok: true, data: { updated } });
       }
 
       if (listingId && targetLang) {
-        const result = await queueListingTarget(auth.writeClient, listingId, targetLang);
+        const result = await queueListingTarget(auth.writeClient, listingId, targetLang, overwriteManual);
         if (result.notFound) {
           return adminErrorResponse(404, "LISTING_NOT_FOUND", "Listing not found.");
+        }
+        if (result.conflicts.length > 0) {
+          return adminErrorResponse(
+            409,
+            "MANUAL_TRANSLATION_EXISTS",
+            "A manual translation already exists. Confirm overwrite before queueing automatic translation.",
+          );
         }
         return NextResponse.json({ ok: true, data: { updated: result.updated } });
       }
@@ -524,9 +688,31 @@ export async function POST(request: NextRequest) {
           `Translation contains unsafe content in: ${parsedTranslation.unsafeFields.join(", ")}.`,
         );
       }
-      const result = await saveTranslationEdit(auth.writeClient, listingId, targetLang, parsedTranslation.translation);
+      if (parsedTranslation.overLimitFields.length > 0) {
+        return adminErrorResponse(
+          400,
+          "VALIDATION_ERROR",
+          `Translation fields exceed length limits: ${parsedTranslation.overLimitFields.join(", ")}.`,
+        );
+      }
+      const parsedSaveStatus = saveStatusSchema.safeParse(body.saveStatus);
+      const saveStatus = parsedSaveStatus.success ? parsedSaveStatus.data : "edited";
+      const result = await saveTranslationEdit(
+        auth.writeClient,
+        listingId,
+        targetLang,
+        parsedTranslation.translation,
+        saveStatus,
+      );
       if (result.notFound) {
         return adminErrorResponse(404, "LISTING_NOT_FOUND", "Listing not found.");
+      }
+      if (result.missingFields.length > 0) {
+        return adminErrorResponse(
+          400,
+          "REQUIRED_FIELDS_MISSING",
+          `Required translation fields are missing: ${result.missingFields.join(", ")}.`,
+        );
       }
       return NextResponse.json({ ok: true, data: { updated: result.updated } });
     }

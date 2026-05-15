@@ -77,11 +77,17 @@ function smokeEnv(baseUrl: string, overrides: NodeJS.ProcessEnv = {}) {
     RESEND_FROM_EMAIL: "hello@example.com",
     RESEND_FROM_NAME: "AlgarveOfficial",
     RESEND_REPLY_TO_EMAIL: "reply@example.com",
+    RESEND_NEWSLETTER_SEGMENT_ID: "seg_test",
+    RESEND_NEWSLETTER_TOPIC_ID: "topic_test",
+    RESEND_AUDIENCE_ID: "aud_test",
     RESEND_WEBHOOK_SECRET: "whsec_test",
     ADMIN_NOTIFICATION_EMAILS: "admin@example.com",
     CONTACT_NOTIFICATION_EMAIL: "contact@example.com",
     CLAIM_NOTIFICATION_EMAIL: "claim@example.com",
     NEWSLETTER_TOKEN_SECRET: "test-newsletter-secret",
+    EMAIL_FROM: "hello@example.com",
+    EMAIL_REPLY_TO: "reply@example.com",
+    RESEND_TRANSACTIONAL_FROM: "hello@example.com",
     ...overrides,
   };
 }
@@ -114,6 +120,17 @@ describe("communication smoke script", () => {
         env: smokeEnv(baseUrl, { DRY_RUN: "false", SEND_TEST_EMAIL: "true" }),
       })).rejects.toMatchObject({
         stdout: expect.stringContaining("COMMUNICATION_SMOKE_TEST_EMAIL is required"),
+      });
+    });
+  });
+
+  it("fails when required newsletter targeting env names are missing", async () => {
+    await withSmokeServer(async (baseUrl) => {
+      await expect(execFileAsync("node", ["scripts/smoke-communications.mjs"], {
+        cwd: process.cwd(),
+        env: smokeEnv(baseUrl, { RESEND_NEWSLETTER_TOPIC_ID: "" }),
+      })).rejects.toMatchObject({
+        stdout: expect.stringContaining("missing: RESEND_NEWSLETTER_TOPIC_ID"),
       });
     });
   });

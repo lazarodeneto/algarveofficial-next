@@ -42,35 +42,6 @@ function isStale(updatedAt: string): boolean {
   return Date.now() - new Date(updatedAt).getTime() > STALE_DAYS * 86_400_000;
 }
 
-function isSlaBreached(job: Pick<TranslationJob, "sla_deadline" | "status">): boolean {
-  return (
-    !!job.sla_deadline &&
-    (ATTENTION_STATUSES as TranslationStatus[]).includes(job.status) &&
-    new Date(job.sla_deadline) < new Date()
-  );
-}
-
-/**
- * Compute SLA for any tier value, including unknown tiers such as "unverified".
- * Matches the DB trigger logic exactly:
- *   signature → 2 h / priority 100
- *   verified  → 4 h / priority 10
- *   default   → 24 h / priority 1
- */
-function slaForTier(tier: string | null | undefined): {
-  sla_deadline: string;
-  sla_priority: number;
-} {
-  const now = Date.now();
-  if (tier === "signature") {
-    return { sla_deadline: new Date(now + 2 * 3_600_000).toISOString(), sla_priority: 100 };
-  }
-  if (tier === "verified") {
-    return { sla_deadline: new Date(now + 4 * 3_600_000).toISOString(), sla_priority: 10 };
-  }
-  return { sla_deadline: new Date(now + 24 * 3_600_000).toISOString(), sla_priority: 1 };
-}
-
 /** A job is outdated when it is done but the listing content has since changed. */
 function isOutdated(job: TranslationJob, listing: ListingRow): boolean {
   return (
@@ -400,29 +371,122 @@ export async function getTranslationJobsGrouped(
 
 // ─── Mutations ────────────────────────────────────────────────────────────────
 
+type TranslationJobActionResponse<T = unknown> = {
+  ok?: boolean;
+  data?: T;
+  error?: {
+    code?: string;
+    message?: string;
+  };
+};
+
+export class TranslationAdminApiError extends Error {
+  code: string;
+  status: number;
+
+  constructor(status: number, code: string, message: string) {
+    super(message);
+    this.name = "TranslationAdminApiError";
+    this.status = status;
+    this.code = code;
+  }
+}
+
+async function requestTranslationJobAction<T = unknown>(body: Record<string, unknown>): Promise<T> {
+  const response = await fetch("/api/admin/translations/jobs", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = (await response.json().catch(() => ({}))) as TranslationJobActionResponse<T>;
+
+  if (!response.ok || payload.ok === false) {
+    throw new TranslationAdminApiError(
+      response.status,
+      payload.error?.code ?? "TRANSLATION_ADMIN_REQUEST_FAILED",
+      payload.error?.message ?? "Translation request failed.",
+    );
+  }
+
+  return payload.data as T;
+}
+
+export interface TranslationEditorData {
+  job: TranslationJob;
+  listing: {
+    id: string;
+    name: string | null;
+    slug: string | null;
+    short_description: string | null;
+    description: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
+    tier: string | null;
+    status: string | null;
+    content_updated_at?: string | null;
+  };
+  translation: {
+    id?: string;
+    listing_id?: string;
+    language_code?: string;
+    title: string | null;
+    short_description: string | null;
+    description: string | null;
+    seo_title: string | null;
+    seo_description: string | null;
+    translation_status?: TranslationStatus | null;
+    translation_source?: "manual" | "automatic" | null;
+    updated_at?: string | null;
+  } | null;
+}
+
+export type ManualTranslationPayload = {
+  title: string | null;
+  short_description: string | null;
+  description: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+};
+
+export async function getTranslationEditorData(jobId: string): Promise<TranslationEditorData> {
+  const params = new URLSearchParams({ jobId });
+  const response = await fetch(`/api/admin/translations/jobs?${params.toString()}`);
+  const payload = (await response.json().catch(() => ({}))) as TranslationJobActionResponse<TranslationEditorData>;
+
+  if (!response.ok || payload.ok === false || !payload.data) {
+    throw new TranslationAdminApiError(
+      response.status,
+      payload.error?.code ?? "TRANSLATION_EDITOR_FETCH_FAILED",
+      payload.error?.message ?? "Translation editor data could not be loaded.",
+    );
+  }
+
+  return payload.data;
+}
+
 export async function updateTranslationStatus(
-  supabase: Supabase,
+  _supabase: Supabase,
   id: string,
   status: TranslationStatus,
 ): Promise<void> {
-  const { error } = await supabase
-    .from("translation_jobs")
-    .update({ status, updated_at: new Date().toISOString() })
-    .eq("id", id);
-  if (error) throw error;
+  await requestTranslationJobAction({
+    action: status === "reviewed" ? "review" : "queue",
+    jobIds: [id],
+  });
 }
 
 export async function bulkUpdateTranslationStatus(
-  supabase: Supabase,
+  _supabase: Supabase,
   ids: string[],
   status: TranslationStatus,
+  options: { overwriteManual?: boolean } = {},
 ): Promise<void> {
   if (ids.length === 0) return;
-  const { error } = await supabase
-    .from("translation_jobs")
-    .update({ status, updated_at: new Date().toISOString() })
-    .in("id", ids);
-  if (error) throw error;
+  await requestTranslationJobAction({
+    action: status === "reviewed" ? "review" : "queue",
+    jobIds: ids,
+    overwriteManual: options.overwriteManual === true,
+  });
 }
 
 /**
@@ -431,37 +495,17 @@ export async function bulkUpdateTranslationStatus(
  * regardless of which caller triggers this — no tier parameter needed.
  */
 export async function enqueueTranslationJob(
-  supabase: Supabase,
+  _supabase: Supabase,
   listing_id: string,
   target_lang: string,
+  options: { overwriteManual?: boolean } = {},
 ): Promise<void> {
-  // Fetch tier and content version in one round-trip
-  const { data: listing } = await supabase
-    .from("listings")
-    .select("tier, content_updated_at")
-    .eq("id", listing_id)
-    .single();
-
-  const row = listing as { tier?: string; content_updated_at?: string } | null;
-  const source_updated_at = row?.content_updated_at ?? new Date().toISOString();
-  const { sla_deadline, sla_priority } = slaForTier(row?.tier);
-
-  const { error } = await supabase.from("translation_jobs").upsert(
-    {
-      listing_id,
-      target_lang,
-      source_lang:       "en",
-      status:            "queued" as TranslationStatus,
-      attempts:          0,
-      last_error:        null,
-      sla_deadline,
-      sla_priority,
-      source_updated_at,
-      updated_at:        new Date().toISOString(),
-    },
-    { onConflict: "listing_id,target_lang" },
-  );
-  if (error) throw error;
+  await requestTranslationJobAction({
+    action: "queue",
+    listingId: listing_id,
+    targetLang: target_lang,
+    overwriteManual: options.overwriteManual === true,
+  });
 }
 
 /**
@@ -476,63 +520,35 @@ export async function enqueueTranslationJob(
  * Returns the number of jobs re-queued.
  */
 export async function requeueOutdatedJobs(
-  supabase: Supabase,
+  _supabase: Supabase,
   listing_id: string,
-  tier: string,
+  _tier: string,
 ): Promise<number> {
-  // Fetch current content version
-  const { data: listing, error: lstError } = await supabase
-    .from("listings")
-    .select("content_updated_at")
-    .eq("id", listing_id)
-    .single();
-
-  if (lstError) throw lstError;
-
-  const content_updated_at =
-    (listing as { content_updated_at?: string } | null)?.content_updated_at;
-  if (!content_updated_at) return 0;
-
-  // Find done jobs that are behind the current content version
-  const { data: staleJobs, error: findError } = await supabase
-    .from("translation_jobs")
-    .select("id")
-    .eq("listing_id", listing_id)
-    .in("status", DONE_STATUSES)
-    .not("source_updated_at", "is", null)
-    .lt("source_updated_at", content_updated_at);
-
-  if (findError) throw findError;
-  if (!staleJobs?.length) return 0;
-
-  const ids = staleJobs.map((j) => j.id as string);
-  const sla = slaForTier(tier);
-
-  const { error: updateError } = await supabase
-    .from("translation_jobs")
-    .update({
-      status:            "queued" as TranslationStatus,
-      source_updated_at: content_updated_at,
-      sla_deadline:      sla.sla_deadline,
-      sla_priority:      sla.sla_priority,
-      updated_at:        new Date().toISOString(),
-    })
-    .in("id", ids);
-
-  if (updateError) throw updateError;
-  return ids.length;
+  const result = await requestTranslationJobAction<{ updated?: number }>({
+    action: "requeue_outdated",
+    listingId: listing_id,
+  });
+  return result.updated ?? 0;
 }
 
-export async function saveTranslationEdit(
-  supabase: Supabase,
-  id: string,
-  _content: string,
-): Promise<void> {
-  const { error } = await supabase
-    .from("translation_jobs")
-    .update({ status: "edited" as TranslationStatus, updated_at: new Date().toISOString() })
-    .eq("id", id);
-  if (error) throw error;
+export async function saveManualTranslation({
+  listingId,
+  targetLang,
+  translation,
+  saveStatus,
+}: {
+  listingId: string;
+  targetLang: string;
+  translation: ManualTranslationPayload;
+  saveStatus: "edited" | "reviewed";
+}): Promise<void> {
+  await requestTranslationJobAction({
+    action: "save_edit",
+    listingId,
+    targetLang,
+    translation,
+    saveStatus,
+  });
 }
 
 // ─── Filter Options ───────────────────────────────────────────────────────────

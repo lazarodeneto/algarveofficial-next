@@ -3,7 +3,17 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowLeft, CheckCircle2, ExternalLink, Globe2, MapPin, Phone } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle2,
+  ExternalLink,
+  FileText,
+  Globe2,
+  MapPin,
+  Phone,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import ListingImage from "@/components/ListingImage";
@@ -97,8 +107,33 @@ const VERIFICATION_OPTIONS = [
   ["manual_review", "claimBusinessForm.verification.manualReview"],
 ] as const;
 
+const PROOF_DOCUMENT_ACCEPT = ".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp";
+const PROOF_DOCUMENT_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+const MAX_PROOF_DOCUMENT_BYTES = 4 * 1024 * 1024;
+
 function isLikelyEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+}
+
+function getProofDocumentError(file: File | null, tx: Record<string, string>) {
+  if (!file) return tx["claimBusinessForm.validation.proofDocumentRequired"];
+  if (file.size > MAX_PROOF_DOCUMENT_BYTES) return tx["claimBusinessForm.validation.proofDocumentSize"];
+  if (!PROOF_DOCUMENT_TYPES.has(file.type)) return tx["claimBusinessForm.validation.proofDocumentType"];
+  return null;
+}
+
+function getOptionalProofDocumentError(file: File | null, tx: Record<string, string>) {
+  if (!file) return null;
+  if (file.size > MAX_PROOF_DOCUMENT_BYTES) return tx["claimBusinessForm.validation.proofDocumentSize"];
+  if (!PROOF_DOCUMENT_TYPES.has(file.type)) return tx["claimBusinessForm.validation.proofDocumentType"];
+  return null;
 }
 
 function tierLabel(value: string, tx: Record<string, string>) {
@@ -167,6 +202,8 @@ export function BusinessClaimFormClient({
   const [companyWebsite, setCompanyWebsite] = useState(listing.website_url ?? "");
   const [message, setMessage] = useState("");
   const [proofNotes, setProofNotes] = useState("");
+  const [proofDocument, setProofDocument] = useState<File | null>(null);
+  const [proofDocumentInputKey, setProofDocumentInputKey] = useState(0);
   const [claimantRole, setClaimantRole] = useState<(typeof ROLE_OPTIONS)[number][0]>("owner");
   const [verificationMethod, setVerificationMethod] =
     useState<(typeof VERIFICATION_OPTIONS)[number][0]>("business_email_domain");
@@ -226,8 +263,56 @@ export function BusinessClaimFormClient({
       nextErrors.message = tx["claimBusinessForm.validation.message"];
     }
 
+    const proofDocumentError =
+      verificationMethod === "document_upload"
+        ? getProofDocumentError(proofDocument, tx)
+        : getOptionalProofDocumentError(proofDocument, tx);
+    if (proofDocumentError) {
+      nextErrors.proofDocument = proofDocumentError;
+    }
+
     setFieldErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
+  }
+
+  function clearProofDocument() {
+    setProofDocument(null);
+    setProofDocumentInputKey((current) => current + 1);
+  }
+
+  function buildSubmissionRequest(tier: ClaimPartnershipTier) {
+    const basePayload = {
+      listingId: listing.id,
+      claimantName,
+      claimantEmail,
+      claimantPhone,
+      claimantRole,
+      companyWebsite,
+      message,
+      proofNotes,
+      selectedTier: tier,
+      verificationMethod,
+    };
+
+    if (!proofDocument) {
+      return {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(basePayload),
+      };
+    }
+
+    const formData = new FormData();
+    Object.entries(basePayload).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+    formData.append("proofDocument", proofDocument);
+
+    return {
+      headers: undefined,
+      body: formData,
+    };
   }
 
   async function startPaidCheckout(
@@ -297,21 +382,7 @@ export function BusinessClaimFormClient({
     try {
       const response = await fetch("/api/business-claims", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          listingId: listing.id,
-          claimantName,
-          claimantEmail,
-          claimantPhone,
-          claimantRole,
-          companyWebsite,
-          message,
-          proofNotes,
-          selectedTier: intendedTier,
-          verificationMethod,
-        }),
+        ...buildSubmissionRequest(intendedTier),
       });
 
       const payload = (await response.json()) as ClaimSubmissionResponse;
@@ -658,11 +729,53 @@ export function BusinessClaimFormClient({
                         rows={4}
                         placeholder={tx["claimBusinessForm.proofNotesPlaceholder"]}
                       />
-                      {verificationMethod === "document_upload" ? (
-                        <p className="text-xs leading-5 text-muted-foreground">
-                          {tx["claimBusinessForm.documentUploadNote"]}
-                        </p>
-                      ) : null}
+                      <div className="space-y-3 rounded-xl border border-border/70 bg-background/70 p-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="proof-document">{tx["claimBusinessForm.proofDocumentLabel"]}</Label>
+                          <Input
+                            key={proofDocumentInputKey}
+                            id="proof-document"
+                            type="file"
+                            accept={PROOF_DOCUMENT_ACCEPT}
+                            aria-describedby="proof-document-help"
+                            aria-invalid={Boolean(fieldErrors.proofDocument)}
+                            onChange={(event) => {
+                              const nextFile = event.target.files?.[0] ?? null;
+                              setProofDocument(nextFile);
+                              setFieldErrors((current) => {
+                                const next = { ...current };
+                                delete next.proofDocument;
+                                return next;
+                              });
+                            }}
+                          />
+                          <p id="proof-document-help" className="text-xs leading-5 text-muted-foreground">
+                            {tx["claimBusinessForm.documentUploadNote"]}
+                          </p>
+                          {fieldErrors.proofDocument ? (
+                            <p className="text-xs text-destructive">{fieldErrors.proofDocument}</p>
+                          ) : null}
+                        </div>
+                        {proofDocument ? (
+                          <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-muted/30 px-3 py-2 text-sm">
+                            <span className="flex min-w-0 items-center gap-2">
+                              <FileText className="h-4 w-4 shrink-0 text-[#C6961C]" aria-hidden="true" />
+                              <span className="min-w-0 truncate">
+                                {tx["claimBusinessForm.proofDocumentSelected"].replace("{{filename}}", proofDocument.name)}
+                              </span>
+                            </span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={clearProofDocument}
+                            >
+                              <X className="h-4 w-4" aria-hidden="true" />
+                              <span className="sr-only">{tx["claimBusinessForm.proofDocumentRemove"]}</span>
+                            </Button>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
                   </section>
 
