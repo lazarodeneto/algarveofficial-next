@@ -908,7 +908,7 @@
   .top-header-nav {
     margin: 0.55rem 0.55rem 0;
     width: auto;
-    overflow: hidden;
+    overflow: visible;
     isolation: isolate;
     color: hsl(var(--foreground));
     border: 1px solid rgb(255 255 255 / 0.74);
