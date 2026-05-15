@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 const REPO_ROOT = process.cwd();
 const HOME_PAGE_PATH = join(REPO_ROOT, "components", "Index.tsx");
+const CMS_BUILDER_HOOK_PATH = join(REPO_ROOT, "hooks", "useCmsPageBuilder.ts");
 const ADMIN_HOME_CMS_PATH = join(
   REPO_ROOT,
   "legacy-pages",
@@ -36,6 +37,14 @@ describe("home CMS editor public rendering contract", () => {
     expect(source).toContain('"all-listings",\n  "cities",\n  "all-cities"');
     expect(source).toContain('moveSectionAfter(editorialOrder, "all-cities", "all-listings")');
     expect(source).toContain('moveSectionAfter(editorialOrder, "all-cities", "all-listings"),\n    "cities",\n    "all-listings"');
+  });
+
+  it("keeps the public Home hero locked even when localized CMS config says disabled", () => {
+    const source = readFileSync(CMS_BUILDER_HOOK_PATH, "utf8");
+
+    expect(source).toContain('pageId === "home" && blockId === "hero"');
+    expect(source).toContain("isLockedPublicBlock(knownPageId, resolvedBlockId)");
+    expect(source).toContain("return true;");
   });
 
   it("hydrates localized Home section copy on the public homepage", () => {

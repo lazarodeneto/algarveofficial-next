@@ -13,9 +13,13 @@ import {
 
 function normalizeEmailInText(text: string): string {
   if (!text.includes("@")) return text;
-  
+
   const emailRegex = /[\w.-]+@algarveofficial\.com/gi;
   return text.replace(emailRegex, (match) => normalizePublicContactEmail(match) ?? match);
+}
+
+function isLockedPublicBlock(pageId: string, blockId: string) {
+  return pageId === "home" && blockId === "hero";
 }
 
 export function useCmsPageBuilder(pageId: string) {
@@ -54,6 +58,7 @@ export function useCmsPageBuilder(pageId: string) {
     const isBlockEnabled = (blockId: string, fallback = true): boolean => {
       const resolvedBlockId = resolveBlockId(blockId);
       if (!resolvedBlockId) return fallback;
+      if (knownPageId && isLockedPublicBlock(knownPageId, resolvedBlockId)) return true;
       return isRuntimeSectionEnabled(pageConfig, resolvedBlockId, fallback);
     };
 
