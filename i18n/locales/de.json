@@ -1185,82 +1185,91 @@
     "unknownListing": "Unbekannter Eintrag"
   },
   "claimBusinessForm": {
-    "claimingListing": "You are claiming this listing.",
-    "companyWebsite": "Company website",
-    "confirmationBusiness": "Business",
-    "confirmationEyebrow": "Claim received",
-    "confirmationNextStep": "Our team will review the ownership signals and contact you if more information is needed. Approval is manual and no payment is required in this phase.",
-    "confirmationPrompt": "Confirm that this is the exact AlgarveOfficial listing you want to claim.",
-    "confirmationReference": "Claim reference",
-    "confirmationStatus": "Status",
-    "confirmationTier": "Selected tier",
-    "confirmationTitle": "Your claim request has been received.",
-    "contactTitle": "Contact details",
-    "description": "Confirm the listing, tell us how you are connected to the business, and submit a manual ownership review.",
-    "documentUploadNote": "Document storage is not enabled for this public flow yet. Describe the document or proof you can provide and the team will request it if needed.",
-    "fullName": "Full name",
-    "isThisYourBusiness": "Is this your business?",
-    "loginRequiredDescription": "You can complete the form now, but you will be sent to sign in before the claim is submitted.",
-    "loginRequiredTitle": "Sign in required before submission",
-    "message": "Message",
-    "noSearchAgain": "No, search again",
-    "paymentLaterNote": "No payment is collected now. Paid checkout and subscription activation happen only after later approval steps.",
-    "phoneNumber": "Phone number",
-    "proofNotes": "Proof notes",
-    "proofNotesPlaceholder": "Add domain, phone, website, social profile, document, or other ownership details for manual review.",
-    "publicListingLink": "View public listing",
+    "claimingListing": "Sie beanspruchen diesen Eintrag.",
+    "companyWebsite": "Website des Unternehmens",
+    "confirmationBusiness": "Unternehmen",
+    "confirmationEyebrow": "Anfrage erhalten",
+    "confirmationNextStep": "Unser Team prüft die Eigentumsnachweise und kontaktiert Sie, falls weitere Informationen erforderlich sind. Die Freigabe erfolgt manuell und in dieser Phase ist keine Zahlung erforderlich.",
+    "confirmationPrompt": "Bestätigen Sie, dass dies genau der AlgarveOfficial-Eintrag ist, den Sie beanspruchen möchten.",
+    "confirmationReference": "Anfragereferenz",
+    "confirmationStatus": "Bearbeitungsstatus",
+    "confirmationTier": "Ausgewählte Stufe",
+    "confirmationTitle": "Ihre Anspruchsanfrage wurde erhalten.",
+    "contactTitle": "Kontaktdaten",
+    "description": "Bestätigen Sie den Eintrag, erklären Sie Ihre Verbindung zum Unternehmen und senden Sie eine manuelle Eigentumsprüfung ab.",
+    "documentUploadNote": "Die Dokumentenspeicherung ist für diesen öffentlichen Ablauf noch nicht aktiviert. Beschreiben Sie das Dokument oder den Nachweis, den Sie bereitstellen können; das Team fordert ihn bei Bedarf an.",
+    "fullName": "Vollständiger Name",
+    "isThisYourBusiness": "Ist dies Ihr Unternehmen?",
+    "loginRequiredDescription": "Sie können das Formular jetzt ausfüllen, werden aber vor dem Absenden der Anfrage zur Anmeldung weitergeleitet.",
+    "loginRequiredTitle": "Anmeldung vor dem Absenden erforderlich",
+    "message": "Nachricht",
+    "noSearchAgain": "Nein, erneut suchen",
+    "paymentLaterNote": "Jetzt wird keine Zahlung eingezogen. Bezahlter Checkout und Abonnementaktivierung erfolgen erst nach späteren Freigabeschritten.",
+    "phoneNumber": "Telefonnummer",
+    "proofNotes": "Nachweisnotizen",
+    "proofNotesPlaceholder": "Fügen Sie Domain, Telefon, Website, Social-Media-Profil, Dokument oder andere Eigentumsdetails für die manuelle Prüfung hinzu.",
+    "publicListingLink": "Öffentlichen Eintrag ansehen",
     "role": {
-      "agencyRepresentative": "Agency / Representative",
-      "employee": "Employee",
-      "generalManager": "General Manager",
-      "marketingManager": "Marketing Manager",
-      "other": "Other",
-      "owner": "Owner"
+      "agencyRepresentative": "Agentur / Vertreter",
+      "employee": "Mitarbeiter",
+      "generalManager": "Geschäftsführer",
+      "marketingManager": "Marketingverantwortlicher",
+      "other": "Sonstiges",
+      "owner": "Eigentümer"
     },
-    "roleTitle": "Claimant role",
-    "searchAgain": "Search again",
-    "selectedListingBadge": "Selected listing",
+    "roleTitle": "Rolle des Antragstellers",
+    "searchAgain": "Erneut suchen",
+    "selectedListingBadge": "Ausgewählter Eintrag",
     "status": {
-      "pending": "Pending review"
+      "pending": "Wird geprüft"
     },
-    "submit": "Submit claim request",
-    "submitError": "We could not submit this claim right now. Please check the details and try again.",
-    "submitErrorTitle": "Claim not submitted",
-    "submitSuccess": "Claim request submitted.",
-    "submitting": "Submitting...",
+    "submit": "Anspruchsanfrage senden",
+    "submitError": "Wir konnten diese Anfrage momentan nicht absenden. Bitte prüfen Sie die Angaben und versuchen Sie es erneut.",
+    "submitErrorTitle": "Anfrage nicht gesendet",
+    "submitSuccess": "Anspruchsanfrage gesendet.",
+    "submitting": "Wird gesendet...",
     "tier": {
-      "free": "Free Claim",
-      "freeDescription": "Verify ownership and request basic listing access.",
-      "signature": "Signature Partner",
-      "signatureDescription": "Premium partner interest for future approval and checkout.",
-      "verified": "Verified Business",
-      "verifiedDescription": "Enhanced trust signals and business verification after approval."
+      "free": "Kostenloser Anspruch",
+      "freeDescription": "Eigentum bestätigen und grundlegenden Zugriff auf den Eintrag beantragen.",
+      "signature": "Signature-Partner",
+      "signatureDescription": "Interesse an einer Premium-Partnerschaft für spätere Freigabe und Checkout.",
+      "verified": "Verifiziertes Unternehmen",
+      "verifiedDescription": "Stärkere Vertrauenssignale und Unternehmensverifizierung nach Freigabe."
     },
-    "tierTitle": "Tier selection",
-    "title": "Claim this business listing",
+    "tierTitle": "Stufenauswahl",
+    "title": "Diesen Unternehmenseintrag beanspruchen",
     "unavailable": {
-      "claimedDescription": "This listing is already managed by an official representative. Contact AlgarveOfficial if you believe this is incorrect.",
-      "claimedTitle": "This listing is already claimed",
-      "pendingDescription": "This listing already has an ownership claim under review. Please wait for the current review to finish.",
-      "pendingTitle": "Ownership claim under review"
+      "claimedDescription": "Dieser Eintrag wird bereits von einem offiziellen Vertreter verwaltet. Kontaktieren Sie AlgarveOfficial, wenn Sie glauben, dass dies nicht korrekt ist.",
+      "claimedTitle": "Dieser Eintrag wurde bereits beansprucht",
+      "pendingDescription": "Für diesen Eintrag liegt bereits ein Eigentumsanspruch zur Prüfung vor. Bitte warten Sie, bis die aktuelle Prüfung abgeschlossen ist.",
+      "pendingTitle": "Eigentumsanspruch wird geprüft"
     },
     "validation": {
-      "email": "Enter a valid work email.",
-      "message": "Add at least 10 characters explaining your connection to the business.",
-      "name": "Enter your full name."
+      "email": "Geben Sie eine gültige geschäftliche E-Mail-Adresse ein.",
+      "message": "Fügen Sie mindestens 10 Zeichen hinzu, die Ihre Verbindung zum Unternehmen erklären.",
+      "name": "Geben Sie Ihren vollständigen Namen ein."
     },
     "verification": {
-      "businessEmailDomain": "Business email domain",
-      "documentUpload": "Document upload",
-      "manualReview": "Manual review",
-      "officialSocialMedia": "Official social media account",
-      "phoneVerification": "Phone verification",
-      "websiteContactMatch": "Website contact match"
+      "businessEmailDomain": "Geschäftliche E-Mail-Domain",
+      "documentUpload": "Dokument hochladen",
+      "manualReview": "Manuelle Prüfung",
+      "officialSocialMedia": "Offizielles Social-Media-Konto",
+      "phoneVerification": "Telefonische Verifizierung",
+      "websiteContactMatch": "Übereinstimmung der Kontaktdaten auf der Website"
     },
-    "verificationTitle": "Verification method",
-    "viewListing": "View listing",
-    "workEmail": "Work email",
-    "yesContinue": "Yes, continue"
+    "verificationTitle": "Verifizierungsmethode",
+    "viewListing": "Eintrag ansehen",
+    "workEmail": "Geschäftliche E-Mail",
+    "yesContinue": "Ja, fortfahren",
+    "checkoutError": "Der sichere Checkout konnte nicht gestartet werden. Bitte versuchen Sie es erneut oder kontaktieren Sie AlgarveOfficial.",
+    "checkoutErrorTitle": "Checkout nicht gestartet",
+    "checkoutRedirecting": "Sicherer Checkout wird geöffnet...",
+    "confirmationPaidNextStep": "Ihre Anfrage wurde erhalten. Fahren Sie mit dem Stripe-Checkout fort, um die ausgewählte bezahlte Stufe zu registrieren; die Aktivierung bleibt vom vorgesehenen Freigabeprozess abhängig.",
+    "continueToCheckout": "Zum sicheren Checkout fortfahren",
+    "paymentCheckoutNote": "Bezahlte Ansprüche erstellen zuerst die Anfrage und öffnen dann den sicheren Stripe-Checkout für die ausgewählte Stufe und Abrechnungsperiode.",
+    "paymentFreeNote": "Kostenlose Ansprüche werden direkt zur manuellen Prüfung gesendet. Es wird kein Stripe-Checkout verwendet.",
+    "submitFree": "Kostenlosen Anspruch senden",
+    "submitPaid": "Senden und zum Checkout fortfahren"
   },
   "claimBusinessSearch": {
     "cantFindDescription": "Wenn AlgarveOfficial Ihr Unternehmen noch nicht enthält, starten Sie eine neue Eintragsanfrage über das Partnerformular.",
@@ -1289,7 +1298,15 @@
       "unclaimed": "Nicht beansprucht"
     },
     "title": "Finden und beanspruchen Sie Ihr Unternehmen auf AlgarveOfficial",
-    "viewListing": "Eintrag ansehen"
+    "viewListing": "Eintrag ansehen",
+    "pricing": {
+      "freeNote": "Immer kostenlos",
+      "monthlyCadence": "/Monat",
+      "yearlyCadence": "/Jahr",
+      "promoCadence": "Kampagnenpreis",
+      "monthlyEquivalent": "{{price}} monatlich umgerechnet",
+      "unavailableNote": "Der sichere Checkout verwendet den konfigurierten Stripe-Abonnementpreis."
+    }
   },
   "common": {
     "accountSettings": "Kontoeinstellungen",
@@ -4227,5 +4244,181 @@
     "loading": "Wetter für Faro wird geladen",
     "temperatureLabel": "Wetter in {{place}}: {{celsius}}°C / {{fahrenheit}}°F",
     "unavailable": "Wetter nicht verfügbar"
+  },
+  "claimBusinessPartnership": {
+    "pricing": {
+      "title": "Choose the claim level that fits your business",
+      "subtitle": "Start free, add verified trust signals, or request Signature visibility for premium placement.",
+      "selectionHint": "Choose a billing period",
+      "compareCta": "Compare tiers"
+    },
+    "tiers": {
+      "unverified": {
+        "name": "Unverified",
+        "price": "Free",
+        "priceNote": "Basis",
+        "positioning": "Basic ownership review for existing listings. Keep the claim on record and request essential listing access.",
+        "cta": "Start free claim",
+        "badge": "Basic"
+      },
+      "verified": {
+        "name": "Verified",
+        "price": "€19",
+        "priceNote": "/month",
+        "positioning": "For legitimate local businesses that want trust, stronger profile signals, and better enquiry readiness.",
+        "cta": "Choose Verified",
+        "badge": "Popular"
+      },
+      "signature": {
+        "name": "Signature",
+        "price": "€190",
+        "priceNote": "/month",
+        "positioning": "Premium partner interest for businesses seeking editorial-quality visibility and curated placement eligibility.",
+        "cta": "Choose Signature",
+        "badge": "Limited"
+      }
+    },
+    "features": {
+      "basicDirectory": "Published directory presence",
+      "basicMap": "Map and category visibility",
+      "basicProfile": "Basic business profile",
+      "publicReview": "Manual ownership review",
+      "limitedVisibility": "Standard ranking and visibility",
+      "noVerifiedBadge": "No verified trust badge",
+      "noPriorityPlacement": "No priority placement",
+      "noPremiumCta": "No premium enquiry CTA",
+      "upgradeAnytime": "Upgrade when ready",
+      "verifiedBadge": "Verified trust badge",
+      "enhancedProfile": "Enhanced profile presentation",
+      "gallery10": "Up to 10 gallery images",
+      "mapPriority": "Stronger map and category presence",
+      "socialLinks": "Website and social links",
+      "whatsapp": "WhatsApp-ready contact path",
+      "ctaButton": "Clear enquiry CTA",
+      "directContact": "Direct contact and enquiry visibility",
+      "strongerVisibility": "Stronger discovery signals",
+      "cancelAnytime": "Cancel anytime",
+      "noContract": "No long-term contract",
+      "everythingVerified": "Everything in Verified",
+      "gallery20": "Up to 20 gallery images",
+      "signatureEligibility": "Signature placement eligibility",
+      "videoInterview": "Video interview eligibility",
+      "videoCommercial": "Video commercial eligibility",
+      "socialMentions": "Social mention eligibility",
+      "priorityVisibility": "Priority visibility consideration",
+      "homepageAddOn": "Homepage add-on eligibility",
+      "curatedPlacement": "Curated placement eligibility",
+      "cityCategoryEligibility": "City and category feature eligibility",
+      "limitedAvailability": "Limited availability",
+      "approvalRequired": "Approval required"
+    },
+    "comparison": {
+      "title": "Compare claim levels",
+      "subtitle": "See how Unverified, Verified, and Signature differ before choosing the right path.",
+      "feature": "Feature",
+      "included": "Included",
+      "notIncluded": "Not included"
+    },
+    "trust": {
+      "title": "Trust, visibility, and credibility for Algarve business owners",
+      "subtitle": "Claiming gives AlgarveOfficial the ownership signals needed to protect quality, improve enquiries, and keep business information credible.",
+      "points": {
+        "review": "Every claim is reviewed before ownership or premium placement is confirmed.",
+        "quality": "Verified and Signature tiers support stronger profile quality and clearer visitor confidence.",
+        "availability": "Premium visibility depends on category fit, listing quality, and placement availability.",
+        "signature": "Signature interest is reviewed before premium editorial-style exposure is activated."
+      }
+    },
+    "placement": {
+      "badge": "Placement",
+      "title": "Premium placement remains curated",
+      "subtitle": "Paid interest starts the commercial flow, but AlgarveOfficial keeps placement quality controlled.",
+      "items": {
+        "homepage": {
+          "title": "Homepage and campaign opportunities",
+          "description": "Eligible Signature partners may be considered for high-intent promotional surfaces."
+        },
+        "fit": {
+          "title": "Category and city fit",
+          "description": "Visibility is matched to relevant locations, categories, and visitor intent."
+        },
+        "quality": {
+          "title": "Quality review before activation",
+          "description": "Premium presentation stays aligned with AlgarveOfficial standards and audience trust."
+        }
+      }
+    },
+    "audience": {
+      "badge": "Audience",
+      "title": "Reach people already choosing where to go in the Algarve",
+      "subtitle": "Claimed listings support discovery by visitors, residents, golfers, property audiences, and premium lifestyle consumers.",
+      "items": {
+        "visitors": {
+          "title": "Visitors planning trips",
+          "description": "Travelers comparing trusted places before arrival."
+        },
+        "residents": {
+          "title": "Residents and relocation users",
+          "description": "People building local routines and choosing reliable services."
+        },
+        "golf": {
+          "title": "Golf travelers",
+          "description": "Players looking for courses, resorts, restaurants, and premium leisure."
+        },
+        "property": {
+          "title": "Property buyers and investors",
+          "description": "High-intent audiences exploring areas, services, and lifestyle fit."
+        },
+        "lifestyle": {
+          "title": "Premium lifestyle consumers",
+          "description": "Discerning users looking for quality, credibility, and local confidence."
+        }
+      }
+    },
+    "faq": {
+      "title": "Claim-business FAQ",
+      "items": {
+        "claim": {
+          "question": "Why should I claim my business?",
+          "answer": "A claim links your account to an existing AlgarveOfficial listing so ownership can be reviewed and future listing access can be managed safely."
+        },
+        "cost": {
+          "question": "Is claiming free?",
+          "answer": "The Unverified claim path is free. Verified and Signature are paid options using configured Stripe pricing."
+        },
+        "difference": {
+          "question": "What is the difference between Unverified, Verified, and Signature?",
+          "answer": "Unverified records ownership interest. Verified adds trust and stronger profile signals. Signature is for premium partner visibility and curated placement eligibility."
+        },
+        "afterPaid": {
+          "question": "What happens after paid checkout?",
+          "answer": "The claim is already created before checkout. Payment records the selected paid tier and billing period, while activation remains subject to the intended approval flow."
+        },
+        "payBeforeApproval": {
+          "question": "Do paid tiers activate instantly?",
+          "answer": "No. Premium activation should follow the approval and reconciliation flow rather than bypassing review."
+        },
+        "upgrade": {
+          "question": "Can I upgrade later?",
+          "answer": "Yes. You can begin with a free claim and move to a paid tier when the business is ready."
+        },
+        "cancel": {
+          "question": "Can I cancel a paid tier?",
+          "answer": "Paid subscriptions are managed through Stripe billing and the owner subscription workflow."
+        },
+        "guarantees": {
+          "question": "Does Signature guarantee placement?",
+          "answer": "No. Signature indicates premium partner interest and eligibility; placement depends on relevance, quality, and availability."
+        },
+        "approvalTime": {
+          "question": "How long does review take?",
+          "answer": "Most claim reviews are handled manually by the AlgarveOfficial team. Timelines depend on the quality of ownership evidence and current review volume."
+        },
+        "signatureAvailable": {
+          "question": "Is Signature available to every business?",
+          "answer": "No. Signature is limited and remains subject to category fit, listing quality, and AlgarveOfficial editorial standards."
+        }
+      }
+    }
   }
 }

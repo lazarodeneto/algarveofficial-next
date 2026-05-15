@@ -12,7 +12,12 @@ import {
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/lib/i18n/config";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { getStripeServerClient } from "@/lib/stripe/server";
-import { requireAuthenticatedOwner } from "@/lib/server/owner-auth";
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import {
+  requireAuthenticatedOwner,
+  type OwnerAuth,
+  type OwnerAuthError,
+} from "@/lib/server/owner-auth";
 import { findByOwner, findOverlappingActive } from "@/lib/subscriptions/db";
 import { planTypeFromBillingPeriod } from "@/lib/subscriptions/types";
 
@@ -67,8 +72,32 @@ function resolveCheckoutLocalePrefix(request: NextRequest) {
   }
 }
 
+async function requireAuthenticatedClaimant(): Promise<OwnerAuth | OwnerAuthError> {
+  const supabase = await createServerClient();
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error || !data.user) {
+    return { error: NextResponse.json({ error: "Unauthorized." }, { status: 401 }) };
+  }
+
+  return {
+    userId: data.user.id,
+    email: data.user.email ?? null,
+  };
+}
+
 export async function POST(request: NextRequest) {
-  const auth = await requireAuthenticatedOwner(request);
+  let body: { tier?: string; billing_period?: string; listing_id?: string; claim_id?: string } | null = null;
+  try {
+    body = await request.json();
+  } catch {
+    body = null;
+  }
+
+  const claimId = typeof body?.claim_id === "string" ? body.claim_id.trim() : "";
+  const auth = claimId
+    ? await requireAuthenticatedClaimant()
+    : await requireAuthenticatedOwner(request);
   if ("error" in auth) return auth.error;
 
   const supabase = createServiceRoleClient();
@@ -81,13 +110,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Stripe not configured." }, { status: 503 });
   }
 
-  let body: { tier?: string; billing_period?: string; listing_id?: string } | null = null;
-  try {
-    body = await request.json();
-  } catch {
-    body = null;
-  }
-
   const tier = normalizePaidTier(body?.tier);
   const billingPeriod = normalizeCheckoutBillingPeriod(body?.billing_period);
 
@@ -95,9 +117,65 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid pricing selection." }, { status: 400 });
   }
 
+  let checkoutClaimId: string | null = null;
   const listingId = typeof body?.listing_id === "string" ? body.listing_id.trim() : "";
   let checkoutListingId: string | null = null;
+  let checkoutListingSlug: string | null = null;
+
+  if (claimId) {
+    if (!isUuid(claimId)) {
+      return NextResponse.json({ error: "Invalid claim selection." }, { status: 400 });
+    }
+
+    const { data: claim, error: claimError } = await supabase
+      .from("business_claims")
+      .select("id, listing_id, claimant_user_id, selected_tier, status, listing:listings(id, slug)")
+      .eq("id", claimId)
+      .maybeSingle();
+
+    if (claimError) {
+      return NextResponse.json({ error: "Claim validation failed." }, { status: 500 });
+    }
+
+    if (!claim) {
+      return NextResponse.json({ error: "Claim not found." }, { status: 404 });
+    }
+
+    if (claim.claimant_user_id !== auth.userId) {
+      return NextResponse.json({ error: "Claim not found for this user." }, { status: 403 });
+    }
+
+    if (claim.status !== "pending") {
+      return NextResponse.json(
+        { error: "Only pending claims can start checkout." },
+        { status: 409 },
+      );
+    }
+
+    if (claim.selected_tier !== tier) {
+      return NextResponse.json(
+        { error: "Claim tier does not match checkout tier." },
+        { status: 409 },
+      );
+    }
+
+    checkoutClaimId = claim.id;
+    checkoutListingId = claim.listing_id;
+    const listingRelation = Array.isArray(claim.listing) ? claim.listing[0] : claim.listing;
+    checkoutListingSlug =
+      typeof listingRelation?.slug === "string" && listingRelation.slug
+        ? listingRelation.slug
+        : claim.listing_id;
+  }
+
   if (listingId) {
+    if (checkoutClaimId) {
+      return NextResponse.json(
+        { error: "Use either claim_id or listing_id for checkout, not both." },
+        { status: 400 },
+      );
+    }
+
     if (!isUuid(listingId)) {
       return NextResponse.json({ error: "Invalid listing selection." }, { status: 400 });
     }
@@ -199,22 +277,32 @@ export async function POST(request: NextRequest) {
     billing_period: resolvedBillingPeriod,
     requested_billing_period: billingPeriod,
     pricing_id: resolvedPricing.id,
+    ...(checkoutClaimId ? { claim_id: checkoutClaimId } : {}),
     ...(checkoutListingId ? { listing_id: checkoutListingId } : {}),
   };
 
   const baseUrl = resolveSiteUrl(request);
-  const localePrefix = checkoutListingId
+  const localePrefix = checkoutClaimId
+    ? resolveCheckoutLocalePrefix(request) || `/${DEFAULT_LOCALE}`
+    : checkoutListingId
     ? resolveCheckoutLocalePrefix(request) || `/${DEFAULT_LOCALE}`
     : resolveCheckoutLocalePrefix(request);
-  const checkoutQuery = checkoutListingId
+  const checkoutQuery = checkoutListingId && !checkoutClaimId
     ? `?listing_id=${encodeURIComponent(checkoutListingId)}&target_tier=${encodeURIComponent(tier)}`
     : "";
-  const successUrl = checkoutListingId
-    ? `${baseUrl}${localePrefix}/owner/upgrade/success${checkoutQuery}`
-    : `${baseUrl}${localePrefix}/owner/membership?success=1`;
-  const cancelUrl = checkoutListingId
-    ? `${baseUrl}${localePrefix}/owner/upgrade/cancel${checkoutQuery}`
-    : `${baseUrl}${localePrefix}/owner/membership?canceled=1`;
+  const claimCheckoutPath = checkoutClaimId
+    ? `/claim-business/${encodeURIComponent(checkoutListingSlug ?? checkoutListingId ?? checkoutClaimId)}`
+    : "";
+  const successUrl = checkoutClaimId
+    ? `${baseUrl}${localePrefix}${claimCheckoutPath}?checkout=success`
+    : checkoutListingId
+      ? `${baseUrl}${localePrefix}/owner/upgrade/success${checkoutQuery}`
+      : `${baseUrl}${localePrefix}/owner/membership?success=1`;
+  const cancelUrl = checkoutClaimId
+    ? `${baseUrl}${localePrefix}${claimCheckoutPath}?checkout=cancel`
+    : checkoutListingId
+      ? `${baseUrl}${localePrefix}/owner/upgrade/cancel${checkoutQuery}`
+      : `${baseUrl}${localePrefix}/owner/membership?canceled=1`;
 
   const buildSessionParams = (customerId: string | null) => ({
     mode: planType === "fixed_2026" ? ("payment" as const) : ("subscription" as const),

@@ -5,6 +5,11 @@ import {
   BusinessClaimFormClient,
   type ClaimFormListing,
 } from "@/components/claim-business/BusinessClaimFormClient";
+import { CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS } from "@/components/claim-business/ClaimBusinessPartnershipSections";
+import {
+  buildClaimTierPricingDetails,
+  getClaimPricingSnapshot,
+} from "@/lib/claims/claim-pricing";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
 import { getServerTranslations } from "@/lib/i18n/server";
@@ -71,11 +76,19 @@ const CLAIM_FORM_TRANSLATION_KEYS = [
   "claimBusinessForm.tier.signature",
   "claimBusinessForm.tier.signatureDescription",
   "claimBusinessForm.paymentLaterNote",
+  "claimBusinessForm.paymentCheckoutNote",
+  "claimBusinessForm.paymentFreeNote",
   "claimBusinessForm.submit",
+  "claimBusinessForm.submitFree",
+  "claimBusinessForm.submitPaid",
   "claimBusinessForm.submitting",
   "claimBusinessForm.submitSuccess",
   "claimBusinessForm.submitError",
   "claimBusinessForm.submitErrorTitle",
+  "claimBusinessForm.checkoutError",
+  "claimBusinessForm.checkoutErrorTitle",
+  "claimBusinessForm.checkoutRedirecting",
+  "claimBusinessForm.continueToCheckout",
   "claimBusinessForm.searchAgain",
   "claimBusinessForm.viewListing",
   "claimBusinessForm.validation.name",
@@ -92,7 +105,15 @@ const CLAIM_FORM_TRANSLATION_KEYS = [
   "claimBusinessForm.confirmationTier",
   "claimBusinessForm.confirmationStatus",
   "claimBusinessForm.confirmationNextStep",
+  "claimBusinessForm.confirmationPaidNextStep",
   "claimBusinessForm.status.pending",
+  "claimBusinessSearch.pricing.freeNote",
+  "claimBusinessSearch.pricing.monthlyCadence",
+  "claimBusinessSearch.pricing.yearlyCadence",
+  "claimBusinessSearch.pricing.promoCadence",
+  "claimBusinessSearch.pricing.monthlyEquivalent",
+  "claimBusinessSearch.pricing.unavailableNote",
+  ...CLAIM_BUSINESS_PARTNERSHIP_TRANSLATION_KEYS,
 ] as const;
 
 interface ClaimBusinessSlugPageProps {
@@ -164,15 +185,17 @@ export default async function ClaimBusinessSlugPage({
 }: ClaimBusinessSlugPageProps) {
   const { locale: rawLocale, slug } = await params;
   const locale = isValidLocale(rawLocale) ? (rawLocale as Locale) : "en";
-  const [listing, tx] = await Promise.all([
+  const [listing, tx, pricingSnapshot] = await Promise.all([
     getClaimListing(slug),
     getServerTranslations(locale, [...CLAIM_FORM_TRANSLATION_KEYS]),
+    getClaimPricingSnapshot(),
   ]);
 
   if (!listing) {
     notFound();
   }
 
+  const pricing = buildClaimTierPricingDetails(pricingSnapshot, tx);
   const canonicalSlug = listing.slug ?? listing.id;
   const claimPath = `/claim-business/${canonicalSlug}`;
   const listingHref = buildLocalizedPath(locale, `/listing/${canonicalSlug}`);
@@ -204,6 +227,7 @@ export default async function ClaimBusinessSlugPage({
           searchHref={searchHref}
           loginHref={loginHref}
           tx={tx}
+          pricing={pricing}
         />
       </div>
     </main>
