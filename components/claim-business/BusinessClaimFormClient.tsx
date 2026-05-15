@@ -22,8 +22,16 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getBusinessClaimCtaState } from "@/components/listing/BusinessClaimCTA";
+import {
+  ClaimBusinessPricingCards,
+  type ClaimPartnershipTier,
+} from "@/components/claim-business/ClaimBusinessPartnershipSections";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Tables } from "@/integrations/supabase/types";
+import type {
+  ClaimPricingBillingPeriod,
+  ClaimTierPricingDetails,
+} from "@/lib/claims/claim-pricing-types";
 import { cn } from "@/lib/utils";
 
 type ListingClaimStatus = Tables<"listings">["claim_status"];
@@ -53,6 +61,7 @@ interface BusinessClaimFormClientProps {
   searchHref: string;
   loginHref: string;
   tx: Record<string, string>;
+  pricing?: ClaimTierPricingDetails;
 }
 
 interface ClaimSubmissionResponse {
@@ -88,19 +97,38 @@ const VERIFICATION_OPTIONS = [
   ["manual_review", "claimBusinessForm.verification.manualReview"],
 ] as const;
 
-const TIER_OPTIONS = [
-  ["free", "claimBusinessForm.tier.free", "claimBusinessForm.tier.freeDescription"],
-  ["verified", "claimBusinessForm.tier.verified", "claimBusinessForm.tier.verifiedDescription"],
-  ["signature", "claimBusinessForm.tier.signature", "claimBusinessForm.tier.signatureDescription"],
-] as const;
-
 function isLikelyEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
 }
 
 function tierLabel(value: string, tx: Record<string, string>) {
-  const option = TIER_OPTIONS.find(([tier]) => tier === value);
-  return option ? tx[option[1]] : value;
+  if (value === "free") return tx["claimBusinessPartnership.tiers.unverified.name"];
+  if (value === "verified") return tx["claimBusinessPartnership.tiers.verified.name"];
+  if (value === "signature") return tx["claimBusinessPartnership.tiers.signature.name"];
+  return value;
+}
+
+function isPaidTier(value: ClaimPartnershipTier): value is Exclude<ClaimPartnershipTier, "free"> {
+  return value === "verified" || value === "signature";
+}
+
+type PaidClaimPartnershipTier = Exclude<ClaimPartnershipTier, "free">;
+type BillingPeriodSelection = Partial<Record<PaidClaimPartnershipTier, ClaimPricingBillingPeriod>>;
+
+function getSelectedBillingPeriod(
+  tier: ClaimPartnershipTier,
+  pricing: ClaimTierPricingDetails | undefined,
+  selectedBillingPeriods: BillingPeriodSelection,
+) {
+  if (!isPaidTier(tier)) return null;
+
+  const detail = pricing?.[tier];
+  const selectedPeriod = selectedBillingPeriods[tier];
+  if (selectedPeriod && detail?.options.some((option) => option.billingPeriod === selectedPeriod)) {
+    return selectedPeriod;
+  }
+
+  return detail?.checkoutBillingPeriod ?? null;
 }
 
 function getStatusMessage(status: ListingClaimStatus, tx: Record<string, string>) {
@@ -128,6 +156,7 @@ export function BusinessClaimFormClient({
   searchHref,
   loginHref,
   tx,
+  pricing,
 }: BusinessClaimFormClientProps) {
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -141,8 +170,11 @@ export function BusinessClaimFormClient({
   const [claimantRole, setClaimantRole] = useState<(typeof ROLE_OPTIONS)[number][0]>("owner");
   const [verificationMethod, setVerificationMethod] =
     useState<(typeof VERIFICATION_OPTIONS)[number][0]>("business_email_domain");
-  const [selectedTier, setSelectedTier] = useState<(typeof TIER_OPTIONS)[number][0]>("free");
+  const [selectedTier, setSelectedTier] = useState<ClaimPartnershipTier>("verified");
+  const [selectedBillingPeriods, setSelectedBillingPeriods] = useState<BillingPeriodSelection>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkoutInProgress, setCheckoutInProgress] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submittedClaim, setSubmittedClaim] = useState<ClaimSubmissionResponse["data"] | null>(null);
@@ -158,6 +190,26 @@ export function BusinessClaimFormClient({
     setClaimantName((current) => current || fullName);
     setClaimantEmail((current) => current || user.email);
   }, [user]);
+
+  useEffect(() => {
+    if (!isPaidTier(selectedTier)) return;
+
+    const detail = pricing?.[selectedTier];
+    const fallbackPeriod = detail?.checkoutBillingPeriod;
+    if (!fallbackPeriod) return;
+
+    setSelectedBillingPeriods((current) => {
+      const currentPeriod = current[selectedTier];
+      if (currentPeriod && detail.options.some((option) => option.billingPeriod === currentPeriod)) {
+        return current;
+      }
+
+      return {
+        ...current,
+        [selectedTier]: fallbackPeriod,
+      };
+    });
+  }, [pricing, selectedTier]);
 
   function validate() {
     const nextErrors: Record<string, string> = {};
@@ -178,9 +230,58 @@ export function BusinessClaimFormClient({
     return Object.keys(nextErrors).length === 0;
   }
 
+  async function startPaidCheckout(
+    claimId: string,
+    tier: PaidClaimPartnershipTier,
+    billingPeriod: ClaimPricingBillingPeriod,
+  ) {
+    setCheckoutInProgress(true);
+    setCheckoutError(null);
+
+    try {
+      const response = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tier,
+          billing_period: billingPeriod,
+          claim_id: claimId,
+        }),
+      });
+
+      const payload = (await response.json().catch(() => null)) as { url?: string; error?: string } | null;
+
+      if (response.status === 401) {
+        router.push(loginHref);
+        return;
+      }
+
+      if (!response.ok || !payload?.url) {
+        throw new Error(payload?.error ?? tx["claimBusinessForm.checkoutError"]);
+      }
+
+      window.location.href = payload.url;
+    } catch (checkoutErrorValue) {
+      const message =
+        checkoutErrorValue instanceof Error
+          ? checkoutErrorValue.message
+          : tx["claimBusinessForm.checkoutError"];
+      setCheckoutError(message);
+      toast.error(tx["claimBusinessForm.checkoutErrorTitle"], {
+        description: message,
+      });
+    } finally {
+      setCheckoutInProgress(false);
+    }
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setCheckoutError(null);
 
     if (!isAuthenticated) {
       router.push(loginHref);
@@ -192,6 +293,7 @@ export function BusinessClaimFormClient({
     }
 
     setIsSubmitting(true);
+    const intendedTier = selectedTier;
     try {
       const response = await fetch("/api/business-claims", {
         method: "POST",
@@ -207,7 +309,7 @@ export function BusinessClaimFormClient({
           companyWebsite,
           message,
           proofNotes,
-          selectedTier,
+          selectedTier: intendedTier,
           verificationMethod,
         }),
       });
@@ -226,6 +328,24 @@ export function BusinessClaimFormClient({
 
       setSubmittedClaim(payload.data);
       toast.success(tx["claimBusinessForm.submitSuccess"]);
+
+      if (isPaidTier(intendedTier)) {
+        const checkoutBillingPeriod = getSelectedBillingPeriod(
+          intendedTier,
+          pricing,
+          selectedBillingPeriods,
+        );
+
+        if (!checkoutBillingPeriod) {
+          setCheckoutError(tx["claimBusinessForm.checkoutError"]);
+          toast.error(tx["claimBusinessForm.checkoutErrorTitle"], {
+            description: tx["claimBusinessForm.checkoutError"],
+          });
+          return;
+        }
+
+        await startPaidCheckout(payload.data.id, intendedTier, checkoutBillingPeriod);
+      }
     } catch {
       setError(tx["claimBusinessForm.submitError"]);
     } finally {
@@ -234,6 +354,12 @@ export function BusinessClaimFormClient({
   }
 
   if (submittedClaim) {
+    const submittedTier = submittedClaim.selected_tier as ClaimPartnershipTier;
+    const submittedPaidTier = isPaidTier(submittedTier) ? submittedTier : null;
+    const submittedBillingPeriod = submittedPaidTier
+      ? getSelectedBillingPeriod(submittedPaidTier, pricing, selectedBillingPeriods)
+      : null;
+
     return (
       <Card className="rounded-2xl border-emerald-500/30 bg-emerald-500/5">
         <CardContent className="space-y-5 p-6 md:p-8">
@@ -269,9 +395,40 @@ export function BusinessClaimFormClient({
             </div>
           </dl>
           <p className="text-sm leading-6 text-muted-foreground">
-            {tx["claimBusinessForm.confirmationNextStep"]}
+            {submittedPaidTier
+              ? tx["claimBusinessForm.confirmationPaidNextStep"]
+              : tx["claimBusinessForm.confirmationNextStep"]}
           </p>
+          {checkoutError ? (
+            <Alert className="border-amber-500/35 bg-amber-500/10">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>{tx["claimBusinessForm.checkoutErrorTitle"]}</AlertTitle>
+              <AlertDescription>{checkoutError}</AlertDescription>
+            </Alert>
+          ) : null}
           <div className="flex flex-col gap-3 sm:flex-row">
+            {submittedPaidTier ? (
+              <Button
+                type="button"
+                disabled={checkoutInProgress || !submittedBillingPeriod}
+                onClick={() => {
+                  if (submittedBillingPeriod) {
+                    startPaidCheckout(submittedClaim.id, submittedPaidTier, submittedBillingPeriod);
+                  }
+                }}
+                className={cn(
+                  "w-full whitespace-normal text-center leading-5 sm:w-auto",
+                  submittedPaidTier === "verified" &&
+                    "bg-emerald-600 text-white shadow-lg shadow-emerald-600/15 hover:bg-emerald-700",
+                  submittedPaidTier === "signature" &&
+                    "bg-[#C7A35A] text-amber-950 shadow-lg shadow-amber-700/15 hover:bg-[#B79245]",
+                )}
+              >
+                {checkoutInProgress
+                  ? tx["claimBusinessForm.checkoutRedirecting"]
+                  : tx["claimBusinessForm.continueToCheckout"]}
+              </Button>
+            ) : null}
             <Button asChild>
               <Link href={listingHref}>{tx["claimBusinessForm.viewListing"]}</Link>
             </Button>
@@ -285,9 +442,9 @@ export function BusinessClaimFormClient({
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-      <Card className="overflow-hidden rounded-2xl border-border/70 shadow-sm">
-        <div className="relative h-56 bg-muted">
+    <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(18rem,0.82fr)_minmax(0,1.18fr)] lg:items-start">
+      <Card className="min-w-0 overflow-hidden rounded-2xl border-border/70 shadow-sm lg:sticky lg:top-28">
+        <div className="relative h-56 bg-muted sm:h-64 lg:h-60">
           <ListingImage
             src={listing.featured_image_url}
             categoryImageUrl={listing.category?.image_url ?? null}
@@ -302,9 +459,9 @@ export function BusinessClaimFormClient({
           <Badge variant="outline" className="w-fit border-[#D4A62A]/35 bg-[#D4A62A]/10 text-[#9C7417]">
             {tx["claimBusinessForm.selectedListingBadge"]}
           </Badge>
-          <CardTitle className="font-serif text-3xl leading-tight">{listing.name}</CardTitle>
+          <CardTitle className="break-words font-serif text-3xl leading-tight">{listing.name}</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 text-sm text-muted-foreground">
+        <CardContent className="min-w-0 space-y-4 text-sm text-muted-foreground">
           <p className="text-base font-semibold text-foreground">
             {tx["claimBusinessForm.claimingListing"]}
           </p>
@@ -313,23 +470,23 @@ export function BusinessClaimFormClient({
               <p>{[listing.city?.name, listing.category?.name].filter(Boolean).join(" · ")}</p>
             ) : null}
             {listing.address ? (
-              <p className="flex gap-2">
+              <p className="flex min-w-0 gap-2">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#C6961C]" aria-hidden="true" />
-                <span>{listing.address}</span>
+                <span className="min-w-0 break-words">{listing.address}</span>
               </p>
             ) : null}
             {listing.website_url ? (
-              <p className="flex gap-2">
+              <p className="flex min-w-0 gap-2">
                 <Globe2 className="mt-0.5 h-4 w-4 shrink-0 text-[#C6961C]" aria-hidden="true" />
-                <a className="break-all hover:text-primary" href={listing.website_url} target="_blank" rel="noreferrer">
+                <a className="min-w-0 break-all hover:text-primary" href={listing.website_url} target="_blank" rel="noreferrer">
                   {listing.website_url}
                 </a>
               </p>
             ) : null}
             {listing.contact_phone ? (
-              <p className="flex gap-2">
+              <p className="flex min-w-0 gap-2">
                 <Phone className="mt-0.5 h-4 w-4 shrink-0 text-[#C6961C]" aria-hidden="true" />
-                <a className="hover:text-primary" href={`tel:${listing.contact_phone}`}>
+                <a className="min-w-0 break-words hover:text-primary" href={`tel:${listing.contact_phone}`}>
                   {listing.contact_phone}
                 </a>
               </p>
@@ -344,7 +501,7 @@ export function BusinessClaimFormClient({
         </CardContent>
       </Card>
 
-      <div className="space-y-6">
+      <div className="min-w-0 space-y-6">
         {unavailable ? (
           <Alert className="border-amber-500/35 bg-amber-500/10">
             <AlertCircle className="h-4 w-4" />
@@ -352,7 +509,7 @@ export function BusinessClaimFormClient({
             <AlertDescription>{unavailable.description}</AlertDescription>
           </Alert>
         ) : (
-          <Card className="rounded-2xl border-border/70 shadow-sm">
+          <Card className="min-w-0 rounded-2xl border-border/70 shadow-sm">
             <CardContent className="space-y-6 p-6 md:p-8">
               {!confirmed ? (
                 <div className="space-y-5">
@@ -510,33 +667,71 @@ export function BusinessClaimFormClient({
                   </section>
 
                   <section className="space-y-4">
-                    <h2 className="font-serif text-2xl text-foreground">
-                      {tx["claimBusinessForm.tierTitle"]}
-                    </h2>
-                    <div className="grid gap-3 md:grid-cols-3">
-                      {TIER_OPTIONS.map(([value, labelKey, descriptionKey]) => (
-                        <button
-                          key={value}
-                          type="button"
-                          onClick={() => setSelectedTier(value)}
-                          className={cn(
-                            "rounded-xl border border-border/70 bg-background p-4 text-left transition hover:border-[#D4A62A]/50",
-                            selectedTier === value && "border-[#D4A62A] bg-[#D4A62A]/10",
-                          )}
-                        >
-                          <span className="block font-semibold text-foreground">{tx[labelKey]}</span>
-                          <span className="mt-2 block text-sm leading-5 text-muted-foreground">{tx[descriptionKey]}</span>
-                        </button>
-                      ))}
-                    </div>
+                    <ClaimBusinessPricingCards
+                      tx={tx}
+                      pricing={pricing}
+                      selectedTier={selectedTier}
+                      selectedBillingPeriods={selectedBillingPeriods}
+                      onSelectTier={setSelectedTier}
+                      compact
+                    />
+                    {isPaidTier(selectedTier) && (pricing?.[selectedTier]?.options.length ?? 0) > 1 ? (
+                      <div
+                        className="grid gap-2 sm:grid-cols-2"
+                        role="radiogroup"
+                        aria-label={tx["claimBusinessPartnership.pricing.selectionHint"]}
+                      >
+                        {pricing?.[selectedTier]?.options.map((option) => {
+                          const selectedPeriod =
+                            getSelectedBillingPeriod(selectedTier, pricing, selectedBillingPeriods) ===
+                            option.billingPeriod;
+                          return (
+                            <button
+                              key={option.billingPeriod}
+                              type="button"
+                              role="radio"
+                              aria-checked={selectedPeriod}
+                              onClick={() =>
+                                setSelectedBillingPeriods((current) => ({
+                                  ...current,
+                                  [selectedTier]: option.billingPeriod,
+                                }))
+                              }
+                              className={cn(
+                                "rounded-xl border border-border/70 bg-background p-3 text-left text-sm transition hover:border-[#D4A62A]/50",
+                                selectedPeriod && "border-[#D4A62A] bg-[#D4A62A]/10 text-[#8A6413]",
+                              )}
+                            >
+                              <span className="font-semibold text-foreground">{option.priceLabel}</span>
+                              <span className="ml-1 text-muted-foreground">{option.cadenceLabel}</span>
+                              {option.supportingLabel ? (
+                                <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                                  {option.supportingLabel}
+                                </span>
+                              ) : null}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    ) : null}
                     <p className="text-xs leading-5 text-muted-foreground">
-                      {tx["claimBusinessForm.paymentLaterNote"]}
+                      {isPaidTier(selectedTier)
+                        ? tx["claimBusinessForm.paymentCheckoutNote"]
+                        : tx["claimBusinessForm.paymentFreeNote"]}
                     </p>
                   </section>
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <Button type="submit" disabled={isSubmitting || isLoading}>
-                      {isSubmitting ? tx["claimBusinessForm.submitting"] : tx["claimBusinessForm.submit"]}
+                    <Button
+                      type="submit"
+                      disabled={isSubmitting || isLoading || checkoutInProgress}
+                      className="w-full whitespace-normal text-center leading-5 sm:w-auto"
+                    >
+                      {isSubmitting
+                        ? tx["claimBusinessForm.submitting"]
+                        : isPaidTier(selectedTier)
+                          ? tx["claimBusinessForm.submitPaid"]
+                          : tx["claimBusinessForm.submitFree"]}
                     </Button>
                     <Button asChild variant="secondary">
                       <Link href={searchHref}>{tx["claimBusinessForm.searchAgain"]}</Link>

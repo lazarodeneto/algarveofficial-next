@@ -172,6 +172,10 @@ describe("business claims route", () => {
         claim_verification_method: "business_email_domain",
       }),
     );
+    const listingPatch = writeClient.spies.listingUpdate.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(listingPatch).not.toHaveProperty("owner_id");
+    expect(listingPatch).not.toHaveProperty("tier");
+    expect(listingPatch).not.toHaveProperty("claimed_at");
     expect(writeClient.spies.listingUpdateSelect).toHaveBeenCalledWith("id, claim_status");
     expect(mocks.notifyBusinessClaimSubmitted).toHaveBeenCalledWith(
       writeClient.client,
@@ -208,6 +212,42 @@ describe("business claims route", () => {
     expect(writeClient.spies.claimCleanupEq).toHaveBeenCalledWith("id", "claim-123");
     expect(writeClient.spies.claimCleanupEq).toHaveBeenCalledWith("status", "pending");
     expect(mocks.notifyBusinessClaimSubmitted).not.toHaveBeenCalled();
+  });
+
+  it("accepts a free unverified claim without any payment-side activation", async () => {
+    mockAuthenticatedUser();
+    const writeClient = makeWriteClient({
+      claim: {
+        id: "claim-free",
+        status: "pending",
+        selected_tier: "free",
+        created_at: "2026-05-11T12:00:00.000Z",
+      },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+    mocks.notifyBusinessClaimSubmitted.mockResolvedValue([]);
+
+    const response = await postBusinessClaim(
+      jsonRequest({
+        ...validPayload(),
+        selectedTier: "free",
+      }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(payload.data).toEqual(expect.objectContaining({ selected_tier: "free" }));
+    expect(writeClient.spies.claimInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        selected_tier: "free",
+        status: "pending",
+      }),
+    );
+    const listingPatch = writeClient.spies.listingUpdate.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(listingPatch).toEqual({
+      claim_status: "claim_pending",
+      claim_verification_method: "business_email_domain",
+    });
   });
 
   it("requires an authenticated user", async () => {

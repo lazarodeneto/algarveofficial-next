@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 const mocks = vi.hoisted(() => ({
   requireAuthenticatedOwner: vi.fn(),
   createServiceRoleClient: vi.fn(),
+  createServerClient: vi.fn(),
   getStripeServerClient: vi.fn(),
   findOverlappingActive: vi.fn(),
   findByOwner: vi.fn(),
@@ -16,6 +17,10 @@ vi.mock("@/lib/server/owner-auth", () => ({
 
 vi.mock("@/lib/supabase/service", () => ({
   createServiceRoleClient: mocks.createServiceRoleClient,
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: mocks.createServerClient,
 }));
 
 vi.mock("@/lib/stripe/server", () => ({
@@ -73,10 +78,12 @@ const pricingRow: {
 };
 
 const CLAIMED_LISTING_ID = "11111111-1111-4111-8111-111111111111";
+const CLAIM_ID = "33333333-3333-4333-8333-333333333333";
 
 function makeSupabaseMock(
   pricingData: typeof pricingRow[] = [pricingRow],
   listingData: Record<string, unknown> | null = null,
+  claimData: Record<string, unknown> | null = null,
 ) {
   const limit = vi.fn().mockResolvedValue({ data: pricingData, error: null });
   const eqIsActive = vi.fn(() => ({ limit }));
@@ -90,9 +97,17 @@ function makeSupabaseMock(
   };
   const selectListing = vi.fn(() => listingChain);
 
+  const claimMaybeSingle = vi.fn().mockResolvedValue({ data: claimData, error: null });
+  const claimChain = {
+    eq: vi.fn(() => claimChain),
+    maybeSingle: claimMaybeSingle,
+  };
+  const selectClaim = vi.fn(() => claimChain);
+
   return {
     from: vi.fn((table: string) => {
       if (table === "listings") return { select: selectListing };
+      if (table === "business_claims") return { select: selectClaim };
       return { select: selectStar };
     }),
     __spies: {
@@ -101,6 +116,8 @@ function makeSupabaseMock(
       limit,
       selectListing,
       listingMaybeSingle,
+      selectClaim,
+      claimMaybeSingle,
     },
   };
 }
@@ -230,6 +247,110 @@ describe("stripe checkout route runtime", () => {
         billing_period: "monthly",
         listing_id: CLAIMED_LISTING_ID,
       }),
+    );
+
+    expect(response.status).toBe(409);
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("allows a paid business claim checkout without requiring owner role", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: {
+        sessions: {
+          create: mocks.sessionsCreate.mockResolvedValue({ url: "https://checkout.stripe.test/session" }),
+        },
+      },
+    });
+    mocks.requireAuthenticatedOwner.mockResolvedValue({
+      error: NextResponse.json({ error: "Owner access required." }, { status: 403 }),
+    });
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "claimant-123", email: "owner@test.com" } },
+          error: null,
+        }),
+      },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(
+      makeSupabaseMock([pricingRow], null, {
+        id: CLAIM_ID,
+        listing_id: CLAIMED_LISTING_ID,
+        claimant_user_id: "claimant-123",
+        selected_tier: "verified",
+        status: "pending",
+        listing: { id: CLAIMED_LISTING_ID, slug: "atlantic-bistro" },
+      }),
+    );
+    mocks.findOverlappingActive.mockResolvedValue(null);
+    mocks.findByOwner.mockResolvedValue(null);
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ tier: "verified", billing_period: "monthly", claim_id: CLAIM_ID }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(mocks.requireAuthenticatedOwner).not.toHaveBeenCalled();
+    expect(mocks.sessionsCreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        client_reference_id: "claimant-123",
+        metadata: expect.objectContaining({
+          claim_id: CLAIM_ID,
+          pricing_id: "pricing-verified-monthly",
+          listing_id: CLAIMED_LISTING_ID,
+          owner_id: "claimant-123",
+          userId: "claimant-123",
+          user_id: "claimant-123",
+          tier: "verified",
+          target_tier: "verified",
+          billing_period: "monthly",
+          requested_billing_period: "monthly",
+        }),
+        subscription_data: expect.objectContaining({
+          metadata: expect.objectContaining({
+            claim_id: CLAIM_ID,
+            pricing_id: "pricing-verified-monthly",
+            listing_id: CLAIMED_LISTING_ID,
+            owner_id: "claimant-123",
+            userId: "claimant-123",
+            user_id: "claimant-123",
+            tier: "verified",
+            target_tier: "verified",
+            billing_period: "monthly",
+            requested_billing_period: "monthly",
+          }),
+        }),
+        success_url: expect.stringContaining("/claim-business/atlantic-bistro?checkout=success"),
+        cancel_url: expect.stringContaining("/claim-business/atlantic-bistro?checkout=cancel"),
+      }),
+    );
+  });
+
+  it("rejects claim checkout when the claim tier does not match the checkout tier", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "claimant-123", email: "owner@test.com" } },
+          error: null,
+        }),
+      },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(
+      makeSupabaseMock([pricingRow], null, {
+        id: CLAIM_ID,
+        listing_id: CLAIMED_LISTING_ID,
+        claimant_user_id: "claimant-123",
+        selected_tier: "signature",
+        status: "pending",
+        listing: { id: CLAIMED_LISTING_ID, slug: "atlantic-bistro" },
+      }),
+    );
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ tier: "verified", billing_period: "monthly", claim_id: CLAIM_ID }),
     );
 
     expect(response.status).toBe(409);
