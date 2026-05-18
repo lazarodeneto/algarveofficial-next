@@ -117,6 +117,7 @@ const PUBLIC_DETAIL_ALWAYS_DENIED_KEYS = new Set([
   "rejection_notes",
   "rejection_reason",
   "review_status",
+  "source_url",
   "service_role",
   "status_history",
   "updated_by",

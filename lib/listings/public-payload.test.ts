@@ -25,6 +25,7 @@ const PROTECTED_DETAIL_KEYS = [
   "whatsapp_number",
   "google_business_url",
   "category_data",
+  "source_url",
   "view_count",
 ] as const;
 
@@ -37,6 +38,7 @@ const INTERNAL_DETAIL_KEYS = [
   "rejection_reason",
   "claim_verified_at",
   "claim_verification_method",
+  "source_url",
 ] as const;
 
 function collectKeys(value: unknown, keys = new Set<string>()) {
@@ -113,7 +115,9 @@ function baseListing(overrides: Record<string, unknown> = {}) {
         instagram_url: "https://instagram.example/nested",
         whatsapp_url: "https://wa.me/351912345678",
       },
+      source_url: "https://internal.example/source",
       stats: {
+        source_url: "https://internal.example/nested-source",
         view_count: 999,
       },
     },
@@ -258,6 +262,7 @@ describe("public listing payload guardrails", () => {
     expect(listing.details).not.toHaveProperty("google_business_url");
     expect(listing.details).not.toHaveProperty("facebook_url");
     expect(listing.details).not.toHaveProperty("agent_email");
+    expect(collectKeys(listing.details).has("source_url")).toBe(false);
   });
 
   it("does not expose category data through the category_data key", () => {
