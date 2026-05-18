@@ -20,6 +20,7 @@ const LOCALE_DB_MAP: Record<string, string> = {
 };
 
 const HOMEPAGE_INITIAL_MESSAGE_PREFIXES = [
+  "accessibility",
   "auth.loginFailed",
   "categoryNames",
   "common",
