@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import type { ListingWithRelations } from "@/hooks/useListings";
 import { shuffleItemsForPageLoad } from "@/lib/listings/page-load-shuffle";
@@ -10,6 +10,7 @@ const useBrowserLayoutEffect =
 
 type StoredOrderState<T> = {
   signature: string;
+  storageKey: string;
   items: readonly T[];
 };
 
@@ -39,32 +40,57 @@ export function usePageLoadListingShuffle<T extends Pick<ListingWithRelations, "
   listings: readonly T[],
   storageKey: string,
 ) {
+  const listingsRef = useRef(listings);
+  listingsRef.current = listings;
+
   const signature = useMemo(
     () => listings.map((listing) => listing.id).join("\u001F"),
     [listings],
   );
   const [displayState, setDisplayState] = useState<StoredOrderState<T>>({
-    signature,
+    signature: "",
+    storageKey: "",
     items: listings,
   });
 
   useBrowserLayoutEffect(() => {
-    if (listings.length <= 1) {
-      setDisplayState({ signature, items: listings });
-      writeStoredOrder(storageKey, listings.map((listing) => listing.id));
+    const currentListings = listingsRef.current;
+
+    if (currentListings.length <= 1) {
+      setDisplayState((current) =>
+        current.signature === signature && current.storageKey === storageKey
+          ? current
+          : { signature, storageKey, items: currentListings },
+      );
+      writeStoredOrder(storageKey, currentListings.map((listing) => listing.id));
       return;
     }
 
     const previousOrder = readStoredOrder(storageKey);
     const shuffledListings = shuffleItemsForPageLoad(
-      listings,
+      currentListings,
       (listing) => listing.id,
       previousOrder,
     );
 
-    setDisplayState({ signature, items: shuffledListings });
+    setDisplayState((current) =>
+      current.signature === signature && current.storageKey === storageKey
+        ? current
+        : { signature, storageKey, items: shuffledListings },
+    );
     writeStoredOrder(storageKey, shuffledListings.map((listing) => listing.id));
-  }, [listings, signature, storageKey]);
+  }, [signature, storageKey]);
 
-  return displayState.signature === signature ? displayState.items : listings;
+  const latestListingsById = useMemo(
+    () => new Map(listings.map((listing) => [listing.id, listing])),
+    [listings],
+  );
+
+  return useMemo(() => {
+    if (displayState.signature !== signature || displayState.storageKey !== storageKey) {
+      return listings;
+    }
+
+    return displayState.items.map((listing) => latestListingsById.get(listing.id) ?? listing);
+  }, [displayState, latestListingsById, listings, signature, storageKey]);
 }

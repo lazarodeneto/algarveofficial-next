@@ -16,6 +16,7 @@ const scriptSrc = [
   "https://accounts.google.com",
   "https://apis.google.com",
   "https://tpwdg.com",
+  "https://vercel.live",
 ].join(" ");
 
 const cspDirectives = [
@@ -26,8 +27,10 @@ const cspDirectives = [
   "worker-src 'self' blob:",
   "child-src 'self' blob:",
   `script-src ${scriptSrc}`,
+  `script-src-elem ${scriptSrc}`,
   `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
   `font-src 'self' data: https://fonts.gstatic.com`,
+  `manifest-src 'self'`,
   `img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com`,
   `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://analytics.tiktok.com https://*.onetrust.com https://geolocation.onetrust.com https://cdn.cookie-script.com https://tpwdg.com https://www.apistp.com https://suggest.apistp.com https://www.aviasales.com https://aviasales.com https://www.hotellook.com https://hotellook.com`,
   `media-src 'self' blob: https:`,
