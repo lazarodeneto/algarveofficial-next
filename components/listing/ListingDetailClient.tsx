@@ -36,7 +36,6 @@ import { Separator } from "@/components/ui/separator";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import { GoogleIcon } from "@/components/ui/google-icon";
 import { useAuth } from "@/contexts/AuthContext";
-import { useChatModal } from "@/components/chat/ChatProvider";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useHydrated } from "@/hooks/useHydrated";
@@ -602,25 +601,6 @@ async function fetchRelatedListings(listing: Pick<PublicListingDetailPayload, "i
   return (data ?? []) as unknown as RelatedListing[];
 }
 
-async function fetchOwnerWhatsAppStatus(ownerId: string | null | undefined) {
-  if (!ownerId) {
-    return { enabled: false, phone: null };
-  }
-
-  const { data, error } = await supabase
-    .from("whatsapp_accounts")
-    .select("wa_enabled, business_phone_e164")
-    .eq("owner_id", ownerId)
-    .eq("wa_enabled", true)
-    .maybeSingle();
-
-  if (error) throw error;
-
-  return {
-    enabled: !!data,
-    phone: data?.business_phone_e164 ?? null,
-  } satisfies WhatsAppStatus;
-}
 
 function ListingDetailClientInner({
   locale: _initialLocaleProp,
@@ -639,7 +619,6 @@ function ListingDetailClientInner({
   const currentLocale = useCurrentLocale();
   const routeLocale = normalizePublicContentLocale(currentLocale);
   const { user } = useAuth();
-  const { openChat } = useChatModal();
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const { mobileMenuOpen } = useMobileMenu();
 
@@ -681,12 +660,7 @@ function ListingDetailClientInner({
     staleTime: 60 * 1000,
   });
 
-  const { data: waStatus = initialWhatsAppStatus } = useQuery({
-    queryKey: ["owner-whatsapp-status", listing.owner_id],
-    queryFn: () => fetchOwnerWhatsAppStatus(listing.owner_id),
-    initialData: initialWhatsAppStatus,
-    staleTime: 60 * 1000,
-  });
+  const waStatus = initialWhatsAppStatus;
 
   useEffect(() => {
     if (!listing?.id || listing.status !== "published") return;
@@ -893,14 +867,6 @@ function ListingDetailClientInner({
   const handleMessageClick = () => {
     if (!listing) return;
 
-    if (user && listing.owner_id) {
-      openChat({
-        listingId: listing.id,
-        ownerId: listing.owner_id,
-        listingName: effectiveTitle ?? listing.name,
-      });
-      return;
-    }
 
     if (waStatus?.phone) {
       const message = `Hi! I'm interested in "${effectiveTitle || listing.name}" in ${listing.city?.name || "Algarve"}.`;

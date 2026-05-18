@@ -28,6 +28,17 @@ const PROTECTED_DETAIL_KEYS = [
   "view_count",
 ] as const;
 
+const INTERNAL_DETAIL_KEYS = [
+  "owner_id",
+  "category_data",
+  "view_count",
+  "admin_notes",
+  "rejection_notes",
+  "rejection_reason",
+  "claim_verified_at",
+  "claim_verification_method",
+] as const;
+
 function collectKeys(value: unknown, keys = new Set<string>()) {
   if (!value || typeof value !== "object") return keys;
 
@@ -42,6 +53,15 @@ function collectKeys(value: unknown, keys = new Set<string>()) {
   }
 
   return keys;
+}
+
+function expectKeysAbsent(value: unknown, keys: readonly string[]) {
+  const foundKeys = collectKeys(value);
+
+  for (const key of keys) {
+    expect(foundKeys.has(key), `${key} should not be serialized`).toBe(false);
+    expect(Object.prototype.hasOwnProperty.call(value as object, key), `${key} should be omitted`).toBe(false);
+  }
 }
 
 function baseListing(overrides: Record<string, unknown> = {}) {
@@ -98,6 +118,11 @@ function baseListing(overrides: Record<string, unknown> = {}) {
       },
     },
     view_count: 999,
+    admin_notes: "admin only",
+    rejection_notes: "private rejection notes",
+    rejection_reason: "private rejection reason",
+    claim_verified_at: "2026-01-03T00:00:00.000Z",
+    claim_verification_method: "manual",
     published_at: "2026-01-01T00:00:00.000Z",
     created_at: "2026-01-01T00:00:00.000Z",
     updated_at: "2026-01-02T00:00:00.000Z",
@@ -185,12 +210,8 @@ describe("public listing payload guardrails", () => {
 
   it("omits protected keys from unverified listing detail payloads instead of null-masking them", () => {
     const listing = toPublicListingDetailPayload(baseListing());
-    const keys = collectKeys(listing);
 
-    for (const field of PROTECTED_DETAIL_KEYS) {
-      expect(keys.has(field), `${field} should not be serialized`).toBe(false);
-      expect(Object.prototype.hasOwnProperty.call(listing, field), `${field} should be omitted`).toBe(false);
-    }
+    expectKeysAbsent(listing, PROTECTED_DETAIL_KEYS);
 
     expect(listing).not.toHaveProperty("category_data");
     expect(listing).toHaveProperty("details");
@@ -199,22 +220,84 @@ describe("public listing payload guardrails", () => {
   });
 
   it.each(["verified", "signature"])("keeps allowed detail contact and social fields for %s listings", (tier) => {
-    const listing = toPublicListingDetailPayload(baseListing({ tier }));
+    const listing = toPublicListingDetailPayload(
+      baseListing({
+        tier,
+        google_business_url: null,
+        facebook_url: null,
+        linkedin_url: "",
+        telegram_url: null,
+        category_data: {
+          publicFact: "Open all year",
+          owner_id: "owner-1",
+          category_data: { nested: true },
+          view_count: 999,
+          admin_notes: "admin only",
+          contact_phone: null,
+          google_business_url: null,
+          facebook_url: "",
+          instagram_url: "https://instagram.example/nested",
+          agent_email: null,
+        },
+      }),
+    );
 
+    expectKeysAbsent(listing, INTERNAL_DETAIL_KEYS);
     expect(listing.website_url).toBe("https://example.com");
-    expect(listing.google_business_url).toBe("https://google.example");
-    expect(listing.facebook_url).toBe("https://facebook.example");
+    expect(listing).not.toHaveProperty("google_business_url");
+    expect(listing).not.toHaveProperty("facebook_url");
     expect(listing.instagram_url).toBe("https://instagram.example");
-    expect(listing.telegram_url).toBe("https://t.me/example");
+    expect(listing).not.toHaveProperty("linkedin_url");
+    expect(listing).not.toHaveProperty("telegram_url");
     expect(listing.whatsapp_number).toBe("+351912345678");
+    expect(listing.details).toMatchObject({
+      publicFact: "Open all year",
+      instagram_url: "https://instagram.example/nested",
+    });
+    expect(listing.details).not.toHaveProperty("contact_phone");
+    expect(listing.details).not.toHaveProperty("google_business_url");
+    expect(listing.details).not.toHaveProperty("facebook_url");
+    expect(listing.details).not.toHaveProperty("agent_email");
   });
 
   it("does not expose category data through the category_data key", () => {
     const listing = toPublicListingDetailPayload(baseListing({ tier: "signature" }));
-    const keys = collectKeys(listing);
 
-    expect(keys.has("category_data")).toBe(false);
+    expectKeysAbsent(listing, ["category_data"]);
     expect(listing.category).toMatchObject({ id: "category-1", slug: "experiences" });
     expect(listing.details).toMatchObject({ publicFact: "Open all year" });
+  });
+
+  it("scans the scoped listing payload instead of unrelated page metadata or translations", () => {
+    const listing = toPublicListingDetailPayload(baseListing());
+    const serializedPageShape = {
+      metadata: {
+        email: "info@algarveofficial.com",
+        phone: "+351000000000",
+      },
+      translations: {
+        listing: {
+          form: {
+            email: "Email address",
+            phone: "Phone",
+          },
+        },
+      },
+      listing,
+    };
+
+    expect(collectKeys(serializedPageShape).has("email")).toBe(true);
+    expect(collectKeys(serializedPageShape).has("phone")).toBe(true);
+    expectKeysAbsent(serializedPageShape.listing, PROTECTED_DETAIL_KEYS);
+  });
+
+  it("serializes verified listing props without internal listing keys", () => {
+    const listing = toPublicListingDetailPayload(baseListing({ tier: "signature" }));
+    const serializedListingProps = JSON.stringify({ listing });
+
+    for (const key of ["owner_id", "category_data", "view_count"]) {
+      expect(serializedListingProps).not.toContain(`"${key}":`);
+      expect(serializedListingProps).not.toContain(`\\"${key}\\":`);
+    }
   });
 });

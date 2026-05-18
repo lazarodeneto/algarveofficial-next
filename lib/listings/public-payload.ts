@@ -201,7 +201,6 @@ export type PublicListingDetailPayload = Pick<
   Tables<"listings">,
   (typeof PUBLIC_LISTING_DETAIL_BASE_FIELDS)[number]
 > &
-  Partial<Pick<Tables<"listings">, "owner_id">> &
   Partial<Pick<Tables<"listings">, (typeof PUBLIC_LISTING_DETAIL_CONTACT_FIELDS)[number]>> &
   Partial<Pick<Tables<"listings">, (typeof PUBLIC_LISTING_DETAIL_SOCIAL_FIELDS)[number]>> &
   Partial<Pick<Tables<"listings">, (typeof PUBLIC_LISTING_DETAIL_DIRECT_FIELDS)[number]>> & {
@@ -263,6 +262,16 @@ function isDeniedPublicDetailKey(key: string, rules: ReturnType<typeof getListin
   return false;
 }
 
+function isOptionalPublicDetailKey(key: string): boolean {
+  const normalizedKey = normalizePayloadKey(key);
+  return (
+    PUBLIC_DETAIL_CONTACT_DENIED_KEYS.has(normalizedKey) ||
+    PUBLIC_DETAIL_SOCIAL_DENIED_KEYS.has(normalizedKey) ||
+    PUBLIC_DETAIL_DIRECT_DENIED_KEYS.has(normalizedKey) ||
+    PUBLIC_DETAIL_CTA_DENIED_KEYS.has(normalizedKey)
+  );
+}
+
 function sanitizePublicDetailValue(value: unknown, rules: ReturnType<typeof getListingTierRules>): Json | undefined {
   if (value === undefined) return undefined;
   if (value === null) return null;
@@ -278,6 +287,8 @@ function sanitizePublicDetailValue(value: unknown, rules: ReturnType<typeof getL
   const sanitized: Record<string, Json> = {};
   for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
     if (isDeniedPublicDetailKey(key, rules)) continue;
+    if (isOptionalPublicDetailKey(key) && (nestedValue === undefined || nestedValue === null)) continue;
+    if (isOptionalPublicDetailKey(key) && typeof nestedValue === "string" && nestedValue.trim().length === 0) continue;
     const safeValue = sanitizePublicDetailValue(nestedValue, rules);
     if (safeValue !== undefined) sanitized[key] = safeValue;
   }
@@ -294,6 +305,19 @@ function copyDefinedFields(
     if (source[field] !== undefined) {
       target[field] = source[field];
     }
+  }
+}
+
+function copyPopulatedFields(
+  source: Record<string, unknown>,
+  fields: readonly string[],
+  target: Record<string, unknown>,
+) {
+  for (const field of fields) {
+    const value = source[field];
+    if (value === undefined || value === null) continue;
+    if (typeof value === "string" && value.trim().length === 0) continue;
+    target[field] = value;
   }
 }
 
@@ -356,16 +380,15 @@ export function toPublicListingDetailPayload<T extends object>(listing: T): Publ
   if (details !== undefined) payload.details = details;
 
   if (tierRules.allowPublicContactFields) {
-    copyDefinedFields(source, PUBLIC_LISTING_DETAIL_CONTACT_FIELDS, payload);
-    if (source.owner_id !== undefined) payload.owner_id = source.owner_id;
+    copyPopulatedFields(source, PUBLIC_LISTING_DETAIL_CONTACT_FIELDS, payload);
   }
 
   if (tierRules.allowPublicSocialLinks) {
-    copyDefinedFields(source, PUBLIC_LISTING_DETAIL_SOCIAL_FIELDS, payload);
+    copyPopulatedFields(source, PUBLIC_LISTING_DETAIL_SOCIAL_FIELDS, payload);
   }
 
   if (tierRules.allowDirectContactButton) {
-    copyDefinedFields(source, PUBLIC_LISTING_DETAIL_DIRECT_FIELDS, payload);
+    copyPopulatedFields(source, PUBLIC_LISTING_DETAIL_DIRECT_FIELDS, payload);
   }
 
   return payload as PublicListingDetailPayload;
