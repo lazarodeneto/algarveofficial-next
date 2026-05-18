@@ -36,6 +36,7 @@ const DEFAULT_TRANSACTIONAL_FROM = "AlgarveOfficial <info@algarveofficial.com>";
 const OUTBOX_WARNING_ENQUEUE_FAILED = "email_delivery_failed";
 const OUTBOX_WARNING_TRIGGER_FAILED = "email_delivery_failed";
 const OUTBOX_WARNING_WORKER_UNHEALTHY = "email_delivery_failed";
+const GENERIC_ENQUIRY_FAILURE_MESSAGE = "Failed to send message.";
 
 type ServiceRoleClient = NonNullable<ReturnType<typeof createServiceRoleClient>>;
 type ListingRow = Pick<Database["public"]["Tables"]["listings"]["Row"], "id" | "name" | "owner_id" | "slug">;
@@ -57,6 +58,12 @@ function errorResponse(
     },
     { status },
   );
+}
+
+function logEnquiryError(context: string, error: unknown) {
+  console.error(context, {
+    error: error instanceof Error ? error.message : String(error),
+  });
 }
 
 function getTransactionalFromAddress() {
@@ -99,9 +106,13 @@ async function resolveListing(
     .from("listings")
     .select("id, name, owner_id, slug")
     .eq("id", listingId)
+    .eq("status", "published")
     .maybeSingle();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    logEnquiryError("Public enquiry listing lookup failed", error);
+    throw new Error("LISTING_LOOKUP_FAILED");
+  }
   return data ?? null;
 }
 
@@ -412,7 +423,8 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
 
       if (existingThreadError) {
-        return errorResponse(500, "CHAT_THREAD_LOOKUP_FAILED", existingThreadError.message);
+        logEnquiryError("Public enquiry chat thread lookup failed", existingThreadError);
+        return errorResponse(500, "CHAT_THREAD_LOOKUP_FAILED", GENERIC_ENQUIRY_FAILURE_MESSAGE);
       }
       threadId = existingThread?.id ?? null;
     }
@@ -435,7 +447,8 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (threadError) {
-        return errorResponse(500, "CHAT_THREAD_CREATE_FAILED", threadError.message);
+        logEnquiryError("Public enquiry chat thread create failed", threadError);
+        return errorResponse(500, "CHAT_THREAD_CREATE_FAILED", GENERIC_ENQUIRY_FAILURE_MESSAGE);
       }
       threadId = thread.id;
     } else {
@@ -450,7 +463,8 @@ export async function POST(request: NextRequest) {
         .eq("id", threadId);
 
       if (threadUpdateError) {
-        return errorResponse(500, "CHAT_THREAD_UPDATE_FAILED", threadUpdateError.message);
+        logEnquiryError("Public enquiry chat thread update failed", threadUpdateError);
+        return errorResponse(500, "CHAT_THREAD_UPDATE_FAILED", GENERIC_ENQUIRY_FAILURE_MESSAGE);
       }
     }
 
@@ -469,7 +483,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (messageError) {
-      return errorResponse(500, "CHAT_MESSAGE_CREATE_FAILED", messageError.message);
+      logEnquiryError("Public enquiry chat message create failed", messageError);
+      return errorResponse(500, "CHAT_MESSAGE_CREATE_FAILED", GENERIC_ENQUIRY_FAILURE_MESSAGE);
     }
 
     const warnings = await enqueueForwardEmail({
@@ -515,10 +530,11 @@ export async function POST(request: NextRequest) {
       warnings,
     }, { status: 201 });
   } catch (error) {
+    logEnquiryError("Public enquiry create failed", error);
     return errorResponse(
       500,
       "ENQUIRY_CREATE_FAILED",
-      error instanceof Error ? error.message : "Failed to send message.",
+      GENERIC_ENQUIRY_FAILURE_MESSAGE,
     );
   }
 }

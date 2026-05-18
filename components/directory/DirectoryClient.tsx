@@ -77,6 +77,7 @@ import {
 import type { VisitCityIndexItem } from "@/lib/directory-data";
 import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
 import { hideServerShell } from "@/lib/dom/server-shell";
+import { PUBLIC_LISTING_SUMMARY_FIELDS } from "@/lib/listings/public-payload";
 import { globalSettingsQueryKey } from "@/lib/query-keys";
 
 const EMPTY_CATEGORY_IDS: string[] = [];
@@ -86,6 +87,7 @@ const DIRECTORY_CMS_KEYS = [
   CMS_GLOBAL_SETTING_KEYS.textOverrides,
   CMS_GLOBAL_SETTING_KEYS.pageConfigs,
 ] as const;
+const DIRECTORY_CLIENT_LISTING_LIMIT = 60;
 const DIRECTORY_CITY_FIELDS = `
   id, name, slug, short_description, description, image_url, hero_image_url,
   latitude, longitude, is_active, is_featured, display_order, created_at
@@ -414,44 +416,6 @@ async function fetchListings(
   locale: string,
 ) {
   const contentLocale: PublicContentLocale = normalizePublicContentLocale(locale);
-  const publicListingFields = `
-    id,
-    slug,
-    name,
-    short_description,
-    description,
-    featured_image_url,
-    price_from,
-    price_to,
-    price_currency,
-    tier,
-    is_curated,
-    status,
-    city_id,
-    region_id,
-    category_id,
-    owner_id,
-    latitude,
-    longitude,
-    address,
-    website_url,
-    facebook_url,
-    instagram_url,
-    twitter_url,
-    linkedin_url,
-    youtube_url,
-    tiktok_url,
-    telegram_url,
-    google_business_url,
-    google_rating,
-    google_review_count,
-    tags,
-    category_data,
-    view_count,
-    published_at,
-    created_at,
-    updated_at
-  `;
   const publicCityFields = "id, name, slug, short_description, image_url, latitude, longitude";
   const publicRegionFields = "id, name, slug, short_description, image_url";
   const publicCategoryFields = "id, name, slug, icon, short_description, image_url";
@@ -466,42 +430,32 @@ async function fetchListings(
     tier: filters.tier && filters.tier !== ("all" as ListingTier) ? filters.tier : undefined,
   };
 
-  const pageSize = 1000;
-  let from = 0;
-  const allListings: ListingWithRelations[] = [];
+  let query = supabase
+    .from("listings")
+    .select(`
+      ${PUBLIC_LISTING_SUMMARY_FIELDS},
+      city:cities(${publicCityFields}),
+      region:regions(${publicRegionFields}),
+      category:categories(${publicCategoryFields})
+    `)
+    .eq("status", "published")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: true })
+    .limit(DIRECTORY_CLIENT_LISTING_LIMIT);
 
-  while (true) {
-    let query = supabase
-      .from("listings")
-      .select(`
-        ${publicListingFields},
-        city:cities(${publicCityFields}),
-        region:regions(${publicRegionFields}),
-        category:categories(${publicCategoryFields})
-      `)
-      .eq("status", "published")
-      .order("created_at", { ascending: false })
-      .order("id", { ascending: true })
-      .range(from, from + pageSize - 1);
+  const filteredQuery = applyListingFilters(
+    query as unknown as ListingsFilterQuery,
+    normalizedFilters,
+    categories,
+    cities,
+    regions,
+  );
+  query = filteredQuery as unknown as typeof query;
 
-    const filteredQuery = applyListingFilters(
-      query as unknown as ListingsFilterQuery,
-      normalizedFilters,
-      categories,
-      cities,
-      regions,
-    );
-    query = filteredQuery as unknown as typeof query;
+  const { data, error } = await query;
+  if (error) throw error;
 
-    const { data, error } = await query;
-    if (error) throw error;
-
-    const page = (data ?? []) as unknown as ListingWithRelations[];
-    allListings.push(...page);
-
-    if (page.length < pageSize) break;
-    from += pageSize;
-  }
+  const allListings = (data ?? []) as unknown as ListingWithRelations[];
 
   const tierOrder: Record<string, number> = { signature: 0, verified: 1, unverified: 2 };
   const sortedListings = allListings.sort((a, b) => (tierOrder[a.tier] ?? 2) - (tierOrder[b.tier] ?? 2));

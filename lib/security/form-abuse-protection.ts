@@ -4,6 +4,18 @@ import type { Database } from "@/integrations/supabase/types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 type ServiceClient = SupabaseClient<Database>;
+type RateLimitRpcClient = ServiceClient & {
+  rpc: (
+    fn: "check_communication_rate_limit",
+    args: {
+      p_scope: string;
+      p_identifier_hash: string;
+      p_max_attempts: number;
+      p_window_seconds: number;
+      p_metadata?: Record<string, unknown>;
+    },
+  ) => Promise<{ data: boolean | null; error: { message?: string; code?: string } | null }>;
+};
 
 export interface FormAbuseProtectionInput {
   request: Request;
@@ -32,12 +44,34 @@ function hashValue(value: string) {
   return createHash("sha256").update(`${salt}:${value}`).digest("hex");
 }
 
+function getFirstHeaderValue(value: string | null) {
+  return value?.split(",")[0]?.trim() || null;
+}
+
+function isTrustedPlatformHeader(name: string) {
+  if (name === "x-vercel-forwarded-for") return true;
+  if (name === "cf-connecting-ip") return true;
+  if (name === "x-real-ip") return true;
+  return false;
+}
+
 function getClientIp(request: Request) {
-  const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  return forwardedFor
-    || request.headers.get("cf-connecting-ip")?.trim()
-    || request.headers.get("x-real-ip")?.trim()
-    || "unknown";
+  const trustedHeaders = [
+    "x-vercel-forwarded-for",
+    "cf-connecting-ip",
+    "x-real-ip",
+  ];
+
+  for (const header of trustedHeaders) {
+    const value = getFirstHeaderValue(request.headers.get(header));
+    if (value && isTrustedPlatformHeader(header)) return value;
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    return getFirstHeaderValue(request.headers.get("x-forwarded-for")) ?? "unknown";
+  }
+
+  return "unknown";
 }
 
 function normalizeSubmittedAt(value: number | string | null | undefined) {
@@ -72,49 +106,21 @@ async function checkRateLimit(args: {
   windowSeconds: number;
 }) {
   const { client, scope, identifierHash, maxAttempts, windowSeconds } = args;
-  const now = new Date();
-  const windowStart = new Date(now.getTime() - windowSeconds * 1000);
 
   try {
-    const { data, error } = await client
-      .from("communication_rate_limits" as never)
-      .select("id, count, window_start")
-      .eq("scope", scope)
-      .eq("identifier_hash", identifierHash)
-      .maybeSingle();
+    const { data, error } = await (client as RateLimitRpcClient).rpc(
+      "check_communication_rate_limit",
+      {
+        p_scope: scope,
+        p_identifier_hash: identifierHash,
+        p_max_attempts: maxAttempts,
+        p_window_seconds: windowSeconds,
+        p_metadata: {},
+      },
+    );
 
     if (error) return false;
-
-    const row = data as { id?: string; count?: number; window_start?: string } | null;
-    const rowWindowStart = row?.window_start ? new Date(row.window_start) : null;
-    const inCurrentWindow = Boolean(rowWindowStart && rowWindowStart > windowStart);
-
-    if (row && inCurrentWindow && (row.count ?? 0) >= maxAttempts) {
-      return true;
-    }
-
-    if (row?.id && inCurrentWindow) {
-      await client
-        .from("communication_rate_limits" as never)
-        .update({
-          count: (row.count ?? 0) + 1,
-          last_seen_at: now.toISOString(),
-        } as never)
-        .eq("id", row.id);
-      return false;
-    }
-
-    await client
-      .from("communication_rate_limits" as never)
-      .upsert({
-        scope,
-        identifier_hash: identifierHash,
-        count: 1,
-        window_start: now.toISOString(),
-        last_seen_at: now.toISOString(),
-      } as never, { onConflict: "scope,identifier_hash" });
-
-    return false;
+    return data === true;
   } catch {
     return false;
   }
@@ -141,16 +147,18 @@ export async function enforceFormAbuseProtection(input: FormAbuseProtectionInput
   }
 
   if (input.client) {
-    const ipLimited = await checkRateLimit({
-      client: input.client,
-      scope: `${input.scope}:ip`,
-      identifierHash: ipHash,
-      maxAttempts,
-      windowSeconds,
-    });
+    if (ip !== "unknown") {
+      const ipLimited = await checkRateLimit({
+        client: input.client,
+        scope: `${input.scope}:ip`,
+        identifierHash: ipHash,
+        maxAttempts,
+        windowSeconds,
+      });
 
-    if (ipLimited) {
-      return { allowed: false, reason: "rate_limited", ipHash, emailHash, userAgentHash };
+      if (ipLimited) {
+        return { allowed: false, reason: "rate_limited", ipHash, emailHash, userAgentHash };
+      }
     }
 
     if (emailHash) {

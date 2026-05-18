@@ -424,7 +424,7 @@ describe("partner claim route runtime", () => {
     );
     expect(writeClient.spies.from).toHaveBeenCalledWith("listing_claims");
     expect(writeClient.spies.from).not.toHaveBeenCalledWith("external_outbox");
-    expect(writeClient.spies.rpc).not.toHaveBeenCalled();
+    expect(writeClient.spies.rpc).not.toHaveBeenCalledWith("trigger_process_outbox");
   });
 
   it("returns warning when outbox enqueue fails but still creates the claim", async () => {
@@ -448,7 +448,7 @@ describe("partner claim route runtime", () => {
         warnings: ["partner_claim_alert_enqueue_failed"],
       }),
     );
-    expect(writeClient.spies.rpc).not.toHaveBeenCalled();
+    expect(writeClient.spies.rpc).not.toHaveBeenCalledWith("trigger_process_outbox");
   });
 
   it("returns warning when immediate outbox trigger fails", async () => {

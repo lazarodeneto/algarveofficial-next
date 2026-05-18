@@ -1,36 +1,92 @@
-const HTML_COMMENT_REGEX = /<!--[\s\S]*?-->/g;
-const BLOCK_TAG_WITH_CONTENT_REGEX =
-  /<\s*(script|style|iframe|object|embed|noscript)[^>]*>[\s\S]*?<\s*\/\s*\1\s*>/gi;
-const BLOCK_TAG_STANDALONE_REGEX =
-  /<\s*(script|style|iframe|object|embed|noscript|meta|link|base)[^>]*\/?\s*>/gi;
-const EVENT_HANDLER_ATTR_REGEX = /\s+on[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
-const JAVASCRIPT_URL_QUOTED_REGEX =
-  /\s+(href|src|xlink:href)\s*=\s*("|\')\s*javascript:[^"']*\2/gi;
-const JAVASCRIPT_URL_UNQUOTED_REGEX =
-  /\s+(href|src|xlink:href)\s*=\s*javascript:[^\s>]+/gi;
-const SRCDOC_ATTR_REGEX = /\s+srcdoc\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi;
-const BLANK_TARGET_REGEX = /(<a\b[^>]*)\btarget=["']_blank["']([^>]*>)/gi;
+import sanitizeHtml from "sanitize-html";
+
+const ALLOWED_TAGS = [
+  "a",
+  "b",
+  "blockquote",
+  "br",
+  "caption",
+  "code",
+  "div",
+  "em",
+  "figcaption",
+  "figure",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "hr",
+  "i",
+  "img",
+  "li",
+  "ol",
+  "p",
+  "pre",
+  "span",
+  "strong",
+  "table",
+  "tbody",
+  "td",
+  "th",
+  "thead",
+  "tr",
+  "u",
+  "ul",
+] as const;
+
+const sanitizerOptions: sanitizeHtml.IOptions = {
+  allowedTags: [...ALLOWED_TAGS],
+  allowedAttributes: {
+    a: ["href", "name", "target", "rel", "title", "class", "data-article-listing-link"],
+    img: ["src", "srcset", "alt", "title", "width", "height", "loading"],
+    table: ["summary"],
+    th: ["scope", "colspan", "rowspan"],
+    td: ["colspan", "rowspan"],
+    "*": ["aria-label"],
+  },
+  allowedClasses: {
+    a: ["ao-article-inline-link"],
+  },
+  allowedSchemes: ["http", "https", "mailto", "tel"],
+  allowedSchemesByTag: {
+    img: ["http", "https"],
+  },
+  allowedSchemesAppliedToAttributes: ["href", "src", "srcset"],
+  allowProtocolRelative: false,
+  disallowedTagsMode: "discard",
+  enforceHtmlBoundary: true,
+  parseStyleAttributes: false,
+  transformTags: {
+    a: (tagName, attribs) => {
+      const next = { ...attribs };
+      if (next.target === "_blank") {
+        const relValues = new Set(
+          String(next.rel ?? "")
+            .split(/\s+/)
+            .map((value) => value.trim())
+            .filter(Boolean),
+        );
+        relValues.add("noopener");
+        relValues.add("noreferrer");
+        next.rel = Array.from(relValues).join(" ");
+      }
+      return { tagName, attribs: next };
+    },
+    svg: "span",
+  },
+};
 
 export function enforceNoopenerOnBlankTargets(html: string): string {
-  return html.replace(
-    BLANK_TARGET_REGEX,
-    (_match, pre, post) => `${pre}target="_blank" rel="noopener noreferrer"${post}`,
-  );
+  return sanitizeHtml(html, {
+    ...sanitizerOptions,
+    allowedTags: [...ALLOWED_TAGS, "a"],
+  });
 }
 
 export function sanitizeHtmlString(value: string | null | undefined): string {
   const raw = String(value ?? "");
   if (!raw.trim()) return "";
 
-  const sanitized = raw
-    .replace(HTML_COMMENT_REGEX, "")
-    .replace(BLOCK_TAG_WITH_CONTENT_REGEX, "")
-    .replace(BLOCK_TAG_STANDALONE_REGEX, "")
-    .replace(EVENT_HANDLER_ATTR_REGEX, "")
-    .replace(JAVASCRIPT_URL_QUOTED_REGEX, "")
-    .replace(JAVASCRIPT_URL_UNQUOTED_REGEX, "")
-    .replace(SRCDOC_ATTR_REGEX, "");
-
-  return enforceNoopenerOnBlankTargets(sanitized);
+  return sanitizeHtml(raw, sanitizerOptions);
 }
-

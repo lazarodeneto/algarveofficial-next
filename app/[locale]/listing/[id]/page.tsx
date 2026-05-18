@@ -35,8 +35,12 @@ import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { buildCategoryRouteData as buildPublicCategoryRouteData } from "@/lib/public-route-builders";
 import { getAllowedListingGalleryImageInputs } from "@/lib/listings/gallery-images";
-import { getListingTierRules } from "@/lib/listingTierRules";
 import { publicListingTranslationOrNull } from "@/lib/listings/publicListingTranslations";
+import {
+  toPublicListingDetailPayload,
+  type PublicListingDetailPayload,
+} from "@/lib/listings/public-payload";
+import { getListingTierRules } from "@/lib/listingTierRules";
 
 export const revalidate = 3600;
 
@@ -49,7 +53,7 @@ const PUBLIC_LISTING_CORE_FIELDS = `
   address, contact_phone, contact_email, website_url, facebook_url,
   instagram_url, twitter_url, linkedin_url, youtube_url, tiktok_url,
   telegram_url, whatsapp_number, google_business_url, google_rating, google_review_count,
-  tags, category_data, view_count, published_at, created_at, updated_at
+  tags, category_data, published_at, created_at, updated_at
 `;
 const PUBLIC_LISTING_CLAIM_FIELDS = `
   claim_status, claimed_at, claim_verified_at, claim_verification_method
@@ -79,22 +83,8 @@ type ListingReviewRow = ListingReview & {
 };
 
 function applyPublicGalleryImageLimit(listing: ListingWithRelations): ListingWithRelations {
-  const tierRules = getListingTierRules(listing.tier);
-
   return {
     ...listing,
-    contact_phone: tierRules.allowPublicContactFields ? listing.contact_phone : null,
-    contact_email: tierRules.allowPublicContactFields ? listing.contact_email : null,
-    website_url: tierRules.allowPublicContactFields ? listing.website_url : null,
-    google_business_url: tierRules.allowPublicContactFields ? listing.google_business_url : null,
-    facebook_url: tierRules.allowPublicSocialLinks ? listing.facebook_url : null,
-    instagram_url: tierRules.allowPublicSocialLinks ? listing.instagram_url : null,
-    twitter_url: tierRules.allowPublicSocialLinks ? listing.twitter_url : null,
-    linkedin_url: tierRules.allowPublicSocialLinks ? listing.linkedin_url : null,
-    youtube_url: tierRules.allowPublicSocialLinks ? listing.youtube_url : null,
-    tiktok_url: tierRules.allowPublicSocialLinks ? listing.tiktok_url : null,
-    telegram_url: tierRules.allowDirectContactButton ? listing.telegram_url : null,
-    whatsapp_number: tierRules.allowDirectContactButton ? listing.whatsapp_number : null,
     images: getAllowedListingGalleryImageInputs({
       featuredImageUrl: listing.featured_image_url,
       galleryImages: listing.images ?? [],
@@ -106,7 +96,7 @@ function applyPublicGalleryImageLimit(listing: ListingWithRelations): ListingWit
 }
 
 interface ListingPageData {
-  listing: ListingWithRelations;
+  listing: PublicListingDetailPayload;
   translations: Record<Locale, ListingTranslationRow | null>;
   reviews: ListingReviewRow[];
   relatedListings: RelatedListing[];
@@ -180,7 +170,7 @@ function buildListingDescription({
   listing,
 }: {
   translation: ListingTranslationRow | null;
-  listing: ListingWithRelations;
+  listing: PublicListingDetailPayload;
 }) {
   const hasTranslation = Boolean(translation);
   return (
@@ -333,9 +323,10 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
   const listing = listingResult.data ?? null;
   if (!listing || listing.status !== "published") return null;
 
-  const publicListing = applyPublicGalleryImageLimit(listing);
+  const publicListing = toPublicListingDetailPayload(applyPublicGalleryImageLimit(listing));
   const canonicalSlug = publicListing.slug ?? publicListing.id;
 
+  const tierRules = getListingTierRules(listing.tier);
   const settledResults =
     (await withTimeout(
       Promise.all([
@@ -352,7 +343,7 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
               .order("created_at", { ascending: false })
               .limit(3)
           : Promise.resolve({ data: [], error: null }),
-        listing.owner_id
+        tierRules.allowDirectContactButton && listing.owner_id
           ? supabase
               .from("whatsapp_accounts")
               .select("wa_enabled, business_phone_e164")
