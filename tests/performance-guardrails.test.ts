@@ -66,4 +66,15 @@ describe("performance guardrails", () => {
 
     expect(offenders).toEqual([]);
   });
+
+  it("keeps directory listing fetches bounded and summary-only", () => {
+    const directoryClient = readFileSync(join(repoRoot, "components/directory/DirectoryClient.tsx"), "utf8");
+    const directoryData = readFileSync(join(repoRoot, "lib/directory-data.ts"), "utf8");
+
+    expect(directoryClient).toContain("DIRECTORY_CLIENT_LISTING_LIMIT = 60");
+    expect(directoryClient).toContain("PUBLIC_LISTING_SUMMARY_FIELDS");
+    expect(directoryClient).not.toContain("pageSize = 1000");
+    expect(directoryData).toContain("DIRECTORY_INITIAL_LISTING_LIMIT = 60");
+    expect(directoryData).toContain("PUBLIC_LISTING_SUMMARY_FIELDS");
+  });
 });

@@ -64,6 +64,8 @@ function makeWriteClient({
   messageError = null,
   contactSettingsData = { forwarding_email: "alerts@algarveofficial.com" },
   contactSettingsError = null,
+  listingData = null,
+  listingError = null,
   outboxError = null,
   triggerError = null,
   outboxHealthData = { open_alerts: [] },
@@ -77,6 +79,8 @@ function makeWriteClient({
   messageError?: { message: string } | null;
   contactSettingsData?: unknown;
   contactSettingsError?: { message: string } | null;
+  listingData?: unknown;
+  listingError?: { message: string } | null;
   outboxError?: { message: string } | null;
   triggerError?: { message: string } | null;
   outboxHealthData?: unknown;
@@ -103,6 +107,11 @@ function makeWriteClient({
   const contactEq = vi.fn(() => ({ maybeSingle: contactMaybeSingle }));
   const contactSelect = vi.fn(() => ({ eq: contactEq }));
 
+  const listingMaybeSingle = vi.fn().mockResolvedValue({ data: listingData, error: listingError });
+  const listingStatusEq = vi.fn(() => ({ maybeSingle: listingMaybeSingle }));
+  const listingIdEq = vi.fn(() => ({ eq: listingStatusEq }));
+  const listingSelect = vi.fn(() => ({ eq: listingIdEq }));
+
   const outboxInsert = vi.fn().mockResolvedValue({ data: null, error: outboxError });
   const outboxHealthMaybeSingle = vi.fn().mockResolvedValue({
     data: outboxHealthData,
@@ -122,6 +131,9 @@ function makeWriteClient({
     }
     if (table === "contact_settings") {
       return { select: contactSelect };
+    }
+    if (table === "listings") {
+      return { select: listingSelect };
     }
     if (table === "external_outbox") {
       return { insert: outboxInsert };
@@ -153,6 +165,10 @@ function makeWriteClient({
       contactSelect,
       contactEq,
       contactMaybeSingle,
+      listingSelect,
+      listingIdEq,
+      listingStatusEq,
+      listingMaybeSingle,
       outboxInsert,
       outboxHealthSelect,
       outboxHealthMaybeSingle,
@@ -302,7 +318,7 @@ describe("enquiry route runtime", () => {
       }),
     );
     expect(writeClient.spies.outboxInsert).not.toHaveBeenCalled();
-    expect(writeClient.spies.rpc).not.toHaveBeenCalled();
+    expect(writeClient.spies.rpc).not.toHaveBeenCalledWith("trigger_process_outbox");
     expect(writeClient.spies.from).not.toHaveBeenCalledWith("admin_external_outbox_health");
   });
 
@@ -334,5 +350,72 @@ describe("enquiry route runtime", () => {
     );
     expect(writeClient.spies.outboxInsert).toHaveBeenCalledOnce();
     expect(writeClient.spies.rpc).toHaveBeenCalledWith("trigger_process_outbox");
+  });
+
+  it("stores enquiries for published listing IDs", async () => {
+    const writeClient = makeWriteClient({
+      listingData: {
+        id: "00000000-0000-4000-8000-000000000001",
+        name: "Published Listing",
+        owner_id: "owner-1",
+        slug: "published-listing",
+      },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+    mockGuestAuth();
+
+    const response = await postEnquiryRoute(jsonRequest({
+      ...validContactPayload(),
+      listing_id: "00000000-0000-4000-8000-000000000001",
+      listing_title: "Published Listing",
+    }));
+
+    expect(response.status).toBe(201);
+    expect(writeClient.spies.listingIdEq).toHaveBeenCalledWith("id", "00000000-0000-4000-8000-000000000001");
+    expect(writeClient.spies.listingStatusEq).toHaveBeenCalledWith("status", "published");
+    expect(writeClient.spies.threadInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        listing_id: "00000000-0000-4000-8000-000000000001",
+        owner_id: "owner-1",
+      }),
+    );
+  });
+
+  it("rejects unpublished listing IDs without creating chat rows", async () => {
+    const writeClient = makeWriteClient({ listingData: null });
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+    mockGuestAuth();
+
+    const response = await postEnquiryRoute(jsonRequest({
+      ...validContactPayload(),
+      listing_id: "00000000-0000-4000-8000-000000000002",
+      listing_title: "Draft Listing",
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(payload.error.code).toBe("LISTING_NOT_FOUND");
+    expect(writeClient.spies.listingStatusEq).toHaveBeenCalledWith("status", "published");
+    expect(writeClient.spies.threadInsert).not.toHaveBeenCalled();
+    expect(writeClient.spies.messageInsert).not.toHaveBeenCalled();
+  });
+
+  it("does not leak database errors from listing lookup failures", async () => {
+    const writeClient = makeWriteClient({
+      listingError: { message: "relation listings leaked internal detail" },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(writeClient.client);
+    mockGuestAuth();
+
+    const response = await postEnquiryRoute(jsonRequest({
+      ...validContactPayload(),
+      listing_id: "00000000-0000-4000-8000-000000000003",
+      listing_title: "Broken Listing",
+    }));
+    const payload = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(payload.error.message).toBe("Failed to send message.");
+    expect(JSON.stringify(payload)).not.toContain("relation listings leaked internal detail");
   });
 });

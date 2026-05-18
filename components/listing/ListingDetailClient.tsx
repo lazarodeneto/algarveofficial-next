@@ -97,6 +97,7 @@ import { BeachWeatherWidget } from "@/components/listing/BeachWeatherWidget";
 import { ListingTagCloud } from "@/components/listing/ListingTagCloud";
 import { trackListingPerformanceEvent } from "@/lib/analytics/platformTracking";
 import { publicListingTranslationOrNull } from "@/lib/listings/publicListingTranslations";
+import { maskTierGatedListingFields } from "@/lib/listings/public-payload";
 
 export type ListingTranslationRow = {
   listing_id: string;
@@ -191,7 +192,6 @@ const PUBLIC_LISTING_CORE_FIELDS = `
   google_review_count,
   tags,
   category_data,
-  view_count,
   published_at,
   created_at,
   updated_at
@@ -643,22 +643,10 @@ async function fetchListingByIdOrSlug(idOrSlug: string) {
 
 function applyPublicGalleryImageLimit(listing: ListingWithRelations | null): ListingWithRelations | null {
   if (!listing) return null;
-  const tierRules = getListingTierRules(listing.tier);
+  const maskedListing = maskTierGatedListingFields(listing);
 
   return {
-    ...listing,
-    contact_phone: tierRules.allowPublicContactFields ? listing.contact_phone : null,
-    contact_email: tierRules.allowPublicContactFields ? listing.contact_email : null,
-    website_url: tierRules.allowPublicContactFields ? listing.website_url : null,
-    google_business_url: tierRules.allowPublicContactFields ? listing.google_business_url : null,
-    facebook_url: tierRules.allowPublicSocialLinks ? listing.facebook_url : null,
-    instagram_url: tierRules.allowPublicSocialLinks ? listing.instagram_url : null,
-    twitter_url: tierRules.allowPublicSocialLinks ? listing.twitter_url : null,
-    linkedin_url: tierRules.allowPublicSocialLinks ? listing.linkedin_url : null,
-    youtube_url: tierRules.allowPublicSocialLinks ? listing.youtube_url : null,
-    tiktok_url: tierRules.allowPublicSocialLinks ? listing.tiktok_url : null,
-    telegram_url: tierRules.allowDirectContactButton ? listing.telegram_url : null,
-    whatsapp_number: tierRules.allowDirectContactButton ? listing.whatsapp_number : null,
+    ...maskedListing,
     images: getAllowedListingGalleryImageInputs<ListingImageRow>({
       featuredImageUrl: listing.featured_image_url,
       galleryImages: listing.images ?? [],

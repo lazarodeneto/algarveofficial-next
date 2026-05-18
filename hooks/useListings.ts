@@ -18,6 +18,10 @@ import {
   buildListingSearchOrGroups,
   sanitizeListingSearchTerm,
 } from "@/lib/listings/search-filters";
+import {
+  maskTierGatedListingFields,
+  PUBLIC_LISTING_SUMMARY_FIELDS,
+} from "@/lib/listings/public-payload";
 
 export type ListingRow = Tables<'listings'>;
 export type ListingTier = 'unverified' | 'verified' | 'signature';
@@ -296,8 +300,8 @@ function applyListingFilters<T>(
   return builder as T;
 }
 
-// Public-safe fields for listings (excludes PII like contact_email, contact_phone, whatsapp_number)
-const PUBLIC_LISTING_FIELDS = `
+// Public listing detail fields are still tier-masked before returning to clients.
+const PUBLIC_LISTING_DETAIL_FIELDS = `
   id,
   slug,
   name,
@@ -330,7 +334,6 @@ const PUBLIC_LISTING_FIELDS = `
   google_review_count,
   tags,
   category_data,
-  view_count,
   published_at,
   created_at,
   updated_at,
@@ -475,7 +478,7 @@ export function usePublishedListings(
         let query = supabase
           .from('listings')
           .select(`
-            ${PUBLIC_LISTING_FIELDS},
+            ${PUBLIC_LISTING_SUMMARY_FIELDS},
             city:cities(${PUBLIC_CITY_FIELDS}),
             region:regions(${PUBLIC_REGION_FIELDS}),
             category:categories(${PUBLIC_CATEGORY_FIELDS})
@@ -554,7 +557,7 @@ export function useListing(idOrSlug: string | undefined) {
       let query = supabase
         .from('listings')
         .select(`
-          ${PUBLIC_LISTING_FIELDS},
+          ${PUBLIC_LISTING_DETAIL_FIELDS},
           city:cities(${PUBLIC_CITY_FIELDS}),
           region:regions(${PUBLIC_REGION_FIELDS}),
           category:categories(${PUBLIC_CATEGORY_FIELDS}),
@@ -573,7 +576,9 @@ export function useListing(idOrSlug: string | undefined) {
         throw error;
       }
 
-      const listing = data as unknown as ListingWithRelations & { images?: unknown[] };
+      const listing = maskTierGatedListingFields(
+        data as unknown as ListingWithRelations & { images?: unknown[] },
+      );
 
       if (locale === "en") {
         return listing;
@@ -640,7 +645,7 @@ export function useCuratedListings() {
       const { data, error } = await supabase
         .from('listings')
         .select(`
-          ${PUBLIC_LISTING_FIELDS},
+          ${PUBLIC_LISTING_SUMMARY_FIELDS},
           city:cities(${PUBLIC_CITY_FIELDS}),
           region:regions(${PUBLIC_REGION_FIELDS}),
           category:categories(${PUBLIC_CATEGORY_FIELDS})
@@ -691,7 +696,7 @@ export function useSignatureListings() {
       const { data, error } = await supabase
         .from('listings')
         .select(`
-          ${PUBLIC_LISTING_FIELDS},
+          ${PUBLIC_LISTING_SUMMARY_FIELDS},
           city:cities(${PUBLIC_CITY_FIELDS}),
           region:regions(${PUBLIC_REGION_FIELDS}),
           category:categories(${PUBLIC_CATEGORY_FIELDS})

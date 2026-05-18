@@ -19,6 +19,7 @@ import {
   filterVisibleListingCategories,
   resolveCategoryFilterSelection,
 } from "@/lib/categoryMerges";
+import { PUBLIC_LISTING_SUMMARY_FIELDS } from "@/lib/listings/public-payload";
 import { buildPublicCategoryCountsFromRows } from "@/lib/public-data/listings";
 import { getProgrammaticCityIndexEntries } from "@/lib/seo/programmatic/category-city-data";
 import { buildMunicipalityCityIndex, type MunicipalityCityIndexItem } from "@/lib/cities/municipalityIndex";
@@ -42,15 +43,7 @@ const PUBLIC_REGION_FIELDS = "id, slug, name, short_description";
 const PUBLIC_CATEGORY_FIELDS = "id, slug, name, icon, short_description, image_url";
 const NO_MATCH_CATEGORY_ID = "00000000-0000-0000-0000-000000000000";
 
-const PUBLIC_LISTING_FIELDS = `
-  id, slug, name, short_description, description, featured_image_url,
-  price_from, price_to, price_currency, tier, is_curated, status,
-  city_id, region_id, category_id, owner_id, latitude, longitude,
-  address, website_url, facebook_url, instagram_url, twitter_url,
-  linkedin_url, youtube_url, tiktok_url, telegram_url,
-  google_business_url, google_rating, google_review_count,
-  tags, category_data, view_count, published_at, created_at, updated_at
-`;
+const DIRECTORY_INITIAL_LISTING_LIMIT = 60;
 
 interface ListingsFilterQuery {
   in: (column: string, values: readonly string[]) => this;
@@ -339,13 +332,13 @@ async function fetchDirectoryListings(
   cities: CityRow[],
   regions: RegionRow[],
   locale: PublicContentLocale,
-  limit = 100,
+  limit = DIRECTORY_INITIAL_LISTING_LIMIT,
 ): Promise<ListingWithRelations[]> {
   let query = supabase
     .from("listings")
     .select(
       `
-      ${PUBLIC_LISTING_FIELDS},
+      ${PUBLIC_LISTING_SUMMARY_FIELDS},
       city:cities(${PUBLIC_CITY_FIELDS}),
       region:regions(${PUBLIC_REGION_FIELDS}),
       category:categories(${PUBLIC_CATEGORY_FIELDS})
