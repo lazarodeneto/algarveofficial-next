@@ -77,4 +77,39 @@ describe("performance guardrails", () => {
     expect(directoryData).toContain("DIRECTORY_INITIAL_LISTING_LIMIT = 60");
     expect(directoryData).toContain("PUBLIC_LISTING_SUMMARY_FIELDS");
   });
+
+  it("keeps the homepage critical payload bounded and cacheable", () => {
+    const homepageData = readFileSync(join(repoRoot, "lib/homepage-data.ts"), "utf8");
+    const cmsRuntime = readFileSync(join(repoRoot, "lib/cms/runtime-settings.ts"), "utf8");
+    const globalSettings = readFileSync(join(repoRoot, "hooks/useGlobalSettings.ts"), "utf8");
+
+    const criticalStateStart = homepageData.indexOf("export async function getDehydratedHomeCriticalState");
+    expect(criticalStateStart).toBeGreaterThan(-1);
+    const criticalStateSource = homepageData.slice(criticalStateStart);
+
+    expect(homepageData).toContain("HOMEPAGE_LISTING_CANDIDATE_GROUP_LIMIT");
+    expect(homepageData).toContain("fetchHomepageListingCandidates");
+    expect(criticalStateSource).not.toContain("publishedListingsQueryKey({}, resolvedLocale)");
+    expect(criticalStateSource).not.toContain("fetchPublishedListings(supabase, resolvedLocale)");
+    expect(cmsRuntime).toContain("if (includeDraft)");
+    expect(globalSettings).toContain('refetchOnMount: isCmsPreviewRuntime ? "always" : false');
+  });
+
+  it("defers non-critical homepage client work during the initial viewport", () => {
+    const indexSource = readFileSync(join(repoRoot, "components/Index.tsx"), "utf8");
+    const quickLinksSource = readFileSync(join(repoRoot, "components/sections/HomeQuickLinksSection.tsx"), "utf8");
+    const weatherSource = readFileSync(join(repoRoot, "components/layout/HeaderWeatherPill.tsx"), "utf8");
+    const headerSource = readFileSync(join(repoRoot, "components/layout/Header.tsx"), "utf8");
+    const maintenanceSource = readFileSync(join(repoRoot, "components/MaintenanceGuard.tsx"), "utf8");
+
+    expect(indexSource).toContain("DeferredHomeSection");
+    expect(indexSource).toContain('const CRITICAL_HOME_SECTION_IDS = new Set(["quick-links", "smart-search"])');
+    expect(quickLinksSource).toContain("canLoadDecorativeVideo");
+    expect(quickLinksSource).toContain('preload="none"');
+    expect(weatherSource).toContain("loadMediaQuery");
+    expect(headerSource).toContain("(min-width: 1280px) and (max-width: 1439.98px)");
+    expect(headerSource).toContain("(min-width: 1440px)");
+    expect(maintenanceSource).toContain("scheduleMaintenanceSettingsCheck");
+    expect(maintenanceSource).toContain("enabled: settingsCheckEnabled");
+  });
 });

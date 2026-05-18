@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HeroSection } from "./HeroSection";
@@ -114,6 +114,8 @@ vi.mock("@/hooks/useHydrated", () => ({
 
 describe("HeroSection image reset behaviour", () => {
   beforeEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
     mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: false });
   });
 
@@ -142,8 +144,14 @@ describe("HeroSection image reset behaviour", () => {
     expect(container.innerHTML).not.toContain("old-home-hero.jpg");
   });
 
-  it("renders uploaded homepage video on mobile without requiring interaction", async () => {
-    mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: true });
+  it("renders uploaded homepage video after the desktop enhancement delay", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query.includes("min-width: 1024px"),
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
     mockUseHeroSettings.mockReturnValue({
       isLoading: false,
       hasLocaleTranslation: true,
@@ -163,10 +171,13 @@ describe("HeroSection image reset behaviour", () => {
     });
 
     const { container } = render(<HeroSection />);
+    expect(container.querySelector("video")).not.toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(container.querySelector("video")).toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(4500);
     });
+
+    expect(container.querySelector("video")).toBeInTheDocument();
     expect(container.querySelector("source")?.getAttribute("src")).toContain("home-hero.mp4");
   });
 });

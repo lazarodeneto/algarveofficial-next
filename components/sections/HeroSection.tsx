@@ -56,6 +56,17 @@ function getPrefersReducedData() {
   return Boolean(connection?.saveData);
 }
 
+function canLoadDecorativeHeroVideo() {
+  if (typeof window === "undefined") return false;
+  if (typeof window.matchMedia === "function") {
+    if (!window.matchMedia("(min-width: 1024px)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-data: reduce)").matches) return false;
+  }
+
+  return !getPrefersReducedData();
+}
+
 function HeroPosterImage({
   posterUrl,
   className,
@@ -128,6 +139,7 @@ export function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     getInitialReducedMotionPreference,
   );
+  const [allowHeroVideo, setAllowHeroVideo] = useState(false);
   const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
@@ -158,6 +170,14 @@ export function HeroSection() {
     const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (!canLoadDecorativeHeroVideo()) return undefined;
+    const timeoutId = window.setTimeout(() => {
+      setAllowHeroVideo(canLoadDecorativeHeroVideo());
+    }, 4500);
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -226,6 +246,7 @@ export function HeroSection() {
 
   const canEnhanceHeroVideo =
     hydrated &&
+    allowHeroVideo &&
     hasVideoUrl &&
     !shouldSkipVideo &&
     !getPrefersReducedData();

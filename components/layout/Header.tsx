@@ -186,7 +186,12 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             {/* Laptop Actions (1024-1359): compact utility row */}
             <div className="ml-auto hidden shrink-0 items-center gap-1.5 min-[1280px]:flex min-[1440px]:hidden">
               <div className="flex items-center gap-0.5 rounded-full border border-black/10 bg-white/[0.82] px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
-                <HeaderWeatherPill compact embedded location={headerWeatherLocation} />
+                <HeaderWeatherPill
+                  compact
+                  embedded
+                  location={headerWeatherLocation}
+                  loadMediaQuery="(min-width: 1280px) and (max-width: 1439.98px)"
+                />
 
                 <Link href={favoritesPath}>
                   <Button
@@ -249,7 +254,11 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             {/* Desktop Actions */}
             <div className="hidden min-[1440px]:flex min-[1440px]:shrink-0 min-[1440px]:items-center min-[1440px]:gap-2 2xl:gap-3">
               <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white/[0.82] px-2 py-1.5 shadow-[0_16px_36px_-30px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
-                <HeaderWeatherPill embedded location={headerWeatherLocation} />
+                <HeaderWeatherPill
+                  embedded
+                  location={headerWeatherLocation}
+                  loadMediaQuery="(min-width: 1440px)"
+                />
 
                 {/* Saved */}
                 <Link href={favoritesPath}>

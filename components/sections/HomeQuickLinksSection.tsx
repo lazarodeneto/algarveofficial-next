@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type ComponentProps } from "react";
+import { useCallback, useEffect, useMemo, useState, type ComponentProps } from "react";
 import NextLink from "next/link";
 import Image from "next/image";
 import { ArrowRight, BedSingle, Binoculars, Building2, CalendarDays, Flag, LucideIcon, Utensils } from "lucide-react";
@@ -28,12 +28,52 @@ const CARD_ICONS: Record<"stay" | "eat-drink" | "see-do" | "golf" | "real-estate
   "real-estate": Building2,
 };
 
+type IdleWindow = Window & {
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+  ) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
+function canLoadDecorativeVideo() {
+  if (typeof window === "undefined") return false;
+  if (typeof window.matchMedia === "function") {
+    if (!window.matchMedia("(min-width: 1024px)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-data: reduce)").matches) return false;
+  }
+
+  const connection =
+    navigator.connection ||
+    navigator.mozConnection ||
+    navigator.webkitConnection;
+
+  return !connection?.saveData;
+}
+
+function scheduleDecorativeVideoLoad(callback: () => void) {
+  const runtimeWindow = window as IdleWindow;
+
+  if (
+    typeof runtimeWindow.requestIdleCallback === "function" &&
+    typeof runtimeWindow.cancelIdleCallback === "function"
+  ) {
+    const idleId = runtimeWindow.requestIdleCallback(callback, { timeout: 8000 });
+    return () => runtimeWindow.cancelIdleCallback?.(idleId);
+  }
+
+  const timeoutId = window.setTimeout(callback, 6000);
+  return () => window.clearTimeout(timeoutId);
+}
+
 export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {}) {
   const l = useLocalePath();
   const { t } = useTranslation();
   const { settings, isLoading } = useGlobalSettings({ keys: HOME_QUICK_LINK_SETTING_KEYS });
   const [failedVideoMedia, setFailedVideoMedia] = useState<Record<string, boolean>>({});
   const [failedImageMedia, setFailedImageMedia] = useState<Record<string, boolean>>({});
+  const [allowDecorativeVideo, setAllowDecorativeVideo] = useState(false);
 
   const enforceMutedPlayback = useCallback((video: HTMLVideoElement | null) => {
     if (!video) return;
@@ -57,6 +97,11 @@ export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {})
 
   const markImageAsFailed = useCallback((cardId: string) => {
     setFailedImageMedia((current) => (current[cardId] ? current : { ...current, [cardId]: true }));
+  }, []);
+
+  useEffect(() => {
+    if (!canLoadDecorativeVideo()) return undefined;
+    return scheduleDecorativeVideoLoad(() => setAllowDecorativeVideo(canLoadDecorativeVideo()));
   }, []);
 
   const quickLinkCards = useMemo(
@@ -133,7 +178,7 @@ export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {})
                     resize: "cover",
                   }) || safeCustomImageUrl
                 : undefined;
-            const showVideo = customVideoUrl.length > 0 && !prefersFallbackVideo;
+            const showVideo = allowDecorativeVideo && customVideoUrl.length > 0 && !prefersFallbackVideo;
             const showImage = imageSrc !== null && !showVideo;
 
             return (
@@ -154,7 +199,7 @@ export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {})
                         loop
                         muted
                         playsInline
-                        preload="metadata"
+                        preload="none"
                         ref={enforceMutedPlayback}
                         onLoadedMetadata={(event) => enforceMutedPlayback(event.currentTarget)}
                         onPlay={(event) => enforceMutedPlayback(event.currentTarget)}
@@ -169,7 +214,7 @@ export function HomeQuickLinksSection({ copy }: { copy?: HomeSectionCopy } = {})
                         width={480}
                         height={360}
                         quality={56}
-                        sizes="(max-width: 640px) 77vw, 236px"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 236px"
                         loading="lazy"
                         fetchPriority="auto"
                         decoding="async"

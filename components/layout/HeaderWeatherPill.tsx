@@ -76,16 +76,64 @@ function writeCachedWeather(cacheKey: string, reading: WeatherReading) {
 interface HeaderWeatherPillProps {
   compact?: boolean;
   embedded?: boolean;
+  loadMediaQuery?: string;
   location?: HeaderWeatherLocation;
 }
 
-export function HeaderWeatherPill({ compact = false, embedded = false, location = "faro" }: HeaderWeatherPillProps) {
+function scheduleWeatherLoad(callback: () => void) {
+  const timeoutId = window.setTimeout(callback, 9000);
+  return () => window.clearTimeout(timeoutId);
+}
+
+export function HeaderWeatherPill({
+  compact = false,
+  embedded = false,
+  loadMediaQuery,
+  location = "faro",
+}: HeaderWeatherPillProps) {
   const { t } = useTranslation();
   const locationConfig = WEATHER_LOCATION_CONFIG[location] ?? WEATHER_LOCATION_CONFIG.faro;
   const [weather, setWeather] = useState<WeatherReading | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [canLoadWeather, setCanLoadWeather] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    let mediaQueryList: MediaQueryList | null = null;
+    let disposeScheduledLoad: (() => void) | null = null;
+    let disposed = false;
+
+    const updateLoadState = () => {
+      const mediaMatches = mediaQueryList ? mediaQueryList.matches : true;
+      if (!mediaMatches) {
+        setCanLoadWeather(false);
+        return;
+      }
+
+      disposeScheduledLoad?.();
+      disposeScheduledLoad = scheduleWeatherLoad(() => {
+        if (!disposed) setCanLoadWeather(true);
+      });
+    };
+
+    if (loadMediaQuery && typeof window.matchMedia === "function") {
+      mediaQueryList = window.matchMedia(loadMediaQuery);
+      mediaQueryList.addEventListener("change", updateLoadState);
+    }
+
+    updateLoadState();
+
+    return () => {
+      disposed = true;
+      disposeScheduledLoad?.();
+      mediaQueryList?.removeEventListener("change", updateLoadState);
+    };
+  }, [loadMediaQuery]);
+
+  useEffect(() => {
+    if (!canLoadWeather) return undefined;
+
     const cached = readCachedWeather(locationConfig.cacheKey);
     if (cached) {
       setWeather(cached);
@@ -144,7 +192,7 @@ export function HeaderWeatherPill({ compact = false, embedded = false, location 
     void loadWeather();
 
     return () => controller.abort();
-  }, [locationConfig.cacheKey, locationConfig.url]);
+  }, [canLoadWeather, locationConfig.cacheKey, locationConfig.url]);
 
   const display = useMemo(() => {
     if (!weather) return null;

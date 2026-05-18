@@ -3,7 +3,11 @@ import { NextResponse, type NextRequest } from "next/server";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, type AppLocale } from "@/lib/i18n/locales";
 import { isValidLocale } from "@/lib/i18n/locale-utils";
 import { DEFAULT_LOCALE_USES_PREFIX } from "@/lib/i18n/default-locale-policy";
-import { REQUEST_LOCALE_HEADER_NAME, isSystemBypassPath } from "@/lib/i18n/route-rules";
+import {
+  REQUEST_LOCALE_HEADER_NAME,
+  REQUEST_PATHNAME_HEADER_NAME,
+  isSystemBypassPath,
+} from "@/lib/i18n/route-rules";
 import { isMaintenanceIpWhitelisted } from "@/lib/maintenance";
 import { getCanonicalCategorySlug } from "@/lib/categoryMerges";
 import {
@@ -123,6 +127,7 @@ function isPublicLocale(locale: string | null | undefined): locale is AppLocale 
 function nextWithRequestLocale(request: NextRequest, locale: AppLocale) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, locale);
+  requestHeaders.set(REQUEST_PATHNAME_HEADER_NAME, request.nextUrl.pathname);
 
   return NextResponse.next({
     request: {
@@ -479,6 +484,7 @@ function redirectGolfCourseAliasIfNeeded(
 function rewriteUnprefixedDefaultLocaleRequest(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(REQUEST_LOCALE_HEADER_NAME, DEFAULT_LOCALE);
+  requestHeaders.set(REQUEST_PATHNAME_HEADER_NAME, request.nextUrl.pathname);
 
   const rewriteUrl = new URL(withInternalLocalePrefix(request.nextUrl.pathname, DEFAULT_LOCALE), request.url);
   rewriteUrl.search = request.nextUrl.search;

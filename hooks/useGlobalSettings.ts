@@ -94,7 +94,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       return (data ?? []) as GlobalSetting[];
     },
     staleTime: 5 * 60 * 1000,
-    refetchOnMount: (shouldUseCmsRuntime || isCmsPreviewRuntime) ? "always" : false,
+    refetchOnMount: isCmsPreviewRuntime ? "always" : false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });

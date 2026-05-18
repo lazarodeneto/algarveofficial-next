@@ -1,17 +1,14 @@
 "use client";
 
-import { useMemo, type ComponentType } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { SoftReveal } from "@/components/ui/SoftReveal";
-import { useHomepageListingSegment } from "@/hooks/useHomepageListingSegment";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
-import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { getHomeSectionCopy, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
-import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 
 function HomeSectionFallback() {
   return (
@@ -185,6 +182,76 @@ const DEFAULT_SECTION_ORDER = [
 ];
 
 const DEFAULT_DISABLED_BLOCK_IDS = new Set(["featured-city"]);
+const CRITICAL_HOME_SECTION_IDS = new Set(["quick-links", "smart-search"]);
+
+type IdleWindow = Window & {
+  requestIdleCallback?: (
+    callback: IdleRequestCallback,
+    options?: IdleRequestOptions,
+  ) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
+function DeferredHomeSection({
+  children,
+  id,
+}: {
+  children: ReactNode;
+  id: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element || shouldRender) return undefined;
+
+    let idleCleanup: (() => void) | null = null;
+    const reveal = () => setShouldRender(true);
+
+    if (typeof window.IntersectionObserver !== "function") {
+      const runtimeWindow = window as IdleWindow;
+      if (
+        typeof runtimeWindow.requestIdleCallback === "function" &&
+        typeof runtimeWindow.cancelIdleCallback === "function"
+      ) {
+        const idleId = runtimeWindow.requestIdleCallback(reveal, { timeout: 4500 });
+        idleCleanup = () => runtimeWindow.cancelIdleCallback?.(idleId);
+      } else {
+        const timeoutId = window.setTimeout(reveal, 2500);
+        idleCleanup = () => window.clearTimeout(timeoutId);
+      }
+      return () => idleCleanup?.();
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        reveal();
+        observer.disconnect();
+      },
+      {
+        rootMargin: "120px 0px",
+        threshold: 0.01,
+      },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [shouldRender]);
+
+  return (
+    <div ref={ref} data-home-section-deferred={id}>
+      {shouldRender ? (
+        children
+      ) : (
+        <div className="py-8" aria-hidden="true">
+          <div className="h-72 rounded-xl border border-border/50 bg-muted/25" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 function moveSectionBefore(order: string[], sectionId: string, beforeSectionId: string) {
   const sectionIndex = order.indexOf(sectionId);
@@ -258,10 +325,6 @@ function getHomeSectionCopySourceId(sectionId: string) {
 const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
   const { getBlockOrder, isBlockEnabled } = useCmsPageBuilder("home");
-  const locale = normalizePublicContentLocale(useCurrentLocale());
-  const { data: editorListings = [] } = useHomepageListingSegment("editors", locale);
-  const { data: premiumListings = [] } = useHomepageListingSegment("premium", locale);
-  const homepageListingCount = editorListings.length + premiumListings.length;
 
   // Compute which sections to render and in what order
   const sectionsToRender = useMemo(() => {
@@ -299,7 +362,7 @@ const Index = () => {
     const SectionComponent = SECTION_COMPONENTS[id];
     if (!SectionComponent) return null;
 
-    return (
+    const content = (
       <CmsBlock
         pageId="home"
         blockId={id}
@@ -310,10 +373,19 @@ const Index = () => {
         <SoftReveal className="min-w-0">
           <SectionComponent
             copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
-            listingCount={id === "cta" && homepageListingCount > 0 ? homepageListingCount : undefined}
           />
         </SoftReveal>
       </CmsBlock>
+    );
+
+    if (CRITICAL_HOME_SECTION_IDS.has(id)) {
+      return content;
+    }
+
+    return (
+      <DeferredHomeSection key={id} id={id}>
+        {content}
+      </DeferredHomeSection>
     );
   };
 
@@ -328,11 +400,15 @@ const Index = () => {
         <div className="mx-auto w-full content-max density">
           {settings ? sectionsToRender.map(renderSection) : null}
         </div>
-        <SoftReveal className="min-w-0">
-          <HomeFinalEndcap />
-        </SoftReveal>
+        <DeferredHomeSection id="final-endcap">
+          <SoftReveal className="min-w-0">
+            <HomeFinalEndcap />
+          </SoftReveal>
+        </DeferredHomeSection>
       </main>
-      <Footer />
+      <DeferredHomeSection id="footer">
+        <Footer />
+      </DeferredHomeSection>
     </div>
   );
 };

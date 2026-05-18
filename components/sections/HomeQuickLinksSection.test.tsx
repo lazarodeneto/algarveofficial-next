@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HomeQuickLinksSection } from "./HomeQuickLinksSection";
 
@@ -74,6 +74,7 @@ vi.mock("@/hooks/useGlobalSettings", () => ({
 
 describe("HomeQuickLinksSection", () => {
   beforeEach(() => {
+    vi.unstubAllGlobals();
     mockUseGlobalSettings.mockReturnValue({
       settings: [],
       isLoading: false,
@@ -110,7 +111,18 @@ describe("HomeQuickLinksSection", () => {
     expect(screen.queryByAltText("Events")).not.toBeInTheDocument();
   });
 
-  it("falls back to the uploaded image when a saved video fails to load", () => {
+  it("falls back to the uploaded image when a saved video fails to load", async () => {
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query.includes("min-width: 1024px"),
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    vi.stubGlobal("requestIdleCallback", (callback: IdleRequestCallback) => {
+      callback({ didTimeout: false, timeRemaining: () => 50 });
+      return 1;
+    });
+    vi.stubGlobal("cancelIdleCallback", vi.fn());
     mockUseGlobalSettings.mockReturnValue({
       settings: [
         {
@@ -129,7 +141,7 @@ describe("HomeQuickLinksSection", () => {
 
     const { container } = render(<HomeQuickLinksSection />);
 
-    const video = container.querySelector("video");
+    const video = await waitFor(() => container.querySelector("video"));
     expect(video).toBeTruthy();
 
     fireEvent.error(video!);

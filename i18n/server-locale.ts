@@ -19,19 +19,68 @@ const LOCALE_DB_MAP: Record<string, string> = {
   da: "da",
 };
 
-export async function loadInitialLocaleMessages(locale: string): Promise<LocaleMessages> {
+const HOMEPAGE_INITIAL_MESSAGE_PREFIXES = [
+  "auth.loginFailed",
+  "categoryNames",
+  "common",
+  "cookie",
+  "dashboard.favorites.title",
+  "footer",
+  "gdpr",
+  "hero",
+  "language",
+  "listing.badge",
+  "listing.experience",
+  "nav",
+  "sections.homepage",
+  "theme",
+  "weather",
+] as const;
+
+interface LoadInitialLocaleMessagesOptions {
+  scope?: "full" | "homepage";
+}
+
+function pickMessagePrefixes(
+  messages: LocaleMessages,
+  prefixes: readonly string[],
+): LocaleMessages {
+  const flattened = flattenI18nData(messages);
+  const picked: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(flattened)) {
+    if (prefixes.some((prefix) => key === prefix || key.startsWith(`${prefix}.`))) {
+      picked[key] = value;
+    }
+  }
+
+  return unflattenI18nData(picked);
+}
+
+function scopeInitialMessages(
+  messages: LocaleMessages,
+  scope: LoadInitialLocaleMessagesOptions["scope"],
+): LocaleMessages {
+  if (scope !== "homepage") return messages;
+  return pickMessagePrefixes(messages, HOMEPAGE_INITIAL_MESSAGE_PREFIXES);
+}
+
+export async function loadInitialLocaleMessages(
+  locale: string,
+  options: LoadInitialLocaleMessagesOptions = {},
+): Promise<LocaleMessages> {
   const normalizedLocale = normalizeLocaleCode(locale);
   const messages = await loadLocale(normalizedLocale);
 
   if (normalizedLocale === "en") {
-    return messages;
+    return scopeInitialMessages(messages, options.scope);
   }
 
   const englishMessages = await loadLocale("en");
   const premiumSafeMessages = enforcePremiumInLocaleData(messages, englishMessages);
   const dbLocale = LOCALE_DB_MAP[normalizedLocale];
   if (!dbLocale) {
-    return premiumSafeMessages;
+    return scopeInitialMessages(premiumSafeMessages, options.scope);
   }
 
   try {
@@ -43,17 +92,18 @@ export async function loadInitialLocaleMessages(locale: string): Promise<LocaleM
       .maybeSingle();
 
     if (error || !data?.data || typeof data.data !== "object") {
-      return premiumSafeMessages;
+      return scopeInitialMessages(premiumSafeMessages, options.scope);
     }
 
-    return enforcePremiumInLocaleData(
+    const mergedMessages = enforcePremiumInLocaleData(
       unflattenI18nData({
         ...flattenI18nData(premiumSafeMessages),
         ...flattenI18nData(data.data as Record<string, unknown>),
       }),
       englishMessages,
     );
+    return scopeInitialMessages(mergedMessages, options.scope);
   } catch {
-    return premiumSafeMessages;
+    return scopeInitialMessages(premiumSafeMessages, options.scope);
   }
 }

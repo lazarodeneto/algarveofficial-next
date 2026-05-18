@@ -22,27 +22,36 @@ const WhatsAppChatButtonWrapper = dynamic(
   { ssr: false },
 );
 
-type IdleWindow = Window & {
-  requestIdleCallback?: (
-    callback: IdleRequestCallback,
-    options?: IdleRequestOptions,
-  ) => number;
-  cancelIdleCallback?: (handle: number) => void;
-};
-
 function scheduleAfterInitialWork(callback: () => void) {
-  const runtimeWindow = window as IdleWindow;
+  let disposed = false;
+  let timeoutId: number | null = null;
 
-  if (
-    typeof runtimeWindow.requestIdleCallback === "function" &&
-    typeof runtimeWindow.cancelIdleCallback === "function"
-  ) {
-    const idleId = runtimeWindow.requestIdleCallback(callback, { timeout: 5000 });
-    return () => runtimeWindow.cancelIdleCallback?.(idleId);
-  }
+  const run = () => {
+    if (disposed) return;
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+    callback();
+  };
 
-  const timeoutId = window.setTimeout(callback, 3000);
-  return () => window.clearTimeout(timeoutId);
+  timeoutId = window.setTimeout(run, 15000);
+  window.addEventListener("pointerdown", run, { once: true, passive: true });
+  window.addEventListener("keydown", run, { once: true });
+  window.addEventListener("scroll", run, { once: true, passive: true });
+
+  return () => {
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+  };
 }
 
 export function DeferredPublicWidgets() {

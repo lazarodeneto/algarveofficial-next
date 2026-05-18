@@ -65,7 +65,7 @@ export function BrandLogo({
 }: BrandLogoProps) {
   const config = sizeConfig[size];
   const l = useLocalePath();
-  const { settings } = useSiteSettings();
+  const { settings } = useSiteSettings({ enabled: false, refetchInterval: false });
   const { resolvedTheme } = useTheme();
   const hydrated = useHydrated();
   const hydratedSettings = hydrated ? settings : null;

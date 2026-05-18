@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { AppProviders } from "@/components/providers/AppProviders";
@@ -18,6 +19,8 @@ import { buildMetadata } from "@/lib/metadata";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { CMS_PAGE_BUILDER_RUNTIME_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { fetchCmsRuntimeSettings } from "@/lib/cms/runtime-settings";
+import { REQUEST_PATHNAME_HEADER_NAME } from "@/lib/i18n/route-rules";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 interface LocaleLayoutProps {
   children: ReactNode;
@@ -85,8 +88,11 @@ export default async function LocaleLayout({
   // ✅ Get locale config
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
   void localeConfig;
+  const requestHeaders = await headers();
+  const requestPathname = requestHeaders.get(REQUEST_PATHNAME_HEADER_NAME) ?? `/${locale}`;
+  const isHomepageRequest = stripLocaleFromPathname(requestPathname) === "/";
   const [messages, initialCmsRuntimeSettings] = await Promise.all([
-    loadInitialLocaleMessages(locale),
+    loadInitialLocaleMessages(locale, { scope: isHomepageRequest ? "homepage" : "full" }),
     loadInitialCmsRuntimeSettings(locale),
   ]);
 
