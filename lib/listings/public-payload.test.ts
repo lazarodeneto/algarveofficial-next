@@ -289,13 +289,19 @@ describe("public listing payload guardrails", () => {
     expect(collectKeys(serializedPageShape).has("email")).toBe(true);
     expect(collectKeys(serializedPageShape).has("phone")).toBe(true);
     expectKeysAbsent(serializedPageShape.listing, PROTECTED_DETAIL_KEYS);
+
+    const serializedListingProps = JSON.stringify({ listing: serializedPageShape.listing });
+    for (const key of PROTECTED_DETAIL_KEYS) {
+      expect(serializedListingProps).not.toContain(`"${key}":`);
+      expect(serializedListingProps).not.toContain(`\\"${key}\\":`);
+    }
   });
 
   it("serializes verified listing props without internal listing keys", () => {
     const listing = toPublicListingDetailPayload(baseListing({ tier: "signature" }));
     const serializedListingProps = JSON.stringify({ listing });
 
-    for (const key of ["owner_id", "category_data", "view_count"]) {
+    for (const key of INTERNAL_DETAIL_KEYS) {
       expect(serializedListingProps).not.toContain(`"${key}":`);
       expect(serializedListingProps).not.toContain(`\\"${key}\\":`);
     }
