@@ -6,14 +6,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useHeroSettings } from "@/hooks/useHomepageSettings";
-import { useGlobalSettings } from "@/hooks/useGlobalSettings";
+import { usePublicHeroSettings } from "@/hooks/usePublicHeroSettings";
+import { useHydratedGlobalSettings } from "@/hooks/useHydratedGlobalSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useTranslation } from "react-i18next";
 import { useConnectionQuality } from "@/hooks/useConnectionQuality";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContextBase";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
@@ -65,6 +64,38 @@ function canLoadDecorativeHeroVideo() {
   }
 
   return !getPrefersReducedData();
+}
+
+function scheduleDecorativeHeroVideoLoad(callback: () => void) {
+  let disposed = false;
+  let timeoutId: number | null = null;
+
+  const run = () => {
+    if (disposed) return;
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+    callback();
+  };
+
+  timeoutId = window.setTimeout(run, 20000);
+  window.addEventListener("pointerdown", run, { once: true, passive: true });
+  window.addEventListener("keydown", run, { once: true });
+  window.addEventListener("scroll", run, { once: true, passive: true });
+
+  return () => {
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+  };
 }
 
 function HeroPosterImage({
@@ -133,6 +164,10 @@ const HeroVideo = ({ videoUrl, posterUrl }: { videoUrl: string; posterUrl?: stri
   <HeroVideoPlayer key={videoUrl} videoUrl={videoUrl} posterUrl={posterUrl} />
 );
 
+async function showToast(type: "info" | "success", message: string) {
+  const { toast } = await import("sonner");
+  toast[type](message);
+}
 
 export function HeroSection() {
   const hydrated = useHydrated();
@@ -140,8 +175,8 @@ export function HeroSection() {
     getInitialReducedMotionPreference,
   );
   const [allowHeroVideo, setAllowHeroVideo] = useState(false);
-  const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
-  const { settings: runtimeSettings } = useGlobalSettings({
+  const { settings, isLoading: isHeroSettingsLoading } = usePublicHeroSettings();
+  const { settings: runtimeSettings } = useHydratedGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
   });
   const locale = useCurrentLocale();
@@ -174,10 +209,9 @@ export function HeroSection() {
 
   useEffect(() => {
     if (!canLoadDecorativeHeroVideo()) return undefined;
-    const timeoutId = window.setTimeout(() => {
+    return scheduleDecorativeHeroVideoLoad(() => {
       setAllowHeroVideo(canLoadDecorativeHeroVideo());
-    }, 4500);
-    return () => window.clearTimeout(timeoutId);
+    });
   }, []);
 
   const scrollToSection = (sectionId: string) => {
@@ -195,7 +229,7 @@ export function HeroSection() {
   const openTripPlanner = () => {
     if (!isAuthenticated) {
       setPendingTripPlannerOpen(true);
-      toast.info(t("hero.loginRequired"));
+      void showToast("info", t("hero.loginRequired"));
       setShowLoginModal(true);
       return;
     }
@@ -217,13 +251,13 @@ export function HeroSection() {
 
   const handleCreateTrip = (data: { title: string; description?: string; start_date: string; end_date: string }) => {
     if (!isAuthenticated) {
-      toast.info(t("hero.loginRequired"));
+      void showToast("info", t("hero.loginRequired"));
       setShowLoginModal(true);
       return;
     }
 
     const newTrip = createTrip(data);
-    toast.success(t("hero.tripCreated"));
+    void showToast("success", t("hero.tripCreated"));
     router.push(`${l("/dashboard/trips")}?trip=${encodeURIComponent(newTrip.id)}`);
   };
 
@@ -334,7 +368,7 @@ export function HeroSection() {
               {heroBadge}
             </p>
 
-            <h1 className="font-serif text-[clamp(2.75rem,10vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
+            <h1 className="[font-family:Georgia,serif] text-[clamp(2.75rem,10vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
               <span className="block">{heroTitleLead},</span>
               <span className="block italic text-primary">{heroTitleHighlight}</span>
             </h1>

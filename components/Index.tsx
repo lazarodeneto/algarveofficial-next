@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { SoftReveal } from "@/components/ui/SoftReveal";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
-import { getHomeSectionCopy, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
+import { cmsText, getHomeSectionCopy, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
 function HomeSectionFallback() {
   return (
@@ -182,73 +183,78 @@ const DEFAULT_SECTION_ORDER = [
 ];
 
 const DEFAULT_DISABLED_BLOCK_IDS = new Set(["featured-city"]);
-const CRITICAL_HOME_SECTION_IDS = new Set(["quick-links", "smart-search"]);
+const CRITICAL_HOME_SECTION_IDS = new Set<string>();
 
-type IdleWindow = Window & {
-  requestIdleCallback?: (
-    callback: IdleRequestCallback,
-    options?: IdleRequestOptions,
-  ) => number;
-  cancelIdleCallback?: (handle: number) => void;
-};
+function scheduleDeferredHomeSectionReveal(callback: () => void) {
+  let disposed = false;
+  let timeoutId: number | null = null;
+
+  const run = () => {
+    if (disposed) return;
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+    callback();
+  };
+
+  timeoutId = window.setTimeout(run, 15000);
+  window.addEventListener("pointerdown", run, { once: true, passive: true });
+  window.addEventListener("keydown", run, { once: true });
+  window.addEventListener("scroll", run, { once: true, passive: true });
+
+  return () => {
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+  };
+}
+
+function HomeQuickLinksStaticPreview({ copy }: { copy?: HomeSectionCopy }) {
+  const { t } = useTranslation();
+
+  return (
+    <section className="relative z-10 bg-background pb-10 pt-3 sm:pb-12 sm:pt-4 lg:pb-14 lg:pt-5" aria-hidden="true">
+      <div className="app-container content-max">
+        <div className="mx-auto mb-6 max-w-[720px] text-center sm:mb-8">
+          <h2 className="font-serif text-[clamp(2rem,4vw,3.25rem)] font-medium leading-[0.98] tracking-normal text-foreground">
+            {cmsText(copy?.title, t("sections.homepage.categories.title"))}
+          </h2>
+          <p className="mx-auto mt-3 max-w-[720px] text-base leading-relaxed text-muted-foreground dark:text-white/80 sm:text-lg">
+            {cmsText(copy?.subtitle ?? copy?.description, t("sections.homepage.categories.intro"))}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function DeferredHomeSection({
   children,
   id,
+  placeholder,
 }: {
   children: ReactNode;
   id: string;
+  placeholder?: ReactNode;
 }) {
-  const ref = useRef<HTMLDivElement | null>(null);
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    const element = ref.current;
-    if (!element || shouldRender) return undefined;
-
-    let idleCleanup: (() => void) | null = null;
-    const reveal = () => setShouldRender(true);
-
-    if (typeof window.IntersectionObserver !== "function") {
-      const runtimeWindow = window as IdleWindow;
-      if (
-        typeof runtimeWindow.requestIdleCallback === "function" &&
-        typeof runtimeWindow.cancelIdleCallback === "function"
-      ) {
-        const idleId = runtimeWindow.requestIdleCallback(reveal, { timeout: 4500 });
-        idleCleanup = () => runtimeWindow.cancelIdleCallback?.(idleId);
-      } else {
-        const timeoutId = window.setTimeout(reveal, 2500);
-        idleCleanup = () => window.clearTimeout(timeoutId);
-      }
-      return () => idleCleanup?.();
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        reveal();
-        observer.disconnect();
-      },
-      {
-        rootMargin: "120px 0px",
-        threshold: 0.01,
-      },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
+    if (shouldRender) return undefined;
+    return scheduleDeferredHomeSectionReveal(() => setShouldRender(true));
   }, [shouldRender]);
 
   return (
-    <div ref={ref} data-home-section-deferred={id}>
-      {shouldRender ? (
-        children
-      ) : (
-        <div className="py-8" aria-hidden="true">
-          <div className="h-72 rounded-xl border border-border/50 bg-muted/25" />
-        </div>
-      )}
+    <div data-home-section-deferred={id}>
+      {shouldRender ? children : placeholder}
     </div>
   );
 }
@@ -383,7 +389,17 @@ const Index = () => {
     }
 
     return (
-      <DeferredHomeSection key={id} id={id}>
+      <DeferredHomeSection
+        key={id}
+        id={id}
+        placeholder={
+          id === "quick-links" ? (
+            <HomeQuickLinksStaticPreview
+              copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
+            />
+          ) : null
+        }
+      >
         {content}
       </DeferredHomeSection>
     );

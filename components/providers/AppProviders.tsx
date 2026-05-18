@@ -4,19 +4,13 @@ import { type ReactNode, useState } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { I18nProvider } from "./I18nProvider";
+import { UserEngagementProviders } from "./UserEngagementProviders";
 import type { LocaleMessages } from "@/i18n/locale-loader";
 import { HtmlLocaleSync } from "./HtmlLocaleSync";
 import { GlobalErrorBoundary } from "@/components/GlobalErrorBoundary";
 import { FaviconUpdater } from "@/components/FaviconUpdater";
-import { FavoritesSyncProvider } from "@/components/FavoritesSyncProvider";
-import { MaintenanceGuard } from "@/components/MaintenanceGuard";
 import { RouteAccessibility } from "@/components/accessibility/RouteAccessibility";
-import { ChatProvider } from "@/components/chat/ChatProvider";
-import { InboxRealtimeProvider } from "@/components/chat/InboxRealtimeProvider";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/contexts/AuthContext";
 import { CMS_PAGE_BUILDER_RUNTIME_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { CmsPageBuilderProvider } from "@/contexts/CmsPageBuilderContext";
 import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
@@ -49,32 +43,26 @@ export function AppProviders({
     return client;
   });
 
+  const shell = (
+    <MobileMenuProvider>
+      <RouteAccessibility />
+      <FaviconUpdater />
+      {children}
+    </MobileMenuProvider>
+  );
+
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider initialMessages={initialMessages}>
         <HtmlLocaleSync />
         <GlobalErrorBoundary>
-        <ThemeProvider>
-          <TooltipProvider>
-            <CmsPageBuilderProvider>
-              <AuthProvider>
-                <FavoritesSyncProvider>
-                  <InboxRealtimeProvider>
-                    <ChatProvider>
-                      <MobileMenuProvider>
-                        <RouteAccessibility />
-                        <Toaster />
-                        <Sonner />
-                        <FaviconUpdater />
-                        <MaintenanceGuard>{children}</MaintenanceGuard>
-                      </MobileMenuProvider>
-                    </ChatProvider>
-                  </InboxRealtimeProvider>
-                </FavoritesSyncProvider>
-              </AuthProvider>
-            </CmsPageBuilderProvider>
-          </TooltipProvider>
-        </ThemeProvider>
+          <ThemeProvider>
+            <TooltipProvider>
+              <CmsPageBuilderProvider>
+                <UserEngagementProviders>{shell}</UserEngagementProviders>
+              </CmsPageBuilderProvider>
+            </TooltipProvider>
+          </ThemeProvider>
         </GlobalErrorBoundary>
       </I18nProvider>
     </QueryClientProvider>

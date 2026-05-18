@@ -101,9 +101,14 @@ describe("performance guardrails", () => {
     const weatherSource = readFileSync(join(repoRoot, "components/layout/HeaderWeatherPill.tsx"), "utf8");
     const headerSource = readFileSync(join(repoRoot, "components/layout/Header.tsx"), "utf8");
     const maintenanceSource = readFileSync(join(repoRoot, "components/MaintenanceGuard.tsx"), "utf8");
+    const localeLayoutSource = readFileSync(join(repoRoot, "app/[locale]/layout.tsx"), "utf8");
+    const providersSource = readFileSync(join(repoRoot, "components/providers/AppProviders.tsx"), "utf8");
+    const liteProvidersSource = readFileSync(join(repoRoot, "components/providers/LiteAppProviders.tsx"), "utf8");
+    const cookieDrawerSource = readFileSync(join(repoRoot, "components/gdpr/CookieConsentDrawer.tsx"), "utf8");
 
     expect(indexSource).toContain("DeferredHomeSection");
-    expect(indexSource).toContain('const CRITICAL_HOME_SECTION_IDS = new Set(["quick-links", "smart-search"])');
+    expect(indexSource).toContain("scheduleDeferredHomeSectionReveal");
+    expect(indexSource).toContain("const CRITICAL_HOME_SECTION_IDS = new Set<string>()");
     expect(quickLinksSource).toContain("canLoadDecorativeVideo");
     expect(quickLinksSource).toContain('preload="none"');
     expect(weatherSource).toContain("loadMediaQuery");
@@ -111,5 +116,15 @@ describe("performance guardrails", () => {
     expect(headerSource).toContain("(min-width: 1440px)");
     expect(maintenanceSource).toContain("scheduleMaintenanceSettingsCheck");
     expect(maintenanceSource).toContain("enabled: settingsCheckEnabled");
+    expect(localeLayoutSource).toContain("if (isHomepageRequest)");
+    expect(localeLayoutSource).toContain('import("@/components/providers/LiteAppProviders")');
+    expect(localeLayoutSource).toContain('import("@/components/providers/AppProviders")');
+    expect(localeLayoutSource).toContain("<LiteAppProviders");
+    expect(liteProvidersSource).not.toContain("UserEngagementProviders");
+    expect(liteProvidersSource).not.toContain("AuthProvider");
+    expect(liteProvidersSource).not.toContain("useGlobalSettings");
+    expect(providersSource).toContain("UserEngagementProviders");
+    expect(localeLayoutSource).toContain("deferInitialPrompt={isHomepageRequest}");
+    expect(cookieDrawerSource).toContain("scheduleDeferredPrompt");
   });
 });

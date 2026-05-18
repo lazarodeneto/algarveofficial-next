@@ -16,7 +16,7 @@ import {
   Plane,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContextBase";
 import { useMobileMenu } from "@/contexts/MobileMenuContext";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";

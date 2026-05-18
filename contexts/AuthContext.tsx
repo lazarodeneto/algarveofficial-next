@@ -1,9 +1,8 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { useState, useEffect, ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import type { Session, User as SupabaseUser, AuthChangeEvent } from '@supabase/supabase-js';
 import { useCurrentLocale } from '@/hooks/useCurrentLocale';
 import { buildLocalizedPath } from '@/lib/i18n/routing';
@@ -12,32 +11,15 @@ import {
   getRequestedPostAuthPath,
   resolvePostAuthRedirectPath,
 } from '@/lib/authRedirect';
-import { type AppRole, normalizeAppRole } from '@/lib/auth/roles';
+import { normalizeAppRole } from '@/lib/auth/roles';
+import { AuthContext, useAuth, type User, type UserRole } from '@/contexts/AuthContextBase';
 
-export type UserRole = AppRole;
-
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  avatar?: string;
-}
-
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (email: string, password: string, firstName: string, lastName: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
-  logout: () => Promise<void>;
-  getDashboardPath: (role: UserRole) => string;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const userBuildInFlight = new Map<string, Promise<User>>();
+
+async function getSupabaseClient() {
+  const { supabase } = await import("@/integrations/supabase/client");
+  return supabase;
+}
 
 function clearCachedUser() {
   userBuildInFlight.clear();
@@ -78,6 +60,7 @@ function resolveGoogleOAuthRedirectUrl(locale: string, requestedPath?: string | 
 // Helper to fetch user role using the database function with proper hierarchy
 async function fetchUserRole(userId: string): Promise<UserRole> {
   try {
+    const supabase = await getSupabaseClient();
     const { data, error } = await supabase.rpc('get_user_role', { _user_id: userId });
 
     if (error) {
@@ -99,6 +82,7 @@ async function fetchUserRole(userId: string): Promise<UserRole> {
 
 // Helper to fetch user profile
 async function fetchUserProfile(userId: string): Promise<{ full_name: string | null; avatar_url: string | null } | null> {
+  const supabase = await getSupabaseClient();
   const { data, error } = await supabase
     .from('profiles')
     .select('full_name, avatar_url')
@@ -176,51 +160,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Initialize auth state with onAuthStateChange FIRST, then getSession
   useEffect(() => {
     let mounted = true;
+    let subscription: { unsubscribe: () => void } | null = null;
 
-    // Set up auth state listener BEFORE checking session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event: AuthChangeEvent, session: Session | null) => {
-        if (!mounted) return;
-
-        if (event === 'SIGNED_IN' && session?.user) {
-          // Use setTimeout to avoid potential race conditions with Supabase
-          setTimeout(async () => {
-            if (!mounted) return;
-            try {
-              const appUser = await buildUser(session.user, { forceRefresh: true });
-              queryClient.clear();
-              setUser(appUser);
-            } catch (err) {
-              console.error('Error building user on SIGNED_IN:', err);
-            } finally {
-              setIsLoading(false);
-            }
-          }, 0);
-        } else if (event === 'SIGNED_OUT') {
-          clearCachedUser();
-          queryClient.clear();
-          setUser(null);
-          setIsLoading(false);
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          // Re-hydrate user on token refresh so role changes do not stay stale.
-          // IMPORTANT: defer to avoid Supabase auth lock re-entrancy (can surface as
-          // "AbortError: signal is aborted without reason" and abort unrelated queries).
-          setTimeout(async () => {
-            if (!mounted) return;
-            try {
-              const appUser = await buildUser(session.user, { forceRefresh: true });
-              setUser(appUser);
-            } catch (err) {
-              console.error('Error rebuilding user on TOKEN_REFRESHED:', err);
-            }
-          }, 0);
-        }
-      }
-    );
-
-    // Check for existing session
     const initializeAuth = async () => {
       try {
+        const supabase = await getSupabaseClient();
+        if (!mounted) return;
+
+        // Set up auth state listener BEFORE checking session
+        const authListener = supabase.auth.onAuthStateChange(
+          async (event: AuthChangeEvent, session: Session | null) => {
+            if (!mounted) return;
+
+            if (event === 'SIGNED_IN' && session?.user) {
+              // Use setTimeout to avoid potential race conditions with Supabase
+              setTimeout(async () => {
+                if (!mounted) return;
+                try {
+                  const appUser = await buildUser(session.user, { forceRefresh: true });
+                  queryClient.clear();
+                  setUser(appUser);
+                } catch (err) {
+                  console.error('Error building user on SIGNED_IN:', err);
+                } finally {
+                  setIsLoading(false);
+                }
+              }, 0);
+            } else if (event === 'SIGNED_OUT') {
+              clearCachedUser();
+              queryClient.clear();
+              setUser(null);
+              setIsLoading(false);
+            } else if (event === 'TOKEN_REFRESHED' && session?.user) {
+              // Re-hydrate user on token refresh so role changes do not stay stale.
+              // IMPORTANT: defer to avoid Supabase auth lock re-entrancy (can surface as
+              // "AbortError: signal is aborted without reason" and abort unrelated queries).
+              setTimeout(async () => {
+                if (!mounted) return;
+                try {
+                  const appUser = await buildUser(session.user, { forceRefresh: true });
+                  setUser(appUser);
+                } catch (err) {
+                  console.error('Error rebuilding user on TOKEN_REFRESHED:', err);
+                }
+              }, 0);
+            }
+          },
+        );
+        subscription = authListener.data.subscription;
+
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user && mounted) {
@@ -243,7 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [queryClient]);
 
@@ -265,6 +253,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     
     try {
+      const supabase = await getSupabaseClient();
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -315,6 +304,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     
     try {
+      const supabase = await getSupabaseClient();
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -362,6 +352,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     try {
+      const supabase = await getSupabaseClient();
       const requestedPath =
         typeof window !== "undefined"
           ? getRequestedPostAuthPath(window.location.search)
@@ -392,6 +383,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const localizedHomePath = buildLocalizedPath(locale, '/');
 
     try {
+      const supabase = await getSupabaseClient();
       const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) {
         throw error;
@@ -427,27 +419,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context !== undefined) {
-    return context;
-  }
-
-  if (typeof window === "undefined") {
-    return {
-      user: null,
-      isLoading: false,
-      isAuthenticated: false,
-      login: async () => ({ success: false, error: "Auth context unavailable during SSR." }),
-      signup: async () => ({ success: false, error: "Auth context unavailable during SSR." }),
-      loginWithGoogle: async () => ({ success: false, error: "Auth context unavailable during SSR." }),
-      logout: async () => {},
-      getDashboardPath: () => "/",
-    } satisfies AuthContextType;
-  }
-
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+export { useAuth };
+export type { User, UserRole };

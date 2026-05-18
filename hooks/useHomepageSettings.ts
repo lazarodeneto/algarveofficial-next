@@ -1,6 +1,5 @@
 import { useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
   homepageSettingsQueryKey,
@@ -59,7 +58,12 @@ const HOMEPAGE_TRANSLATABLE_FIELDS = new Set<keyof HomepageSettings>([
   "hero_cta_secondary_text",
 ]);
 
-const homepageTranslationClient = supabase as typeof supabase & {
+async function getSupabaseClient() {
+  const { supabase } = await import("@/integrations/supabase/client");
+  return supabase;
+}
+
+type HomepageTranslationClient = Awaited<ReturnType<typeof getSupabaseClient>> & {
   from: (relation: "homepage_settings_translations") => {
     select: (...args: unknown[]) => {
       eq: (column: string, value: string) => {
@@ -101,6 +105,7 @@ const normalizeTranslatableText = (value: unknown): string | null => {
 };
 
 async function revalidateHomepageAfterAdminWrite() {
+  const supabase = await getSupabaseClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -147,6 +152,7 @@ export function useHomepageSettings() {
   const { data: settings, isLoading, error } = useQuery({
     queryKey: homepageSettingsQueryKey(locale),
     queryFn: async () => {
+      const supabase = await getSupabaseClient();
       const { data, error, status } = await supabase
         .from('homepage_settings')
         .select('*')
@@ -174,6 +180,7 @@ export function useHomepageSettings() {
     queryFn: async () => {
       if (!settings?.id || locale === "en") return null;
 
+      const homepageTranslationClient = (await getSupabaseClient()) as HomepageTranslationClient;
       const { data, error } = await homepageTranslationClient
         .from("homepage_settings_translations")
         .select(HOMEPAGE_TRANSLATION_FIELDS)
@@ -197,6 +204,8 @@ export function useHomepageSettings() {
 
   const updateSettings = useMutation({
     mutationFn: async (newSettings: Partial<HomepageSettings>) => {
+      const supabase = await getSupabaseClient();
+      const homepageTranslationClient = supabase as HomepageTranslationClient;
       const translatableUpdates = Object.fromEntries(
         Object.entries(newSettings)
           .filter(([key, value]) => value !== undefined && HOMEPAGE_TRANSLATABLE_FIELDS.has(key as keyof HomepageSettings))

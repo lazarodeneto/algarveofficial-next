@@ -38,7 +38,10 @@ import {
   HOMEPAGE_LISTING_LIMIT,
   splitHomepageListings,
 } from "@/lib/listings/homepage-listing-pool";
-import { CMS_PAGE_BUILDER_RUNTIME_KEYS } from "@/lib/cms/pageBuilderRegistry";
+import {
+  CMS_GLOBAL_SETTING_KEYS,
+  CMS_PAGE_BUILDER_RUNTIME_KEYS,
+} from "@/lib/cms/pageBuilderRegistry";
 import {
   fetchCmsRuntimeSettings,
   type RuntimeSettingRow,
@@ -501,6 +504,26 @@ async function fetchPageBuilderRuntimeSettings(locale: Locale): Promise<RuntimeS
   }
 }
 
+function keepHomepageCmsRuntimeSettings(rows: RuntimeSettingRow[]): RuntimeSettingRow[] {
+  return rows.map((row) => {
+    if (row.key !== CMS_GLOBAL_SETTING_KEYS.pageConfigs) return row;
+
+    try {
+      const parsed = JSON.parse(row.value) as Record<string, unknown>;
+      const homeConfig = parsed.home;
+      return {
+        ...row,
+        value: JSON.stringify(homeConfig ? { home: homeConfig } : {}),
+      };
+    } catch {
+      return {
+        ...row,
+        value: "{}",
+      };
+    }
+  });
+}
+
 async function fetchRegionListingCounts(
   supabase: ReturnType<typeof getServerSupabase>,
 ): Promise<Record<string, number>> {
@@ -607,7 +630,7 @@ export async function getDehydratedHomePageState(locale?: string): Promise<{
   );
   queryClient.setQueryData(
     globalSettingsQueryKey(CMS_PAGE_BUILDER_RUNTIME_KEYS, data.locale),
-    await fetchPageBuilderRuntimeSettings(data.locale),
+    keepHomepageCmsRuntimeSettings(await fetchPageBuilderRuntimeSettings(data.locale)),
   );
   if (data.locale !== "en" && data.homepageSettings?.id) {
     queryClient.setQueryData(
@@ -665,7 +688,7 @@ export async function getDehydratedHomeCriticalState(locale?: string): Promise<{
   );
   queryClient.setQueryData(
     globalSettingsQueryKey(CMS_PAGE_BUILDER_RUNTIME_KEYS, resolvedLocale),
-    cmsRuntimeSettings,
+    keepHomepageCmsRuntimeSettings(cmsRuntimeSettings),
   );
   if (resolvedLocale !== "en" && homepageSettings?.id) {
     queryClient.setQueryData(

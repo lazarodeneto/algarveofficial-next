@@ -16,6 +16,7 @@ interface CookieConsentDrawerProps {
   privacyUrl: string;
   cookieUrl: string;
   version: string;
+  deferInitialPrompt?: boolean;
   onConsentChange?: (consent: CookieConsentRecord) => void;
 }
 
@@ -47,10 +48,43 @@ function QuickToggle({ id, label, checked, disabled = false, onChange }: QuickTo
   );
 }
 
+function scheduleDeferredPrompt(callback: () => void) {
+  let disposed = false;
+  let timeoutId: number | null = null;
+
+  const run = () => {
+    if (disposed) return;
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+    callback();
+  };
+
+  timeoutId = window.setTimeout(run, 15000);
+  window.addEventListener("pointerdown", run, { once: true, passive: true });
+  window.addEventListener("keydown", run, { once: true });
+  window.addEventListener("scroll", run, { once: true, passive: true });
+
+  return () => {
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+  };
+}
+
 export function CookieConsentDrawer({
   privacyUrl,
   cookieUrl,
   version,
+  deferInitialPrompt = false,
   onConsentChange,
 }: CookieConsentDrawerProps) {
   const { t } = useTranslation();
@@ -67,9 +101,17 @@ export function CookieConsentDrawer({
     const storedConsent = getStoredCookieConsent();
     const initialPreferences = draftFromCookieConsent(storedConsent);
 
+    let cancelDeferredPrompt: (() => void) | null = null;
+
     setBaselinePreferences(initialPreferences);
     setDraftPreferences(initialPreferences);
-    setIsVisible(!storedConsent);
+    if (storedConsent) {
+      setIsVisible(false);
+    } else if (deferInitialPrompt) {
+      cancelDeferredPrompt = scheduleDeferredPrompt(() => setIsVisible(true));
+    } else {
+      setIsVisible(true);
+    }
 
     const openPreferences = () => {
       const storedConsent = getStoredCookieConsent();
@@ -84,8 +126,11 @@ export function CookieConsentDrawer({
     };
 
     window.addEventListener(COOKIE_PREFERENCES_OPEN_EVENT, openPreferences);
-    return () => window.removeEventListener(COOKIE_PREFERENCES_OPEN_EVENT, openPreferences);
-  }, [version]);
+    return () => {
+      cancelDeferredPrompt?.();
+      window.removeEventListener(COOKIE_PREFERENCES_OPEN_EVENT, openPreferences);
+    };
+  }, [deferInitialPrompt, version]);
 
   const hasChanges = useMemo(
     () =>

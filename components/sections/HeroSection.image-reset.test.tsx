@@ -49,12 +49,12 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-vi.mock("@/hooks/useHomepageSettings", () => ({
-  useHeroSettings: () => mockUseHeroSettings(),
+vi.mock("@/hooks/usePublicHeroSettings", () => ({
+  usePublicHeroSettings: () => mockUseHeroSettings(),
 }));
 
-vi.mock("@/hooks/useGlobalSettings", () => ({
-  useGlobalSettings: () => ({ settings: [] }),
+vi.mock("@/hooks/useHydratedGlobalSettings", () => ({
+  useHydratedGlobalSettings: () => ({ settings: [] }),
 }));
 
 vi.mock("@/hooks/useCmsPageBuilder", () => ({
@@ -96,7 +96,7 @@ vi.mock("@/hooks/useTripPlanner", () => ({
   useTripPlanner: () => ({ createTrip: vi.fn(() => ({ id: "trip-1" })) }),
 }));
 
-vi.mock("@/contexts/AuthContext", () => ({
+vi.mock("@/contexts/AuthContextBase", () => ({
   useAuth: () => ({ isAuthenticated: true }),
 }));
 
@@ -144,7 +144,7 @@ describe("HeroSection image reset behaviour", () => {
     expect(container.innerHTML).not.toContain("old-home-hero.jpg");
   });
 
-  it("renders uploaded homepage video after the desktop enhancement delay", async () => {
+  it("renders uploaded homepage video after desktop interaction", async () => {
     vi.useFakeTimers();
     vi.stubGlobal("matchMedia", (query: string) => ({
       matches: query.includes("min-width: 1024px"),
@@ -174,7 +174,7 @@ describe("HeroSection image reset behaviour", () => {
     expect(container.querySelector("video")).not.toBeInTheDocument();
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(4500);
+      window.dispatchEvent(new Event("pointerdown"));
     });
 
     expect(container.querySelector("video")).toBeInTheDocument();
