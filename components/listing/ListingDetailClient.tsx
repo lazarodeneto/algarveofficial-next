@@ -59,7 +59,6 @@ import { hasRealEstateSignals, isRealEstateCategorySlug } from "@/lib/realEstate
 import { normalizePublicImageUrl } from "@/lib/imageUrls";
 import {
   buildTieredListingGalleryImages,
-  getAllowedListingGalleryImageInputs,
   getListingGalleryThumbnails,
   type ListingGalleryImage,
 } from "@/lib/listings/gallery-images";
@@ -97,7 +96,7 @@ import { BeachWeatherWidget } from "@/components/listing/BeachWeatherWidget";
 import { ListingTagCloud } from "@/components/listing/ListingTagCloud";
 import { trackListingPerformanceEvent } from "@/lib/analytics/platformTracking";
 import { publicListingTranslationOrNull } from "@/lib/listings/publicListingTranslations";
-import { maskTierGatedListingFields } from "@/lib/listings/public-payload";
+import type { PublicListingDetailPayload } from "@/lib/listings/public-payload";
 
 export type ListingTranslationRow = {
   listing_id: string;
@@ -147,7 +146,7 @@ export type OtherRegion = {
 export interface ListingDetailClientProps {
   locale?: string;
   localeSwitchPaths?: Partial<Record<Locale, string>>;
-  listing: ListingWithRelations;
+  listing: PublicListingDetailPayload;
   initialTranslation: ListingTranslationRow | null;
   initialReviews: ListingReview[];
   initialRelatedListings: RelatedListing[];
@@ -156,60 +155,6 @@ export interface ListingDetailClientProps {
   initialOtherRegions?: OtherRegion[];
 }
 
-const PUBLIC_LISTING_CORE_FIELDS = `
-  id,
-  slug,
-  name,
-  short_description,
-  description,
-  featured_image_url,
-  price_from,
-  price_to,
-  price_currency,
-  tier,
-  is_curated,
-  status,
-  city_id,
-  region_id,
-  category_id,
-  owner_id,
-  latitude,
-  longitude,
-  address,
-  contact_phone,
-  contact_email,
-  website_url,
-  facebook_url,
-  instagram_url,
-  twitter_url,
-  linkedin_url,
-  youtube_url,
-  tiktok_url,
-  telegram_url,
-  whatsapp_number,
-  google_business_url,
-  google_rating,
-  google_review_count,
-  tags,
-  category_data,
-  published_at,
-  created_at,
-  updated_at
-`;
-const PUBLIC_LISTING_CLAIM_FIELDS = `
-  claim_status,
-  claimed_at,
-  claim_verified_at,
-  claim_verification_method
-`;
-const PUBLIC_LISTING_FIELDS = `
-  ${PUBLIC_LISTING_CORE_FIELDS},
-  ${PUBLIC_LISTING_CLAIM_FIELDS}
-`;
-
-const PUBLIC_CITY_FIELDS = "id, name, slug, short_description, image_url, latitude, longitude";
-const PUBLIC_REGION_FIELDS = "id, name, slug, short_description, image_url";
-const PUBLIC_CATEGORY_FIELDS = "id, name, slug, icon, short_description, image_url";
 const LISTING_REVIEW_FIELDS = `
   id, listing_id, user_id, rating, comment, status, rejection_reason,
   created_at, updated_at, approved_at, moderated_at, moderated_by
@@ -344,7 +289,7 @@ function FeaturedGridListingGallery({
   viewGalleryLabel,
 }: {
   images: ListingGalleryImage[];
-  listing: ListingWithRelations;
+  listing: PublicListingDetailPayload;
   normalizedCategoryImageUrl: string | null;
   fallbackSrc: string;
   currentImageIndex: number;
@@ -567,21 +512,6 @@ function getExplicitBeachCoordinates(details: Record<string, unknown>) {
   };
 }
 
-function isMissingClaimColumnError(error: unknown): boolean {
-  const supabaseError = error as { code?: string; message?: string; details?: string; hint?: string } | null;
-  if (supabaseError?.code !== "42703") return false;
-
-  const text = [
-    supabaseError.message,
-    supabaseError.details,
-    supabaseError.hint,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return /claim_status|claimed_at|claim_verified_at|claim_verification_method/i.test(text) || text.length === 0;
-}
-
 function formatListingPrice({
   locale,
   priceFrom,
@@ -612,49 +542,6 @@ function formatListingPrice({
     default:
       return formatted;
   }
-}
-
-async function fetchListingByIdOrSlug(idOrSlug: string) {
-  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(idOrSlug);
-
-  const runQuery = (fields: string) => {
-    let query = supabase.from("listings").select(`
-        ${fields},
-        city:cities(${PUBLIC_CITY_FIELDS}),
-        region:regions(${PUBLIC_REGION_FIELDS}),
-        category:categories(${PUBLIC_CATEGORY_FIELDS}),
-        images:listing_images(id, image_url, alt_text, display_order, is_featured)
-      `);
-
-    query = isUuid ? query.eq("id", idOrSlug) : query.eq("slug", idOrSlug);
-    return query.maybeSingle();
-  };
-
-  let { data, error } = await runQuery(PUBLIC_LISTING_FIELDS);
-  if (error && isMissingClaimColumnError(error)) {
-    const fallback = await runQuery(PUBLIC_LISTING_CORE_FIELDS);
-    data = fallback.data;
-    error = fallback.error;
-  }
-  if (error) throw error;
-
-  return applyPublicGalleryImageLimit((data as unknown as ListingWithRelations | null) ?? null);
-}
-
-function applyPublicGalleryImageLimit(listing: ListingWithRelations | null): ListingWithRelations | null {
-  if (!listing) return null;
-  const maskedListing = maskTierGatedListingFields(listing);
-
-  return {
-    ...maskedListing,
-    images: getAllowedListingGalleryImageInputs<ListingImageRow>({
-      featuredImageUrl: listing.featured_image_url,
-      galleryImages: listing.images ?? [],
-      fallbackImageUrl: listing.category?.image_url,
-      listingName: listing.name,
-      tier: listing.tier,
-    }),
-  };
 }
 
 async function fetchApprovedListingReviews(listingId: string) {
@@ -697,7 +584,7 @@ async function fetchApprovedListingReviews(listingId: string) {
   }));
 }
 
-async function fetchRelatedListings(listing: ListingWithRelations) {
+async function fetchRelatedListings(listing: Pick<PublicListingDetailPayload, "id" | "category_id">) {
   if (!listing.category_id) {
     return [];
   }
@@ -715,7 +602,7 @@ async function fetchRelatedListings(listing: ListingWithRelations) {
   return (data ?? []) as unknown as RelatedListing[];
 }
 
-async function fetchOwnerWhatsAppStatus(ownerId: string | null) {
+async function fetchOwnerWhatsAppStatus(ownerId: string | null | undefined) {
   if (!ownerId) {
     return { enabled: false, phone: null };
   }
@@ -771,13 +658,7 @@ function ListingDetailClientInner({
 
   const { data: listing, isLoading, error } = useQuery({
     queryKey: ["listing", initialLookupValue, routeLocale],
-    queryFn: async () => {
-      const data = await fetchListingByIdOrSlug(initialLookupValue);
-      if (!data) {
-        throw new Error("Listing not found");
-      }
-      return data;
-    },
+    queryFn: async () => initialListing,
     initialData: initialListing,
     initialDataUpdatedAt: Date.now(),
     staleTime: Number.POSITIVE_INFINITY,
@@ -955,8 +836,8 @@ function ListingDetailClientInner({
   );
   const listingTitle = effectiveTitle ?? listing.name;
   const details = useMemo(
-    () => (listing.category_data as Record<string, unknown> | null) ?? {},
-    [listing.category_data],
+    () => (listing.details as Record<string, unknown> | null) ?? {},
+    [listing.details],
   );
   const localizedTags = useMemo(
     () => resolveLocalizedTags(details, routeLocale) ?? listing.tags ?? null,
@@ -1012,7 +893,7 @@ function ListingDetailClientInner({
   const handleMessageClick = () => {
     if (!listing) return;
 
-    if (user) {
+    if (user && listing.owner_id) {
       openChat({
         listingId: listing.id,
         ownerId: listing.owner_id,

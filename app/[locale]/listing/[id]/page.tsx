@@ -36,7 +36,11 @@ import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { buildCategoryRouteData as buildPublicCategoryRouteData } from "@/lib/public-route-builders";
 import { getAllowedListingGalleryImageInputs } from "@/lib/listings/gallery-images";
 import { publicListingTranslationOrNull } from "@/lib/listings/publicListingTranslations";
-import { maskTierGatedListingFields } from "@/lib/listings/public-payload";
+import {
+  toPublicListingDetailPayload,
+  type PublicListingDetailPayload,
+} from "@/lib/listings/public-payload";
+import { getListingTierRules } from "@/lib/listingTierRules";
 
 export const revalidate = 3600;
 
@@ -79,10 +83,8 @@ type ListingReviewRow = ListingReview & {
 };
 
 function applyPublicGalleryImageLimit(listing: ListingWithRelations): ListingWithRelations {
-  const maskedListing = maskTierGatedListingFields(listing);
-
   return {
-    ...maskedListing,
+    ...listing,
     images: getAllowedListingGalleryImageInputs({
       featuredImageUrl: listing.featured_image_url,
       galleryImages: listing.images ?? [],
@@ -94,7 +96,7 @@ function applyPublicGalleryImageLimit(listing: ListingWithRelations): ListingWit
 }
 
 interface ListingPageData {
-  listing: ListingWithRelations;
+  listing: PublicListingDetailPayload;
   translations: Record<Locale, ListingTranslationRow | null>;
   reviews: ListingReviewRow[];
   relatedListings: RelatedListing[];
@@ -168,7 +170,7 @@ function buildListingDescription({
   listing,
 }: {
   translation: ListingTranslationRow | null;
-  listing: ListingWithRelations;
+  listing: PublicListingDetailPayload;
 }) {
   const hasTranslation = Boolean(translation);
   return (
@@ -321,9 +323,10 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
   const listing = listingResult.data ?? null;
   if (!listing || listing.status !== "published") return null;
 
-  const publicListing = applyPublicGalleryImageLimit(listing);
+  const publicListing = toPublicListingDetailPayload(applyPublicGalleryImageLimit(listing));
   const canonicalSlug = publicListing.slug ?? publicListing.id;
 
+  const tierRules = getListingTierRules(listing.tier);
   const settledResults =
     (await withTimeout(
       Promise.all([
@@ -340,7 +343,7 @@ const getListingPageData = cache(async (locale: Locale, idOrSlug: string): Promi
               .order("created_at", { ascending: false })
               .limit(3)
           : Promise.resolve({ data: [], error: null }),
-        listing.owner_id
+        tierRules.allowDirectContactButton && listing.owner_id
           ? supabase
               .from("whatsapp_accounts")
               .select("wa_enabled, business_phone_e164")
