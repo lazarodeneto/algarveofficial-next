@@ -24,6 +24,7 @@ import { LocaleLink } from "@/components/navigation/LocaleLink";
 import { ListingCard } from "@/components/seo/programmatic/ListingCard";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { STANDARD_PUBLIC_HEADER_CLEARANCE_CLASS } from "@/components/sections/hero-layout";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { Button } from "@/components/ui/Button";
 
@@ -256,7 +257,7 @@ export default async function GuidePage({ params }: PageProps) {
   return (
     <>
       <Header localeSwitchPaths={localeSwitchPaths} />
-      <main className="min-h-screen pt-20">
+      <main className={`min-h-screen ${STANDARD_PUBLIC_HEADER_CLEARANCE_CLASS}`}>
         <section className="bg-gradient-to-b from-background/60 to-background py-12">
           <div className="app-container">
             <nav

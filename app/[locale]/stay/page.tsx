@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { DirectoryClient } from "@/components/directory/DirectoryClient";
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 import { isValidLocale, type Locale } from "@/lib/i18n/config";
 import { getServerTranslations } from "@/lib/i18n/server";
 import { buildLocalizedPath } from "@/lib/i18n/localized-routing";
@@ -129,9 +130,9 @@ export default async function StayPage({ params, searchParams }: PageProps) {
   const initialFilters = {
     q: getFilterValue("q", ""),
     city: getCityValues().length > 0 ? getCityValues()[0] : "all",
-    region: getFilterValue("region", "all"),
+    region: "all",
     category: getFilterValue("category", STAY_DEFAULT_CATEGORY_SLUG),
-    tier: getFilterValue("tier", "all"),
+    tier: "all",
   };
 
   const data = await getDirectoryPageData(rawLocale, initialFilters);
@@ -154,7 +155,7 @@ export default async function StayPage({ params, searchParams }: PageProps) {
   return (
     <>
       <div id="directory-server-shell" className="min-h-screen bg-background text-foreground">
-        <main className="app-container pt-32 pb-16">
+        <main className={`app-container pb-16 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
           <section className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
               {tx["directory.heroLabel"] ?? "Discover Our World"}

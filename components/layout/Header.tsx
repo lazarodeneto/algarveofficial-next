@@ -43,6 +43,14 @@ interface HeaderProps {
 }
 
 const SIDEBAR_EXCLUDED_PREFIXES = ["/admin", "/owner", "/dashboard"];
+type HeaderViewport = "mobile" | "laptop" | "wide";
+
+function getHeaderViewport(): HeaderViewport {
+  if (typeof window === "undefined") return "mobile";
+  if (window.matchMedia("(min-width: 1440px)").matches) return "wide";
+  if (window.matchMedia("(min-width: 1280px)").matches) return "laptop";
+  return "mobile";
+}
 
 export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const { mobileMenuOpen, setMobileMenuOpen } = useMobileMenu();
@@ -71,6 +79,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
+  const [headerViewport, setHeaderViewport] = useState<HeaderViewport>("mobile");
 
   // Mirror mobile menu state to DOM for CSS failsafe (production caching workaround)
   useEffect(() => {
@@ -92,6 +101,20 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
       desktopQuery.removeEventListener("change", closeWideMenu);
     };
   }, [setMobileMenuOpen]);
+
+  useEffect(() => {
+    const laptopQuery = window.matchMedia("(min-width: 1280px)");
+    const wideQuery = window.matchMedia("(min-width: 1440px)");
+    const updateViewport = () => setHeaderViewport(getHeaderViewport());
+
+    updateViewport();
+    laptopQuery.addEventListener("change", updateViewport);
+    wideQuery.addEventListener("change", updateViewport);
+    return () => {
+      laptopQuery.removeEventListener("change", updateViewport);
+      wideQuery.removeEventListener("change", updateViewport);
+    };
+  }, []);
 
   // Body scroll lock when mobile menu is open (fixes Opera Mobile viewport quirks)
   useEffect(() => {
@@ -186,7 +209,9 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             {/* Laptop Actions (1024-1359): compact utility row */}
             <div className="ml-auto hidden shrink-0 items-center gap-1.5 min-[1280px]:flex min-[1440px]:hidden">
               <div className="flex items-center gap-0.5 rounded-full border border-black/10 bg-white/[0.82] px-1 py-1 shadow-[0_12px_32px_-24px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
-                <HeaderWeatherPill compact embedded location={headerWeatherLocation} />
+                {headerViewport === "laptop" ? (
+                  <HeaderWeatherPill compact embedded location={headerWeatherLocation} />
+                ) : null}
 
                 <Link href={favoritesPath}>
                   <Button
@@ -249,7 +274,9 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
             {/* Desktop Actions */}
             <div className="hidden min-[1440px]:flex min-[1440px]:shrink-0 min-[1440px]:items-center min-[1440px]:gap-2 2xl:gap-3">
               <div className="flex items-center gap-1 rounded-full border border-black/10 bg-white/[0.82] px-2 py-1.5 shadow-[0_16px_36px_-30px_rgba(15,23,42,0.4)] backdrop-blur-xl dark:border-white/14 dark:bg-white/10">
-                <HeaderWeatherPill embedded location={headerWeatherLocation} />
+                {headerViewport === "wide" ? (
+                  <HeaderWeatherPill embedded location={headerWeatherLocation} />
+                ) : null}
 
                 {/* Saved */}
                 <Link href={favoritesPath}>

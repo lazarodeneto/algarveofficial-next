@@ -324,6 +324,7 @@ export default function Footer() {
                 </Label>
                 <Input
                   id="footer-newsletter-email"
+                  name="email"
                   type="email"
                   value={newsletterEmail}
                   onFocus={() => setNewsletterStartedAt((value) => value ?? Date.now())}
@@ -334,6 +335,8 @@ export default function Footer() {
                   disabled={isSubmitting}
                 />
                 <input
+                  id="footer-newsletter-website"
+                  name="website"
                   type="text"
                   value={newsletterHoneypot}
                   onChange={(event) => setNewsletterHoneypot(event.target.value)}

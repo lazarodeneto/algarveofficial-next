@@ -191,7 +191,7 @@ export function CookieConsentDrawer({
                 <button
                   type="button"
                   onClick={handleAcceptAll}
-                  className="h-9 w-full rounded-xl bg-emerald-600 px-2 text-[10px] font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 sm:h-12 sm:px-4 sm:text-sm"
+                  className="h-9 w-full rounded-xl bg-emerald-700 px-2 text-[10px] font-semibold text-white transition hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 sm:h-12 sm:px-4 sm:text-sm"
                 >
                   {t("cookie.acceptAll", t("cookie.accept"))}
                 </button>

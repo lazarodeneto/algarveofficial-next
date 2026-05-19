@@ -458,8 +458,6 @@ export async function getDirectoryPageData(
     search: filters.q?.trim() ?? undefined,
     categoryId: filters.category && filters.category !== "all" ? filters.category : undefined,
     cityId: filters.city && filters.city !== "all" ? filters.city : undefined,
-    regionId: filters.region && filters.region !== "all" ? filters.region : undefined,
-    tier: filters.tier && filters.tier !== "all" ? (filters.tier as "signature" | "verified") : undefined,
   };
 
   const {

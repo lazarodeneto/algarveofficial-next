@@ -1,8 +1,7 @@
 "use client";
 
-import { type SVGProps, useEffect, useMemo, useRef, useState } from "react";
+import { type ComponentType, type SVGProps, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
@@ -62,6 +61,7 @@ import {
   type ListingGalleryImage,
 } from "@/lib/listings/gallery-images";
 import { resolveBeachWeatherCoordinates } from "@/lib/listings/beach-weather-coordinates";
+import { shouldUseBeachBaseContent } from "@/lib/listings/verifiedBeachContent";
 import { buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
 import ListingImage from "@/components/ListingImage";
@@ -93,6 +93,7 @@ import { BusinessClaimCTA } from "@/components/listing/BusinessClaimCTA";
 import { ClaimedListingTierBadge } from "@/components/listing/ClaimedListingTierBadge";
 import { BeachWeatherWidget } from "@/components/listing/BeachWeatherWidget";
 import { ListingTagCloud } from "@/components/listing/ListingTagCloud";
+import { STANDARD_PUBLIC_HEADER_CLEARANCE_CLASS } from "@/components/sections/hero-layout";
 import { trackListingPerformanceEvent } from "@/lib/analytics/platformTracking";
 import { publicListingTranslationOrNull } from "@/lib/listings/publicListingTranslations";
 import type { PublicListingDetailPayload } from "@/lib/listings/public-payload";
@@ -128,6 +129,15 @@ export type RelatedListing = Tables<"listings"> & {
   category?: Tables<"categories"> | null;
 };
 
+export type NearbyBusinessListing = Pick<
+  Tables<"listings">,
+  "id" | "slug" | "name" | "short_description" | "featured_image_url" | "updated_at"
+> & {
+  distance_km?: number | null;
+  city?: Pick<Tables<"cities">, "id" | "name"> | null;
+  category?: Pick<Tables<"categories">, "id" | "name" | "slug"> | null;
+};
+
 export interface WhatsAppStatus {
   enabled: boolean;
   phone: string | null;
@@ -149,6 +159,7 @@ export interface ListingDetailClientProps {
   initialTranslation: ListingTranslationRow | null;
   initialReviews: ListingReview[];
   initialRelatedListings: RelatedListing[];
+  initialNearbyBusinessListings?: NearbyBusinessListing[];
   initialWhatsAppStatus: WhatsAppStatus;
   initialLookupValue: string;
   initialOtherRegions?: OtherRegion[];
@@ -167,9 +178,39 @@ const RELATED_LISTING_FIELDS = `
   city:cities(id, name)
 `;
 
-const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafletMap"), {
-  ssr: false,
-});
+type ListingsLeafletMapProps = {
+  points: MapListingPoint[];
+  className?: string;
+  mapClassName?: string;
+  emptyMessage?: string;
+  scrollWheelZoom?: boolean;
+  enableClustering?: boolean;
+  showPopups?: boolean;
+  activeListingId?: string | null;
+  focusListingId?: string | null;
+};
+
+function ClientOnlyListingsLeafletMap(props: ListingsLeafletMapProps) {
+  const [MapComponent, setMapComponent] = useState<ComponentType<ListingsLeafletMapProps> | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    import("@/components/map/ListingsLeafletMap").then((mod) => {
+      if (!cancelled) setMapComponent(() => mod.default);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!MapComponent) {
+    return <div className="h-full min-h-[300px] w-full animate-pulse rounded-xl bg-muted" aria-hidden="true" />;
+  }
+
+  return <MapComponent {...props} />;
+}
 
 const getCategoryLayout = (
   categorySlug: string,
@@ -187,6 +228,7 @@ const getCategoryLayout = (
     longitude?: number | null;
     googleMapsUrl?: string | null;
     nearbyListings?: RelatedListing[];
+    nearbyBusinessListings?: NearbyBusinessListing[];
   },
 ) => {
   const props = { details, bookingUrl, onInquire };
@@ -222,6 +264,7 @@ const getCategoryLayout = (
           longitude={context?.longitude}
           googleMapsUrl={context?.googleMapsUrl}
           nearbyListings={context?.nearbyListings}
+          nearbyBusinessListings={context?.nearbyBusinessListings}
         />
       ) : (
         <BeachClubLayout {...props} />
@@ -601,7 +644,6 @@ async function fetchRelatedListings(listing: Pick<PublicListingDetailPayload, "i
   return (data ?? []) as unknown as RelatedListing[];
 }
 
-
 function ListingDetailClientInner({
   locale: _initialLocaleProp,
   localeSwitchPaths,
@@ -609,6 +651,7 @@ function ListingDetailClientInner({
   initialTranslation,
   initialReviews,
   initialRelatedListings,
+  initialNearbyBusinessListings = [],
   initialWhatsAppStatus,
   initialLookupValue,
   initialOtherRegions = [],
@@ -659,8 +702,16 @@ function ListingDetailClientInner({
     initialData: initialRelatedListings,
     staleTime: 60 * 1000,
   });
+  const nearbyBusinessListings = initialNearbyBusinessListings;
 
   const waStatus = initialWhatsAppStatus;
+  const details = useMemo(
+    () => (listing.details as Record<string, unknown> | null) ?? {},
+    [listing.details],
+  );
+  const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
+  const isBeachListing = canonicalCategorySlug === "beaches";
+  const useVerifiedBeachBaseContent = isBeachListing && shouldUseBeachBaseContent(details);
 
   useEffect(() => {
     if (!listing?.id || listing.status !== "published") return;
@@ -681,8 +732,8 @@ function ListingDetailClientInner({
 
     const targetLang = routeLocale;
 
-    if (!targetLang || targetLang === "en") {
-      setTr(initialTranslation);
+    if (useVerifiedBeachBaseContent || !targetLang || targetLang === "en") {
+      setTr(useVerifiedBeachBaseContent ? null : initialTranslation);
       setTrError(null);
       setTrLoading(false);
       return;
@@ -731,7 +782,7 @@ function ListingDetailClientInner({
     return () => {
       cancelled = true;
     };
-  }, [initialTranslation, listing?.id, routeLocale]);
+  }, [initialTranslation, listing?.id, routeLocale, useVerifiedBeachBaseContent]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -801,18 +852,21 @@ function ListingDetailClientInner({
 
   const effectiveTitle = useMemo(() => tr?.title?.trim() || listing?.name || "", [listing?.name, tr?.title]);
   const effectiveShort = useMemo(
-    () => tr?.short_description?.trim() || listing?.short_description || null,
-    [listing?.short_description, tr?.short_description],
+    () =>
+      useVerifiedBeachBaseContent
+        ? listing?.short_description || null
+        : tr?.short_description?.trim() || listing?.short_description || null,
+    [listing?.short_description, tr?.short_description, useVerifiedBeachBaseContent],
   );
   const effectiveDescription = useMemo(
-    () => tr?.description?.trim() || listing?.description || listing?.short_description || null,
-    [listing?.description, listing?.short_description, tr?.description],
+    () => (
+      useVerifiedBeachBaseContent
+        ? listing?.description || listing?.short_description || null
+        : tr?.description?.trim() || listing?.description || listing?.short_description || null
+    ),
+    [listing?.description, listing?.short_description, tr?.description, useVerifiedBeachBaseContent],
   );
   const listingTitle = effectiveTitle ?? listing.name;
-  const details = useMemo(
-    () => (listing.details as Record<string, unknown> | null) ?? {},
-    [listing.details],
-  );
   const localizedTags = useMemo(
     () => resolveLocalizedTags(details, routeLocale) ?? listing.tags ?? null,
     [details, listing.tags, routeLocale],
@@ -833,8 +887,8 @@ function ListingDetailClientInner({
   const directContactUrl = directWhatsAppUrl ?? directTelegramUrl;
   const hasWhatsAppDirectContact = Boolean(directWhatsAppUrl);
   const directContactLabel = directWhatsAppUrl ? t("listing.messageWhatsApp") : t("listing.social.telegram");
-  const bookingUrl = normalizeExternalUrl(details.booking_url as string | undefined);
-  const websiteUrl = allowPublicContactFields ? normalizeExternalUrl(listing.website_url) : null;
+  const bookingUrl = isBeachListing ? null : normalizeExternalUrl(details.booking_url as string | undefined);
+  const websiteUrl = allowPublicContactFields && !isBeachListing ? normalizeExternalUrl(listing.website_url) : null;
   const claimBusinessHref = l(`/claim-business/${encodeURIComponent(listing.slug || listing.id)}`);
   const ctaUrl = tierRules.allowCtaButton ? (bookingUrl ?? websiteUrl) : null;
   const ctaLabel = bookingUrl ? t("listing.bookNow") : t("listing.visitWebsite");
@@ -866,7 +920,6 @@ function ListingDetailClientInner({
 
   const handleMessageClick = () => {
     if (!listing) return;
-
 
     if (waStatus?.phone) {
       const message = `Hi! I'm interested in "${effectiveTitle || listing.name}" in ${listing.city?.name || "Algarve"}.`;
@@ -1075,7 +1128,6 @@ function ListingDetailClientInner({
 
   const directoryLabel = t("nav.directory");
   const categoryLabel = translateCategoryName(t, listing.category?.slug, listing.category?.name) ?? directoryLabel;
-  const canonicalCategorySlug = getCanonicalCategorySlug(listing.category?.slug);
   const landingPage = getListingCategoryLanding(canonicalCategorySlug);
   const landingLabel = t(landingPage.labelKey, landingPage.fallbackLabel);
   const cityRouteData = listing.city?.slug
@@ -1124,7 +1176,10 @@ function ListingDetailClientInner({
     <div className="min-h-screen bg-background flex flex-col">
       <Header localeSwitchPaths={localeSwitchPaths} />
 
-      <main id="main-content" className="flex-1 pt-[4.5rem] pb-44 sm:pt-20 sm:pb-48 lg:pb-0">
+      <main
+        id="main-content"
+        className={cn("flex-1 pb-44 sm:pb-48 lg:pb-0", STANDARD_PUBLIC_HEADER_CLEARANCE_CLASS)}
+      >
         <nav className="bg-card border-b border-border" aria-label={t("guides.breadcrumbLabel")}>
           <div className="container mx-auto max-w-7xl px-4 py-3">
             <ol className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
@@ -1296,7 +1351,7 @@ function ListingDetailClientInner({
                 ) : (
                   <div className="h-full rounded-xl overflow-hidden">
                     {hydrated ? (
-                      <ListingsLeafletMap
+                      <ClientOnlyListingsLeafletMap
                         points={listingMapPoints}
                         activeListingId={listing.id}
                         focusListingId={listing.id}
@@ -1319,7 +1374,7 @@ function ListingDetailClientInner({
               {listingMapPoints.length > 0 ? (
                 <div className="rounded-xl overflow-hidden">
                   {hydrated ? (
-                    <ListingsLeafletMap
+                    <ClientOnlyListingsLeafletMap
                       points={listingMapPoints}
                       activeListingId={listing.id}
                       focusListingId={listing.id}
@@ -1474,6 +1529,7 @@ function ListingDetailClientInner({
                         longitude: Number.isFinite(baseLongitude) ? baseLongitude : null,
                         googleMapsUrl: directionsUrl,
                         nearbyListings: relatedListings,
+                        nearbyBusinessListings,
                       },
                     )
                   : null}

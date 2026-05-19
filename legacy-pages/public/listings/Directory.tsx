@@ -1,6 +1,6 @@
 import { useCallback, useState, useMemo, useEffect } from "react";
 import { m } from "framer-motion";
-import { Search, Filter, X, MapPin, Tag, Building2, Crown, ShieldCheck, ChevronDown, Loader2 } from "lucide-react";
+import { Search, Filter, X, MapPin, Tag, Building2, ChevronDown, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { Header } from "@/components/layout/Header";
@@ -14,8 +14,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { GoogleRatingBadge } from "@/components/ui/google-rating-badge";
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
-import { usePublishedListings, type ListingFilters, type ListingWithRelations, type ListingTier } from "@/hooks/useListings";
-import { useCities, useRegions, useCategories } from "@/hooks/useReferenceData";
+import { usePublishedListings, type ListingFilters } from "@/hooks/useListings";
+import { useCities, useCategories } from "@/hooks/useReferenceData";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { renderCategoryIcon } from "@/lib/categoryIcons";
@@ -30,6 +30,7 @@ import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import { CmsBlock } from "@/components/cms/CmsBlock";
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 export default function Directory() {
   const { t } = useTranslation();
@@ -40,11 +41,9 @@ export default function Directory() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedTier, setSelectedTier] = useState<string>("all");
   const [filtersOpen, setFiltersOpen] = useState(true);
   const {
     isFavorite,
@@ -78,32 +77,11 @@ export default function Directory() {
     isLoading: citiesLoading
   } = useCities();
   const {
-    data: regions = [],
-    isLoading: regionsLoading
-  } = useRegions();
-  const {
     data: categories = [],
     isLoading: categoriesLoading
   } = useCategories();
 
-  // Fetch all listings to count per category (no filters)
-  const {
-    data: allListings = []
-  } = usePublishedListings();
-
   const mergedCategories = useMemo(() => buildMergedCategoryOptions(categories), [categories]);
-
-  const getMergedCategoryCount = (categoryIds: string[]) => {
-    if (categoryIds.length === 0) return 0;
-    const idSet = new Set(categoryIds);
-    return allListings.filter((listing) => idSet.has(listing.category_id)).length;
-  };
-
-  const categoriesWithListings = useMemo(
-    () =>
-      mergedCategories.filter((category) => getMergedCategoryCount(category.memberIds) > 0),
-    [mergedCategories, allListings]
-  );
 
   const selectedCategoryItem = useMemo(
     () => getMergedCategoryBySlug(selectedCategory, mergedCategories),
@@ -118,10 +96,8 @@ export default function Directory() {
       categoryIds: selectedCategory !== "all" ? selectedCategoryIds : undefined,
       cityIds: selectedCities.length > 0 ? selectedCities : undefined,
       cityId: selectedCity !== "all" && selectedCities.length === 0 ? selectedCity : undefined,
-      regionId: selectedRegion !== "all" ? selectedRegion : undefined,
-      tier: selectedTier !== "all" ? selectedTier as ListingTier : undefined,
     };
-  }, [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedCities, selectedRegion, selectedTier]);
+  }, [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedCities]);
 
   // Fetch listings with filters
   const {
@@ -144,7 +120,6 @@ export default function Directory() {
   // Read URL params on mount
   useEffect(() => {
     const categoryParam = searchParams.get("category");
-    const regionParam = searchParams.get("region");
     const cityParam = searchParams.get("city");
     const qParam = searchParams.get("q");
     const nextParams = new URLSearchParams(searchParams);
@@ -168,20 +143,6 @@ export default function Directory() {
       }
     } else {
       setSelectedCategory("all");
-    }
-
-    if (regionParam) {
-      const normalizedRegion = resolveFilterEntityId(regionParam, regions);
-      setSelectedRegion(normalizedRegion);
-      if (normalizedRegion === "all") {
-        nextParams.delete("region");
-        shouldReplaceParams = true;
-      } else if (regionParam !== normalizedRegion) {
-        nextParams.set("region", normalizedRegion);
-        shouldReplaceParams = true;
-      }
-    } else {
-      setSelectedRegion("all");
     }
 
     // Handle multiple city parameters
@@ -217,42 +178,34 @@ export default function Directory() {
 
     if (qParam) setSearch(qParam);
 
+    if (searchParams.has("region") || searchParams.has("tier")) {
+      nextParams.delete("region");
+      nextParams.delete("tier");
+      shouldReplaceParams = true;
+    }
+
     if (shouldReplaceParams) {
       setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams, categories, mergedCategories, regions, cities, resolveFilterEntityId, setSearchParams]);
+  }, [searchParams, categories, mergedCategories, cities, resolveFilterEntityId, setSearchParams]);
   const clearFilters = () => {
     setSearch("");
-    setSelectedRegion("all");
     setSelectedCity("all");
     setSelectedCities([]);
     setSelectedCategory("all");
-    setSelectedTier("all");
   };
-  const hasActiveFilters = search || selectedRegion !== "all" || selectedCity !== "all" || selectedCities.length > 0 || selectedCategory !== "all" || selectedTier !== "all";
-  const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
+  const hasActiveFilters = search || selectedCity !== "all" || selectedCities.length > 0 || selectedCategory !== "all";
+  const isLoading = listingsLoading || citiesLoading || categoriesLoading;
   const showGridSkeleton = isLoading && !error && listings.length === 0;
 
-  const selectedRegionItem = useMemo(
-    () => regions.find((region) => region.id === selectedRegion || region.slug === selectedRegion),
-    [regions, selectedRegion]
-  );
   const selectedCityItem = useMemo(
     () => cities.find((city) => city.id === selectedCity || city.slug === selectedCity),
     [cities, selectedCity]
   );
 
-  const selectedTierLabel = selectedTier === "signature"
-    ? t("directory.tierSignature")
-    : selectedTier === "verified"
-      ? t("directory.tierVerified")
-      : undefined;
-
   const activeSeoSegments = [
     selectedCategoryItem ? translateCategoryName(t, selectedCategoryItem.slug, selectedCategoryItem.name) : undefined,
     selectedCityItem?.name,
-    selectedRegionItem?.name,
-    selectedTierLabel,
     search.trim() ? `"${search.trim()}"` : undefined,
   ].filter((segment): segment is string => Boolean(segment));
 
@@ -261,19 +214,17 @@ export default function Directory() {
     : "Premium Directory in the Algarve";
 
   const seoDescription = activeSeoSegments.length > 0
-    ? `Explore ${activeSeoSegments.join(", ")} in AlgarveOfficial's curated premium directory with advanced filtering by region, city, category, and tier.`
-    : "Explore curated Algarve experiences in accommodation, dining, golf, and lifestyle services with advanced filters by city, region, and category.";
+    ? `Explore ${activeSeoSegments.join(", ")} in AlgarveOfficial's curated premium directory with advanced filtering by city and category.`
+    : "Explore curated Algarve experiences in accommodation, dining, golf, and lifestyle services with advanced filters by city and category.";
 
   const mapHref = useMemo(() => {
     const params = new URLSearchParams();
     if (search.trim()) params.set("q", search.trim());
-    if (selectedRegion !== "all") params.set("region", selectedRegion);
     if (selectedCity !== "all") params.set("city", selectedCity);
     if (selectedCategory !== "all") params.set("category", selectedCategory);
-    if (selectedTier !== "all") params.set("tier", selectedTier);
     const query = params.toString();
     return l(query ? `/map?${query}` : "/map");
-  }, [l, search, selectedRegion, selectedCity, selectedCategory, selectedTier]);
+  }, [l, search, selectedCity, selectedCategory]);
 
   return <div className="min-h-screen bg-background" data-cms-page="directory">
     <Header />
@@ -310,7 +261,7 @@ export default function Directory() {
         </div>
       </CmsBlock>}
 
-      <div className="app-container content-max pb-16 pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)]">
+      <div className={`app-container content-max pb-16 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
 
         {/* Advanced Filters */}
         {isBlockEnabled("filters", true) && <CmsBlock pageId="directory" blockId="filters" className="relative z-30 isolate mb-8">
@@ -334,30 +285,11 @@ export default function Directory() {
                   {/* Search */}
                   <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input placeholder={t('directory.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} className="pl-12 h-12 text-lg bg-muted/30 border-border focus:bg-background" />
+                    <Input id="legacy-directory-filter-search" name="legacy-directory-filter-search" placeholder={t('directory.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} className="pl-12 h-12 text-lg bg-muted/30 border-border focus:bg-background" />
                   </div>
 
                   {/* Filter Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Region Filter */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        {t('directory.region')}
-                      </label>
-                      <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                        <SelectTrigger className="bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
-                          <SelectValue placeholder={t('directory.allRegions')} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover border-border shadow-lg">
-                          <SelectItem value="all">{t('directory.allRegions')}</SelectItem>
-                          {[...regions].sort((a, b) => a.name.localeCompare(b.name)).map(region => <SelectItem key={region.id} value={region.id}>
-                            {region.name}
-                          </SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* City Filter */}
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -389,38 +321,9 @@ export default function Directory() {
                         </SelectTrigger>
                         <SelectContent className="bg-popover border-border shadow-lg max-h-[280px]">
                           <SelectItem value="all">{t('directory.allCategories')}</SelectItem>
-                          {[...categoriesWithListings].sort((a, b) => a.name.localeCompare(b.name)).map(category => <SelectItem key={category.id} value={category.slug}>
+                          {[...mergedCategories].sort((a, b) => a.name.localeCompare(b.name)).map(category => <SelectItem key={category.id} value={category.slug}>
                             {translateCategoryName(t, category.slug, category.name)}
                           </SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Tier Filter */}
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                        <Crown className="h-4 w-4 text-primary" />
-                        {t('directory.tier')}
-                      </label>
-                      <Select value={selectedTier} onValueChange={setSelectedTier}>
-                        <SelectTrigger className="bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
-                          <SelectValue placeholder={t('directory.allTiers')} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-popover border-border shadow-lg">
-                          <SelectItem value="all">{t('directory.allTiers')}</SelectItem>
-                          <SelectItem value="signature">
-                            <div className="flex items-center gap-2">
-                              <Crown className="h-4 w-4 text-primary" />
-                              {t('directory.tierSignature')}
-                            </div>
-                          </SelectItem>
-                          <SelectItem value="verified">
-                            <div className="flex items-center gap-2">
-                              <ShieldCheck className="h-4 w-4 text-green-500" />
-                              {t('directory.tierVerified')}
-                            </div>
-                          </SelectItem>
-
                         </SelectContent>
                       </Select>
                     </div>

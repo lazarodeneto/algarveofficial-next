@@ -1,6 +1,7 @@
 /* eslint-disable local/no-hardcoded-strings */
 import type { ContactSettings } from "@/hooks/useContactSettings";
 import ContactClient from "@/components/contact/ContactClient";
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 import {
   DEFAULT_LOCALE,
   isValidLocale,
@@ -88,7 +89,7 @@ export default async function ContactPage({ params }: PageProps) {
       />
 
       <div id="contact-server-shell" className="min-h-screen bg-background text-foreground">
-        <main className="app-container pt-32 pb-20">
+        <main className={`app-container pb-20 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
           <section className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
               {tx["contact.getInTouch"] ?? "Get in Touch"}

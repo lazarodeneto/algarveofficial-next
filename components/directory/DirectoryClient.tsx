@@ -11,8 +11,6 @@ import {
   MapPin,
   Tag,
   Building2,
-  Crown,
-  ShieldCheck,
   ChevronDown,
   Loader2,
 } from "lucide-react";
@@ -44,7 +42,6 @@ import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import {
   useCityListingCounts,
   useCityRegionMappings,
-  useRegionListingCounts,
   type CityRow,
   type RegionRow,
   type CategoryRow,
@@ -53,7 +50,6 @@ import type { ListingFilters, ListingWithRelations, ListingTier } from "@/hooks/
 import { useFavoriteListings } from "@/hooks/useFavoriteListings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
-import { useMobileChromeScrollState } from "@/hooks/useMobileChromeScrollState";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ListingCard } from "@/components/ListingCard";
@@ -384,13 +380,6 @@ async function fetchCategories(locale: string) {
   });
 }
 
-async function fetchCategoryCounts(_locale: PublicContentLocale) {
-  const response = await fetch("/api/public/category-counts");
-  if (!response.ok) throw new Error("Failed to load category counts");
-  const counts = (await response.json()) as { byCategoryId?: Record<string, number> };
-  return counts.byCategoryId ?? {};
-}
-
 async function fetchDirectoryGlobalSettings(_locale: PublicContentLocale) {
   const params = new URLSearchParams();
   params.set("locale", _locale);
@@ -620,7 +609,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     router.push(href, { scroll: false });
   }, [pathname, router]);
   const l = useLocalePath();
-  const { isUserScrolling } = useMobileChromeScrollState();
   const resultsAnchorId = "showing-listings";
   const ensureResultsHash = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -649,10 +637,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     : props.initialFilters.category;
   const [search, setSearch] = useState(props.initialFilters.q);
   const [debouncedSearch, setDebouncedSearch] = useState(props.initialFilters.q);
-  const [selectedRegion, setSelectedRegion] = useState<string>(props.initialFilters.region);
   const [selectedCity, setSelectedCity] = useState<string>(props.initialFilters.city);
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
-  const [selectedTier, setSelectedTier] = useState<string>(props.initialFilters.tier);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const { isFavorite, toggleFavorite } = useFavoriteListings();
   const requestedCategory = searchParams.get("category") ?? props.initialFilters.category;
@@ -704,22 +690,10 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     staleTime: 1000 * 60 * 10,
   });
 
-  const { data: categoryCounts = props.initialCategoryCounts } = useQuery({
-    queryKey: ["directory", "category-counts", locale],
-    queryFn: () => fetchCategoryCounts(locale),
-    initialData: props.initialCategoryCounts,
-    staleTime: 60 * 1000,
-  });
-
   const { data: cityListingCounts = {} } = useCityListingCounts();
-  const { data: regionListingCounts = {} } = useRegionListingCounts();
   const citiesWithListings = useMemo(
     () => cities.filter((city) => (cityListingCounts[city.id] ?? 0) > 0),
     [cities, cityListingCounts],
-  );
-  const regionsWithListings = useMemo(
-    () => regions.filter((region) => (regionListingCounts[region.id] ?? 0) > 0),
-    [regions, regionListingCounts],
   );
 
   const mergedCategories = useMemo(() => buildMergedCategoryOptions(categories), [categories]);
@@ -766,14 +740,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     return resolvedIds;
   }, [searchParams, cities, resolveFilterEntityId]);
 
-  const categoriesWithListings = useMemo(
-    () =>
-      mergedCategories.filter((category) =>
-        category.memberIds.some((categoryId) => (categoryCounts[categoryId] ?? 0) > 0),
-      ),
-    [categoryCounts, mergedCategories],
-  );
-
   const listingFilters = useMemo<ListingFilters>(
     () => ({
       search: debouncedSearch ?? undefined,
@@ -781,18 +747,14 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       categoryIds: selectedCategory !== "all" ? selectedCategoryIds : undefined,
       cityId: selectedCity !== "all" ? selectedCity : undefined,
       cityIds: selectedCityIds.length > 0 ? selectedCityIds : undefined,
-      regionId: selectedRegion !== "all" ? selectedRegion : undefined,
-      tier: selectedTier !== "all" ? (selectedTier as ListingTier) : undefined,
     }),
-    [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedCityIds, selectedRegion, selectedTier],
+    [debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedCityIds],
   );
 
   const initialFilterMatch =
     (props.initialFilters.q || "") === (debouncedSearch || "") &&
     props.initialFilters.city === selectedCity &&
-    props.initialFilters.region === selectedRegion &&
-    props.initialFilters.category === selectedCategory &&
-    props.initialFilters.tier === selectedTier;
+    props.initialFilters.category === selectedCategory;
 
   const { data: listings = props.initialListings, isLoading: listingsLoading, isPlaceholderData, error } = useQuery({
     queryKey: ["listings", "published", listingFilters, locale],
@@ -984,10 +946,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
   useEffect(() => {
     const categoryParam = searchParams.get("category");
-    const regionParam = searchParams.get("region");
     const cityParam = searchParams.get("city");
     const qParam = searchParams.get("q");
-    const tierParam = searchParams.get("tier");
     const nextParams = new URLSearchParams(searchParams);
     let shouldReplaceParams = false;
     const canResolveCategory = mergedCategories.length > 0;
@@ -1009,20 +969,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       }
     } else {
       setSelectedCategory(defaultCategoryForRoute);
-    }
-
-    if (regionParam) {
-      const normalizedRegion = resolveFilterEntityId(regionParam, regions);
-      setSelectedRegion(normalizedRegion);
-      if (normalizedRegion === "all") {
-        nextParams.delete("region");
-        shouldReplaceParams = true;
-      } else if (regionParam !== normalizedRegion) {
-        nextParams.set("region", normalizedRegion);
-        shouldReplaceParams = true;
-      }
-    } else {
-      setSelectedRegion("all");
     }
 
     // Check for multiple city parameters (from municipality filtering) first
@@ -1059,18 +1005,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
       setSelectedCity("all");
     }
 
-    const normalizedTier =
-      tierParam === "signature" || tierParam === "verified" || tierParam === "all" || !tierParam
-        ? tierParam || "all"
-        : "all";
-    setSelectedTier(normalizedTier);
-    if (normalizedTier === "all") {
-      if (tierParam) {
-        nextParams.delete("tier");
-        shouldReplaceParams = true;
-      }
-    } else if (tierParam !== normalizedTier) {
-      nextParams.set("tier", normalizedTier);
+    if (searchParams.has("region") || searchParams.has("tier")) {
+      nextParams.delete("region");
+      nextParams.delete("tier");
       shouldReplaceParams = true;
     }
 
@@ -1079,14 +1016,13 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     if (shouldReplaceParams) {
       setSearchParams(nextParams, { replace: true });
     }
-  }, [searchParams, categories, mergedCategories, regions, cities, resolveFilterEntityId, setSearchParams, defaultCategoryForRoute]);
+  }, [searchParams, categories, mergedCategories, cities, resolveFilterEntityId, setSearchParams, defaultCategoryForRoute]);
 
   useEffect(() => {
     const nextParams = new URLSearchParams();
     const trimmedSearch = debouncedSearch.trim();
 
     if (trimmedSearch) nextParams.set("q", trimmedSearch);
-    if (selectedRegion !== "all") nextParams.set("region", selectedRegion);
 
     // Handle multiple city filtering (from municipalities) or single city
     if (selectedCityIds.length > 1) {
@@ -1105,7 +1041,6 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     if (selectedCategory !== "all" && selectedCategory !== defaultCategoryForRoute) {
       nextParams.set("category", selectedCategory);
     }
-    if (selectedTier !== "all") nextParams.set("tier", selectedTier);
 
     const nextQuery = nextParams.toString();
     if (nextQuery !== searchParamsString) {
@@ -1113,11 +1048,9 @@ function DirectoryClientInner(props: DirectoryClientProps) {
     }
   }, [
     debouncedSearch,
-    selectedRegion,
     selectedCity,
     selectedCityIds,
     selectedCategory,
-    selectedTier,
     searchParamsString,
     setSearchParams,
     cities,
@@ -1126,10 +1059,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
   const clearFilters = () => {
     setSearch("");
-    setSelectedRegion("all");
     setSelectedCity("all");
     setSelectedCategory(defaultCategoryForRoute);
-    setSelectedTier("all");
     setSearchParams(new URLSearchParams(), { replace: true });
   };
   const handleCityChange = useCallback((value: string) => {
@@ -1141,10 +1072,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
 
   const hasActiveFilters =
     Boolean(search) ||
-    selectedRegion !== "all" ||
     selectedCity !== "all" ||
-    (selectedCategory !== "all" && selectedCategory !== defaultCategoryForRoute) ||
-    selectedTier !== "all";
+    (selectedCategory !== "all" && selectedCategory !== defaultCategoryForRoute);
   const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
   const showGridSkeleton = isLoading && !error && listings.length === 0 && !isPlaceholderData;
   const totalListingsCount = listings.length;
@@ -1152,13 +1081,11 @@ function DirectoryClientInner(props: DirectoryClientProps) {
   const mapHref = useMemo(() => {
     const params = new URLSearchParams();
     if (search.trim()) params.set("q", search.trim());
-    if (selectedRegion !== "all") params.set("region", selectedRegion);
     if (selectedCity !== "all") params.set("city", selectedCity);
     if (selectedCategory !== "all") params.set("category", selectedCategory);
-    if (selectedTier !== "all") params.set("tier", selectedTier);
     const query = params.toString();
     return l(query ? `/map?${query}` : "/map");
-  }, [l, search, selectedRegion, selectedCity, selectedCategory, selectedTier]);
+  }, [l, search, selectedCity, selectedCategory]);
 
   const heroEnabled = activeCms.isBlockEnabled("hero", true);
 
@@ -1250,9 +1177,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
               blockId="filters"
               cms={activeCms}
               as={m.div}
-              className={`relative z-30 isolate mb-8 mx-auto w-full max-w-[22rem] transition-transform duration-200 ease-out sm:max-w-none lg:translate-y-0 ${
-                isUserScrolling ? "-translate-y-[calc(100%+env(safe-area-inset-top))]" : ""
-              }`}
+              className="relative z-30 isolate mb-8 mx-auto w-full max-w-[22rem] sm:max-w-none"
               style={undefined}
             >
               <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
@@ -1281,6 +1206,8 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
+                          id="directory-filter-search"
+                          name="directory-filter-search"
                           placeholder={activeCms.getText("filters.searchPlaceholder", t("directory.searchPlaceholder"))}
                           value={search}
                           onChange={(event) => setSearch(event.target.value)}
@@ -1288,27 +1215,7 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-primary" />
-                            {t("directory.region")}
-                          </label>
-                          <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                            <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
-                              <SelectValue placeholder={t("directory.allRegions")} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-popover border-border shadow-lg">
-                              <SelectItem value="all">{t("directory.allRegions")}</SelectItem>
-                              {[...regionsWithListings].sort((a, b) => a.name.localeCompare(b.name)).map((region) => (
-                                <SelectItem key={region.id} value={region.id}>
-                                  {region.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
                             <Building2 className="h-4 w-4 text-primary" />
@@ -1340,40 +1247,13 @@ function DirectoryClientInner(props: DirectoryClientProps) {
                             </SelectTrigger>
                             <SelectContent className="bg-popover border-border shadow-lg max-h-[280px]">
                               <SelectItem value="all">{t("directory.allCategories")}</SelectItem>
-                              {[...categoriesWithListings]
+                              {[...mergedCategories]
                                 .sort((a, b) => a.name.localeCompare(b.name))
                                 .map((category) => (
                                   <SelectItem key={category.id} value={category.slug}>
                                     {translateCategoryName(t, category.slug, category.name)}
                                   </SelectItem>
                                 ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
-                            <Crown className="h-4 w-4 text-primary" />
-                            {t("directory.tier")}
-                          </label>
-                          <Select value={selectedTier} onValueChange={setSelectedTier}>
-                            <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
-                              <SelectValue placeholder={t("directory.allTiers")} />
-                            </SelectTrigger>
-                            <SelectContent className="bg-popover border-border shadow-lg">
-                              <SelectItem value="all">{t("directory.allTiers")}</SelectItem>
-                              <SelectItem value="signature">
-                                <div className="flex items-center gap-2">
-                                  <Crown className="h-4 w-4 text-primary" />
-                                  {t("directory.tierSignature")}
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="verified">
-                                <div className="flex items-center gap-2">
-                                  <ShieldCheck className="h-4 w-4 text-green-500" />
-                                  {t("directory.tierVerified")}
-                                </div>
-                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>

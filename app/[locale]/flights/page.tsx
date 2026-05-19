@@ -11,6 +11,7 @@ import {
 
 import TravelPayoutsFlightsWidget from "@/components/flights/TravelPayoutsFlightsWidget";
 import Header from "@/components/layout/Header";
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, isValidLocale, type Locale } from "@/lib/i18n/config";
 import {
   buildAbsoluteRouteUrl,
@@ -192,7 +193,10 @@ export default async function FlightsLocalizedPage({ params }: PageProps) {
       <Header localeSwitchPaths={localeSwitchPaths} />
 
       <main className="min-h-screen bg-background text-foreground">
-        <section aria-label={flightSearchLabel} className="app-container pt-28 pb-6 md:pt-32">
+        <section
+          aria-label={flightSearchLabel}
+          className={`app-container pb-6 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}
+        >
           <TravelPayoutsFlightsWidget
             label={flightSearchLabel}
             scriptSrc={TRAVELPAYOUTS_FLIGHTS_WIDGET_SRC}

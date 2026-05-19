@@ -454,17 +454,115 @@ export default function AdminListings() {
     updateListingStatus.mutate({ id: listingId, status: "rejected" });
   };
 
+  const renderListingActions = (listing: any) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+          aria-label={`Listing actions for ${listing.name}`}
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-48">
+        <DropdownMenuItem asChild>
+          <Link href={l(`/listing/${listing.slug || listing.id}`)}>
+            <Eye className="h-4 w-4 mr-2" />
+            View
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={l(`/admin/listings/${listing.id}/edit`)}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        {listing.status === "pending_review" && (
+          <>
+            <DropdownMenuItem
+              className="text-green-400"
+              onClick={() => handleApprove(listing.id)}
+              disabled={updateListingStatus.isPending}
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Approve
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={() => handleReject(listing.id)}
+              disabled={updateListingStatus.isPending}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Reject
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        {listing.tier === "signature" && (
+          <DropdownMenuItem
+            onClick={() => handleToggleCurated(listing)}
+            disabled
+          >
+            <Crown className="h-4 w-4 mr-2" />
+            {listing.is_curated ? "Remove from Curated" : "Add to Curated"}
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
+        {!listing.featured_rank && featuredListings.length < MAX_FEATURED && (
+          <DropdownMenuItem onClick={() => pinToTop(listing.id)}>
+            <Star className="h-4 w-4 mr-2" />
+            Pin to Featured
+          </DropdownMenuItem>
+        )}
+        {listing.featured_rank && (
+          <DropdownMenuItem
+            className="text-yellow-600"
+            onClick={() => updateFeaturedRank.mutate({ id: listing.id, rank: null })}
+          >
+            <Star className="h-4 w-4 mr-2" />
+            Unpin from Featured
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="text-destructive"
+          onClick={() => {
+            setSingleDeleteId(listing.id);
+            setDeleteDialogOpen(true);
+          }}
+          disabled={deleteListings.isPending}
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   const columns: Column<any>[] = [
     {
       key: "name",
-      label: "Name",
+      label: "Listing",
       className: "w-[48%] sm:w-[42%] max-w-[34rem]",
       render: (listing) => (
-        <div className="min-w-0 max-w-[18rem] sm:max-w-[24rem] lg:max-w-[34rem]">
-          <p className="font-medium text-foreground truncate">{listing.name}</p>
-          <p className="text-sm text-muted-foreground truncate">
-            {listing.city?.name || "No city"}
-          </p>
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="h-12 w-16 flex-shrink-0 overflow-hidden rounded-lg bg-muted">
+            <img
+              src={listing.featured_image_url || "/placeholder.svg"}
+              alt={listing.name}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          {renderListingActions(listing)}
+          <div className="min-w-0 flex-1 max-w-[18rem] sm:max-w-[24rem] lg:max-w-[34rem]">
+            <p className="font-medium text-foreground truncate">{listing.name}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {listing.city?.name || "No city"}
+            </p>
+          </div>
         </div>
       ),
     },
@@ -564,93 +662,6 @@ export default function AdminListings() {
       label: "Status",
       className: "w-[7.5rem] sm:w-[8.5rem] whitespace-nowrap",
       render: (listing) => <StatusBadge status={listing.status} size="sm" />,
-    },
-    {
-      key: "actions",
-      label: "",
-      className: "w-12 text-right",
-      render: (listing) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem asChild>
-              <Link href={l(`/listing/${listing.slug || listing.id}`)}>
-                <Eye className="h-4 w-4 mr-2" />
-                View
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={l(`/admin/listings/${listing.id}/edit`)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            {listing.status === "pending_review" && (
-              <>
-                <DropdownMenuItem
-                  className="text-green-400"
-                  onClick={() => handleApprove(listing.id)}
-                  disabled={updateListingStatus.isPending}
-                >
-                  <Check className="h-4 w-4 mr-2" />
-                  Approve
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={() => handleReject(listing.id)}
-                  disabled={updateListingStatus.isPending}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Reject
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-              </>
-            )}
-            {listing.tier === "signature" && (
-              <DropdownMenuItem
-                onClick={() => handleToggleCurated(listing)}
-                disabled
-              >
-                <Crown className="h-4 w-4 mr-2" />
-                {listing.is_curated ? "Remove from Curated" : "Add to Curated"}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            {!listing.featured_rank && featuredListings.length < MAX_FEATURED && (
-              <DropdownMenuItem onClick={() => pinToTop(listing.id)}>
-                <Star className="h-4 w-4 mr-2" />
-                Pin to Featured
-              </DropdownMenuItem>
-            )}
-            {listing.featured_rank && (
-              <DropdownMenuItem
-                className="text-yellow-600"
-                onClick={() => updateFeaturedRank.mutate({ id: listing.id, rank: null })}
-              >
-                <Star className="h-4 w-4 mr-2" />
-                Unpin from Featured
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive"
-              onClick={() => {
-                setSingleDeleteId(listing.id);
-                setDeleteDialogOpen(true);
-              }}
-              disabled={deleteListings.isPending}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
     },
   ];
 
@@ -1243,6 +1254,13 @@ function AdminListingCard({
           className="mt-1"
           aria-label={`Select ${listing.name}`}
         />
+        <div className="h-14 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+          <img
+            src={listing.featured_image_url || "/placeholder.svg"}
+            alt={listing.name}
+            className="h-full w-full object-cover"
+          />
+        </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">

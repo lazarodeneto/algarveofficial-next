@@ -1,8 +1,7 @@
 "use client";
 
-import { type ReactNode, useId, useMemo, useState } from "react";
+import { type ComponentType, type ReactNode, useEffect, useId, useMemo, useState } from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import { Check, Compass, ExternalLink, Hash, Info, MapPin, MapPinned, Sparkles, Star, Waves, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -12,6 +11,7 @@ import { useLocalePath } from "@/hooks/useLocalePath";
 import { cn } from "@/lib/utils";
 import { buildStaticRouteData, buildUniformLocalizedSlugMap } from "@/lib/i18n/localized-routing";
 import { buildCategoryRouteData } from "@/lib/public-route-builders";
+import { resolveBeachDetails } from "@/lib/listings/verifiedBeachContent";
 
 type SeoLink = {
   label: string;
@@ -23,14 +23,23 @@ type SeoLinkGroup = {
   links: SeoLink[];
 };
 
-const seoGroupIcons = [Hash, MapPinned, Sparkles, Waves, Compass];
+type NearbyResource = {
+  name: string;
+  description?: string;
+  type?: string;
+  distance?: string;
+  href: string;
+  verificationStatus?: string;
+};
 
-const ListingMap = dynamic(() => import("@/components/ui/listing-map").then((mod) => mod.ListingMap), {
-  ssr: false,
-  loading: () => (
-    <div className="h-full min-h-[280px] w-full animate-pulse rounded-xl bg-muted" aria-hidden="true" />
-  ),
-});
+type FaqItem = {
+  question: string;
+  answer: string;
+};
+
+const seoGroupIcons = [Hash, MapPinned, Sparkles, Waves, Compass];
+const beachDetailSubheadingClass = "mb-2 font-fira text-sm font-bold text-foreground";
+const nearbyListingTitleClass = "font-fira font-bold text-foreground";
 
 type Testimonial = {
   name: string;
@@ -53,6 +62,23 @@ type NearbyListing = {
   } | null;
 };
 
+type NearbyBusinessListing = NearbyListing & {
+  short_description?: string | null;
+  distance_km?: number | null;
+  category?: {
+    name: string | null;
+    slug?: string | null;
+  } | null;
+};
+
+type ListingMapProps = {
+  lat: number;
+  lng: number;
+  name: string;
+  address?: string;
+  className?: string;
+};
+
 interface BeachesLayoutProps {
   details: Record<string, unknown>;
   locale?: string;
@@ -65,6 +91,7 @@ interface BeachesLayoutProps {
   longitude?: number | null;
   googleMapsUrl?: string | null;
   nearbyListings?: NearbyListing[];
+  nearbyBusinessListings?: NearbyBusinessListing[];
 }
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -81,33 +108,6 @@ function parseJsonValue(value: unknown): unknown {
   } catch {
     return value;
   }
-}
-
-const LOCALE_KEY_PATTERN = /^[a-z]{2}(?:-[a-z]{2})?$/i;
-
-function buildLocaleCandidates(locale?: string): string[] {
-  const normalized = (locale ?? "en").trim().toLowerCase();
-  const [language] = normalized.split("-");
-  const candidates = [
-    normalized,
-    language,
-    "en",
-  ].filter(Boolean);
-  return Array.from(new Set(candidates));
-}
-
-function resolveLocalizedValue(value: unknown, locale?: string): unknown {
-  const parsed = parseJsonValue(value);
-  const record = asRecord(parsed);
-  const keys = Object.keys(record);
-  if (keys.length === 0) return parsed;
-  if (!keys.every((key) => LOCALE_KEY_PATTERN.test(key))) return parsed;
-
-  const candidates = buildLocaleCandidates(locale);
-  for (const candidate of candidates) {
-    if (record[candidate] !== undefined) return record[candidate];
-  }
-  return parsed;
 }
 
 function stringFrom(value: unknown): string | undefined {
@@ -220,6 +220,86 @@ function readSeoGroups(value: unknown): SeoLinkGroup[] {
     .filter((group): group is SeoLinkGroup => Boolean(group));
 }
 
+function normalizeInternalListingHref(value?: string | null): string | undefined {
+  const raw = stringFrom(value);
+  if (!raw) return undefined;
+
+  const internalPath = raw.startsWith("http")
+    ? (() => {
+        try {
+          const url = new URL(raw);
+          if (!["algarveofficial.com", "www.algarveofficial.com"].includes(url.hostname)) {
+            return undefined;
+          }
+          return url.pathname;
+        } catch {
+          return undefined;
+        }
+      })()
+    : raw;
+
+  if (!internalPath) return undefined;
+  const match = internalPath.match(/^\/(?:[a-z]{2}(?:-[a-z]{2})?\/)?listing\/([^/?#]+)\/?$/i);
+  return match?.[1] ? `/listing/${match[1]}` : undefined;
+}
+
+function buildInternalListingHrefFromResource(row: Record<string, unknown>): string | undefined {
+  const explicitHref = normalizeInternalListingHref(
+    stringFrom(row.href ?? row.internal_href ?? row.internalHref ?? row.url),
+  );
+  if (explicitHref) return explicitHref;
+
+  const slug = stringFrom(row.internal_slug ?? row.internalSlug ?? row.listing_slug ?? row.listingSlug ?? row.slug);
+  return slug ? `/listing/${slug}` : undefined;
+}
+
+function readNearbyResources(value: unknown): NearbyResource[] {
+  const parsed = parseJsonValue(value);
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed
+    .map((item): NearbyResource | null => {
+      if (typeof item === "string") {
+        return null;
+      }
+
+      const row = asRecord(item);
+      const name = stringFrom(row.name ?? row.title ?? row.label);
+      if (!name) return null;
+
+      const href = buildInternalListingHrefFromResource(row);
+      if (!href) return null;
+
+      const resource: NearbyResource = { name, href };
+      const description = stringFrom(row.description ?? row.notes ?? row.summary);
+      const type = stringFrom(row.type ?? row.context ?? row.category);
+      const distance = stringFrom(row.distance ?? row.approximate_distance ?? row.approximateDistance);
+      const verificationStatus = stringFrom(row.verification_status ?? row.verificationStatus);
+
+      if (description) resource.description = description;
+      if (type) resource.type = type;
+      if (distance) resource.distance = distance;
+      if (verificationStatus) resource.verificationStatus = verificationStatus;
+
+      return resource;
+    })
+    .filter((item): item is NearbyResource => item !== null);
+}
+
+function readFaqItems(value: unknown): FaqItem[] {
+  const parsed = parseJsonValue(value);
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed
+    .map((item): FaqItem | null => {
+      const row = asRecord(item);
+      const question = stringFrom(row.question ?? row.q);
+      const answer = stringFrom(row.answer ?? row.a);
+      return question && answer ? { question, answer } : null;
+    })
+    .filter((item): item is FaqItem => item !== null);
+}
+
 function DetailRow({
   title,
   children,
@@ -245,6 +325,28 @@ function ListItems({ items }: { items: string[] }) {
       ))}
     </ul>
   );
+}
+
+function ClientOnlyListingMap(props: ListingMapProps) {
+  const [MapComponent, setMapComponent] = useState<ComponentType<ListingMapProps> | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    import("@/components/ui/listing-map").then((mod) => {
+      if (!cancelled) setMapComponent(() => mod.ListingMap);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!MapComponent) {
+    return <div className="h-full min-h-[280px] w-full animate-pulse rounded-xl bg-muted" aria-hidden="true" />;
+  }
+
+  return <MapComponent {...props} />;
 }
 
 function CheckList({ included, excluded }: { included: string[]; excluded: string[] }) {
@@ -294,6 +396,42 @@ function buildGoogleMapsSearchUrl({
     .join(", ");
 
   return query ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}` : undefined;
+}
+
+function formatApproxDistance(distanceKm?: number | null): string | null {
+  if (typeof distanceKm !== "number" || !Number.isFinite(distanceKm) || distanceKm < 0) {
+    return null;
+  }
+
+  const rounded = Math.round(distanceKm * 10) / 10;
+  return `~${rounded.toFixed(1).replace(/\.0$/, "")} km`;
+}
+
+function nearbyResourceFromBusiness(business: NearbyBusinessListing): NearbyResource | null {
+  if (!business.slug) return null;
+
+  const resource: NearbyResource = {
+    name: business.name,
+    href: `/listing/${business.slug}`,
+  };
+  const type = stringFrom(business.category?.name);
+  const distance = formatApproxDistance(business.distance_km);
+  if (type) resource.type = type;
+  if (distance) resource.distance = distance;
+  return resource;
+}
+
+function dedupeNearbyResources(items: NearbyResource[]): NearbyResource[] {
+  const deduped = new Map<string, NearbyResource>();
+
+  for (const item of items) {
+    const key = `${item.href}|${item.name.trim().toLowerCase()}`;
+    if (!deduped.has(key)) {
+      deduped.set(key, item);
+    }
+  }
+
+  return Array.from(deduped.values());
 }
 
 function ExpandableDescription({
@@ -355,6 +493,45 @@ function StarRow({ rating }: { rating: number }) {
   );
 }
 
+function NearbyResourcesGrid({
+  items,
+  localizeHref,
+}: {
+  items: NearbyResource[];
+  localizeHref: (href: string) => string;
+}) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {items.map((item) => {
+        const resolvedHref = localizeHref(item.href);
+
+        return (
+          <Link key={`${item.name}-${resolvedHref}`} href={resolvedHref} className="block">
+            <div className="h-full rounded-xl border border-border/80 bg-background p-4 transition-colors hover:border-primary/45">
+            <div className="flex min-w-0 items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 className={nearbyListingTitleClass}>{item.name}</h3>
+                {item.type || item.distance ? (
+                  <p className="mt-1 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                    {[item.type, item.distance].filter(Boolean).join(" · ")}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+            {item.description ? (
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+            ) : null}
+            {item.verificationStatus ? (
+              <p className="mt-3 text-xs font-medium text-muted-foreground">{item.verificationStatus}</p>
+            ) : null}
+            </div>
+          </Link>
+        );
+      })}
+    </div>
+  );
+}
+
 export function BeachesLayout({
   details,
   locale,
@@ -367,19 +544,14 @@ export function BeachesLayout({
   longitude,
   googleMapsUrl,
   nearbyListings = [],
+  nearbyBusinessListings = [],
 }: BeachesLayoutProps) {
   const { t } = useTranslation();
   const l = useLocalePath();
 
-  const localizedContent = asRecord(
-    resolveLocalizedValue(
-      details.localized_content ?? details.localizedContent ?? details.i18n_content ?? details.translations,
-      locale,
-    ),
-  );
   const resolvedDetails = useMemo(
-    () => ({ ...details, ...localizedContent }),
-    [details, localizedContent],
+    () => resolveBeachDetails(details, locale),
+    [details, locale],
   );
 
   const important = asRecord(parseJsonValue(resolvedDetails.important_information ?? resolvedDetails.important_info));
@@ -447,6 +619,42 @@ export function BeachesLayout({
   const seoGroupsFromData = readSeoGroups(
     resolvedDetails.seo_link_groups ?? resolvedDetails.seo_link_groups_json ?? resolvedDetails.related_tag_groups,
   );
+  const practicalDetails = [
+    {
+      title: t("categoryLayouts.beach.parking", { defaultValue: "Parking" }),
+      body: firstString(resolvedDetails, ["parking_info", "parking_notes", "parking"]),
+    },
+    {
+      title: t("categoryLayouts.beach.accessibility", { defaultValue: "Accessibility" }),
+      body: firstString(resolvedDetails, ["accessibility_info", "accessibility_notes"]),
+    },
+    {
+      title: t("categoryLayouts.beach.lifeguardSeason", { defaultValue: "Lifeguard season" }),
+      body: firstString(resolvedDetails, ["lifeguard_info", "lifeguard_season", "lifeguard_notes"]),
+    },
+    {
+      title: t("categoryLayouts.beach.blueFlagStatus", { defaultValue: "Blue Flag status" }),
+      body: firstString(resolvedDetails, ["blue_flag_info", "blue_flag_status_text", "blue_flag_notes"]),
+    },
+  ].filter((item): item is { title: string; body: string } => Boolean(item.body));
+  const nearbyBeaches = readNearbyResources(resolvedDetails.nearby_beaches ?? resolvedDetails.nearby_beach_list);
+  const nearbyRestaurants = readNearbyResources(resolvedDetails.nearby_restaurants ?? resolvedDetails.restaurants_nearby);
+  const nearbyAttractions = readNearbyResources(resolvedDetails.nearby_attractions ?? resolvedDetails.attractions_nearby);
+  const faqItems = readFaqItems(resolvedDetails.faq_items ?? resolvedDetails.faqs ?? resolvedDetails.faq);
+  const nearbyRestaurantResources = dedupeNearbyResources([
+    ...nearbyRestaurants,
+    ...nearbyBusinessListings
+      .filter((business) => business.category?.slug === "restaurants")
+      .map(nearbyResourceFromBusiness)
+      .filter((item): item is NearbyResource => item !== null),
+  ]).slice(0, 6);
+  const nearbyAttractionResources = dedupeNearbyResources([
+    ...nearbyAttractions,
+    ...nearbyBusinessListings
+      .filter((business) => ["experiences", "family-attractions", "golf"].includes(business.category?.slug ?? ""))
+      .map(nearbyResourceFromBusiness)
+      .filter((item): item is NearbyResource => item !== null),
+  ]).slice(0, 6);
 
   const derivedHighlights = useMemo(() => {
     if (highlights.length > 0) return highlights;
@@ -531,7 +739,10 @@ export function BeachesLayout({
   const nearbyFromSameCity = nearbyListings
     .filter((item) => item.id && item.name && item.slug && (!cityName || item.city?.name === cityName))
     .slice(0, 6);
-  const nearbyToRender = nearbyFromSameCity.length > 0 ? nearbyFromSameCity : nearbyListings.slice(0, 3);
+  const nearbyToRender = nearbyFromSameCity;
+  const nearbyBusinessesToRender = nearbyBusinessListings
+    .filter((item) => item.id && item.name && item.slug)
+    .slice(0, 6);
   const hasImportantInformation =
     whatToBring.length > 0 ||
     notAllowed.length > 0 ||
@@ -581,24 +792,37 @@ export function BeachesLayout({
           </DetailRow>
         ) : null}
 
+        {practicalDetails.length > 0 ? (
+          <DetailRow title={t("categoryLayouts.beach.practicalDetails", { defaultValue: "Practical details" })}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {practicalDetails.map((item) => (
+                <div key={item.title}>
+                  <h3 className={beachDetailSubheadingClass}>{item.title}</h3>
+                  <p className="whitespace-pre-line text-muted-foreground">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </DetailRow>
+        ) : null}
+
         {hasImportantInformation ? (
           <DetailRow title={t("categoryLayouts.beach.importantInformation")}>
             <div className="grid gap-6 sm:grid-cols-2">
               {whatToBring.length > 0 ? (
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-foreground">{t("categoryLayouts.beach.whatToBring")}</h3>
+                  <h3 className={beachDetailSubheadingClass}>{t("categoryLayouts.beach.whatToBring")}</h3>
                   <ListItems items={whatToBring} />
                 </div>
               ) : null}
               {notAllowed.length > 0 ? (
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-foreground">{t("categoryLayouts.beach.notAllowed")}</h3>
+                  <h3 className={beachDetailSubheadingClass}>{t("categoryLayouts.beach.notAllowed")}</h3>
                   <ListItems items={notAllowed} />
                 </div>
               ) : null}
               {suitableFor.length > 0 ? (
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-foreground">
+                  <h3 className={beachDetailSubheadingClass}>
                     {t("categoryLayouts.beach.suitableFor", { defaultValue: "Suitable for" })}
                   </h3>
                   <ListItems items={suitableFor} />
@@ -606,19 +830,19 @@ export function BeachesLayout({
               ) : null}
               {notSuitableFor.length > 0 ? (
                 <div>
-                  <h3 className="mb-2 text-sm font-semibold text-foreground">{t("categoryLayouts.beach.notSuitableFor")}</h3>
+                  <h3 className={beachDetailSubheadingClass}>{t("categoryLayouts.beach.notSuitableFor")}</h3>
                   <ListItems items={notSuitableFor} />
                 </div>
               ) : null}
               {includes.length > 0 || excludes.length > 0 ? (
                 <div className="sm:col-span-2">
-                  <h3 className="mb-2 text-sm font-semibold text-foreground">{t("categoryLayouts.beach.includes")}</h3>
+                  <h3 className={beachDetailSubheadingClass}>{t("categoryLayouts.beach.includes")}</h3>
                   <CheckList included={includes} excluded={excludes} />
                 </div>
               ) : null}
               {bestTimeToVisit ? (
                 <div className="sm:col-span-2">
-                  <h3 className="mb-2 text-sm font-semibold text-foreground">
+                  <h3 className={beachDetailSubheadingClass}>
                     {t("categoryLayouts.beach.bestTimeToVisit", { defaultValue: "Best time to visit" })}
                   </h3>
                   <p className="whitespace-pre-line text-muted-foreground">{bestTimeToVisit}</p>
@@ -626,10 +850,41 @@ export function BeachesLayout({
               ) : null}
               {knowBeforeYouGo ? (
                 <div className="sm:col-span-2">
-                  <h3 className="mb-2 text-sm font-semibold text-foreground">{t("categoryLayouts.beach.knowBeforeYouGo")}</h3>
+                  <h3 className={beachDetailSubheadingClass}>{t("categoryLayouts.beach.knowBeforeYouGo")}</h3>
                   <p className="whitespace-pre-line text-muted-foreground">{knowBeforeYouGo}</p>
                 </div>
               ) : null}
+            </div>
+          </DetailRow>
+        ) : null}
+
+        {nearbyBeaches.length > 0 ? (
+          <DetailRow title={t("categoryLayouts.beach.nearbyBeaches", { defaultValue: "Nearby beaches" })}>
+            <NearbyResourcesGrid items={nearbyBeaches} localizeHref={l} />
+          </DetailRow>
+        ) : null}
+
+        {nearbyRestaurantResources.length > 0 ? (
+          <DetailRow title={t("categoryLayouts.beach.nearbyRestaurants", { defaultValue: "Nearby restaurants" })}>
+            <NearbyResourcesGrid items={nearbyRestaurantResources} localizeHref={l} />
+          </DetailRow>
+        ) : null}
+
+        {nearbyAttractionResources.length > 0 ? (
+          <DetailRow title={t("categoryLayouts.beach.nearbyAttractions", { defaultValue: "Nearby attractions" })}>
+            <NearbyResourcesGrid items={nearbyAttractionResources} localizeHref={l} />
+          </DetailRow>
+        ) : null}
+
+        {faqItems.length > 0 ? (
+          <DetailRow title={t("categoryLayouts.beach.faq", { defaultValue: "FAQ" })}>
+            <div className="space-y-4">
+              {faqItems.map((item) => (
+                <article key={item.question} className="rounded-xl border border-border/80 bg-background p-4">
+                  <h3 className={nearbyListingTitleClass}>{item.question}</h3>
+                  <p className="mt-2 whitespace-pre-line text-muted-foreground">{item.answer}</p>
+                </article>
+              ))}
             </div>
           </DetailRow>
         ) : null}
@@ -639,7 +894,7 @@ export function BeachesLayout({
         <section className="overflow-hidden rounded-xl border border-border/70 bg-card shadow-sm">
           <div className="grid lg:grid-cols-[minmax(0,1fr)_18rem]">
             <div className="h-[20rem] min-h-[280px] lg:h-[24rem]">
-              <ListingMap
+              <ClientOnlyListingMap
                 lat={mapLatitude}
                 lng={mapLongitude}
                 name={listingName ?? meetingPointText}
@@ -703,7 +958,7 @@ export function BeachesLayout({
                   {nearby.city?.name ? (
                     <p className="mb-1 text-xs text-muted-foreground">{nearby.city.name}</p>
                   ) : null}
-                  <h3 className="line-clamp-2 font-serif text-base font-medium text-foreground transition-colors group-hover:text-primary">
+                  <h3 className="line-clamp-2 font-fira text-base font-bold text-foreground transition-colors group-hover:text-primary">
                     {nearby.name}
                   </h3>
                 </div>
@@ -841,6 +1096,67 @@ export function BeachesLayout({
           })}
         </div>
       </section>
+
+      {nearbyBusinessesToRender.length > 0 ? (
+        <section className="space-y-4 rounded-xl border border-border/70 bg-card p-5 shadow-sm sm:p-7">
+          <div className="max-w-2xl">
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-primary">
+              {t("categoryLayouts.beach.nearbyBusinessesEyebrow", { defaultValue: "Nearby businesses" })}
+            </p>
+            <h2 className="text-xl font-bold text-foreground">
+              {t("categoryLayouts.beach.nearbyBusinesses", { defaultValue: "Nearby businesses" })}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              {t("categoryLayouts.beach.nearbyBusinessesDescription", {
+                defaultValue: "Published AlgarveOfficial business listings close to this beach, based on stored listing location data.",
+              })}
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {nearbyBusinessesToRender.map((business) => {
+              const distance = formatApproxDistance(business.distance_km);
+              const meta = [
+                business.category?.name,
+                business.city?.name,
+                distance,
+              ].filter(Boolean);
+
+              return (
+                <Link
+                  key={business.id}
+                  href={l({
+                    routeType: "listing",
+                    slugs: buildUniformLocalizedSlugMap(business.slug ?? business.id),
+                  })}
+                  className="group overflow-hidden rounded-xl border border-border bg-background transition-colors hover:border-primary/45"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-muted">
+                    <ListingImage
+                      src={business.featured_image_url ?? null}
+                      fallbackSrc="/placeholder.svg"
+                      imageVersion={business.updated_at}
+                      alt={business.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 33vw"
+                      className="transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="p-4">
+                    {meta.length > 0 ? (
+                      <p className="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                        {meta.join(" · ")}
+                      </p>
+                    ) : null}
+                    <h3 className="line-clamp-2 font-fira text-base font-bold text-foreground transition-colors group-hover:text-primary">
+                      {business.name}
+                    </h3>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -142,7 +142,7 @@ describe("HeroSection image reset behaviour", () => {
     expect(container.innerHTML).not.toContain("old-home-hero.jpg");
   });
 
-  it("renders uploaded homepage video on mobile without requiring interaction", async () => {
+  it("skips uploaded homepage video on mobile initial render", () => {
     mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: true });
     mockUseHeroSettings.mockReturnValue({
       isLoading: false,
@@ -163,6 +163,35 @@ describe("HeroSection image reset behaviour", () => {
     });
 
     const { container } = render(<HeroSection />);
+
+    expect(container.querySelector("video")).not.toBeInTheDocument();
+    expect(container.innerHTML).not.toContain("home-hero.mp4");
+  });
+
+  it("loads uploaded homepage video on desktop after user interaction", async () => {
+    mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: false });
+    mockUseHeroSettings.mockReturnValue({
+      isLoading: false,
+      hasLocaleTranslation: true,
+      settings: {
+        updated_at: "2026-05-08T10:00:00.000Z",
+        hero_media_type: "video",
+        hero_video_url: "https://media.example.com/home-hero.mp4",
+        hero_poster_url: null,
+        hero_overlay_intensity: 50,
+        hero_title: null,
+        hero_subtitle: null,
+        hero_cta_primary_text: null,
+        hero_cta_primary_link: null,
+        hero_cta_secondary_text: null,
+        hero_cta_secondary_link: null,
+      },
+    });
+
+    const { container } = render(<HeroSection />);
+    expect(container.querySelector("video")).not.toBeInTheDocument();
+
+    window.dispatchEvent(new Event("pointerdown"));
 
     await waitFor(() => {
       expect(container.querySelector("video")).toBeInTheDocument();

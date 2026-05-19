@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/Button";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { STANDARD_PUBLIC_HEADER_CLEARANCE_CLASS } from "@/components/sections/hero-layout";
 import { ArrowRight } from "lucide-react";
 import { buildPageMetadata } from "@/lib/seo/advanced/metadata-builders";
 import { buildBreadcrumbSchema, buildItemListSchema } from "@/lib/seo/advanced/schema-builders";
@@ -352,10 +353,10 @@ export default async function CategoryHubPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <Header localeSwitchPaths={localeSwitchPaths} />
-      <main id="main-content" className="min-h-screen pt-20">
+      <main id="main-content" className={`min-h-screen ${STANDARD_PUBLIC_HEADER_CLEARANCE_CLASS}`}>
         {heroEnabled ? (
           hasCmsHeroMedia ? (
-            <section className="px-0 pb-8 pt-4 sm:px-4 lg:px-6">
+            <section className="px-0 pb-8 pt-0 sm:px-4 lg:px-6">
               <LiveStyleHero
                 className="min-h-[19rem] rounded-none shadow-sm sm:min-h-[20rem] md:min-h-[22rem]"
                 badge={heroBadge}
@@ -404,9 +405,7 @@ export default async function CategoryHubPage({ params }: PageProps) {
               </div>
             </section>
           )
-        ) : (
-          <div className="h-8" aria-hidden="true" />
-        )}
+        ) : null}
         
         {topCitiesEnabled ? (
           <section className="app-container py-8">

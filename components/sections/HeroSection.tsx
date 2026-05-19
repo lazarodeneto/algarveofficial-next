@@ -20,7 +20,10 @@ import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { addImageVersion, buildSupabaseImageUrl } from "@/lib/imageUrls";
-import { STANDARD_PUBLIC_HERO_SURFACE_CLASS } from "@/components/sections/hero-layout";
+import {
+  STANDARD_PUBLIC_HERO_SURFACE_CLASS,
+  STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+} from "@/components/sections/hero-layout";
 
 const CreateTripDialog = dynamic(
   () => import("@/components/trip-planner/CreateTripDialog").then((m) => m.CreateTripDialog),
@@ -128,13 +131,14 @@ export function HeroSection() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     getInitialReducedMotionPreference,
   );
+  const [canLoadVideoEnhancement, setCanLoadVideoEnhancement] = useState(false);
   const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
   const { settings: runtimeSettings } = useGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
   });
   const locale = useCurrentLocale();
   const { t } = useTranslation();
-  const { isSlow } = useConnectionQuality();
+  const { isSlow, isMobile } = useConnectionQuality();
   const { createTrip } = useTripPlanner();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
@@ -144,10 +148,9 @@ export function HeroSection() {
   // for copy, but stale CMS media must not override a reset homepage image.
   const { getText } = useCmsPageBuilder("home");
 
-  // Determine if video should be skipped for accessibility/performance.
-  // Mobile is not skipped by default; modern mobile browsers can autoplay muted
-  // playsInline video, and the connection hook handles slow/data-saver cases.
-  const shouldSkipVideo = prefersReducedMotion || isSlow;
+  // Keep the poster as the initial hero surface. The configured video is large,
+  // so load it only after real desktop user activity on fast connections.
+  const shouldSkipVideo = prefersReducedMotion || isSlow || isMobile;
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -159,6 +162,25 @@ export function HeroSection() {
     mediaQuery.addEventListener("change", handler);
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
+
+  useEffect(() => {
+    if (shouldSkipVideo || !hydrated) {
+      return undefined;
+    }
+
+    const enableVideo = () => setCanLoadVideoEnhancement(true);
+    const eventOptions: AddEventListenerOptions = { once: true, passive: true };
+
+    window.addEventListener("pointerdown", enableVideo, eventOptions);
+    window.addEventListener("keydown", enableVideo, { once: true });
+    window.addEventListener("scroll", enableVideo, eventOptions);
+
+    return () => {
+      window.removeEventListener("pointerdown", enableVideo);
+      window.removeEventListener("keydown", enableVideo);
+      window.removeEventListener("scroll", enableVideo);
+    };
+  }, [hydrated, shouldSkipVideo]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -226,6 +248,7 @@ export function HeroSection() {
 
   const canEnhanceHeroVideo =
     hydrated &&
+    canLoadVideoEnhancement &&
     hasVideoUrl &&
     !shouldSkipVideo &&
     !getPrefersReducedData();
@@ -285,7 +308,7 @@ export function HeroSection() {
   }, [hasPosterUrl, hasVideoUrl, isHeroSettingsLoading, mediaType, shouldSkipVideo]);
 
   return (
-    <div className="px-0 pb-4 pt-[calc(4.75rem+18px)] sm:pb-5 sm:pt-[calc(5rem+20px)] lg:px-6">
+    <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
       <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
         <div className="absolute inset-0 bg-black">

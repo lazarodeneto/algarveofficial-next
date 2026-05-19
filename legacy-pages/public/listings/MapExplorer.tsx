@@ -16,6 +16,7 @@ import { CmsBlock } from "@/components/cms/CmsBlock";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { PageHeroImage } from "@/components/sections/PageHeroImage";
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 import ListingImage from "@/components/ListingImage";
 import ListingTierBadge from "@/components/ui/ListingTierBadge";
 
@@ -24,8 +25,8 @@ const ListingsLeafletMap = dynamic(() => import("@/components/map/ListingsLeafle
   ssr: false,
   loading: () => <div className="h-[calc(100vh-13rem)] min-h-[560px] w-full bg-muted animate-pulse rounded-lg" />
 });
-import { usePublishedListings, type ListingBounds, type ListingFilters, type ListingTier } from "@/hooks/useListings";
-import { useCategories, useCities, useRegions } from "@/hooks/useReferenceData";
+import { usePublishedListings, type ListingBounds, type ListingFilters } from "@/hooks/useListings";
+import { useCategories, useCities } from "@/hooks/useReferenceData";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { translateCategoryName } from "@/lib/translateCategory";
@@ -107,10 +108,8 @@ function MapExplorerContent() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedTier, setSelectedTier] = useState<string>("all");
   const [currentBounds, setCurrentBounds] = useState<ListingBounds | null>(null);
   const [pendingBounds, setPendingBounds] = useState<ListingBounds | null>(null);
   const baselineBoundsRef = useRef<ListingBounds | null>(null);
@@ -140,10 +139,6 @@ function MapExplorerContent() {
     isLoading: citiesLoading,
   } = useCities();
   const {
-    data: regions = [],
-    isLoading: regionsLoading,
-  } = useRegions();
-  const {
     data: categories = [],
     isLoading: categoriesLoading,
   } = useCategories();
@@ -158,20 +153,14 @@ function MapExplorerContent() {
 
   useEffect(() => {
     const qParam = searchParams.get("q");
-    const regionParam = searchParams.get("region");
     const cityParam = searchParams.get("city");
     const categoryParam = searchParams.get("category");
-    const tierParam = searchParams.get("tier");
     const nextParams = new URLSearchParams(searchParams);
     let shouldReplaceParams = false;
     const canResolveCategory = mergedCategories.length > 0;
 
     if (qParam !== null) setSearch(qParam);
-    if (regionParam) setSelectedRegion(regionParam);
     if (cityParam) setSelectedCity(cityParam);
-    if (tierParam === "signature" || tierParam === "verified" || tierParam === "all") {
-      setSelectedTier(tierParam);
-    }
 
     if (categoryParam) {
       const resolvedSlug = canResolveCategory
@@ -191,6 +180,12 @@ function MapExplorerContent() {
       setSelectedCategory("all");
     }
 
+    if (searchParams.has("region") || searchParams.has("tier")) {
+      nextParams.delete("region");
+      nextParams.delete("tier");
+      shouldReplaceParams = true;
+    }
+
     if (shouldReplaceParams) {
       setSearchParams(nextParams, { replace: true });
     }
@@ -201,11 +196,9 @@ function MapExplorerContent() {
       search: debouncedSearch || undefined,
       categoryIds: selectedCategory !== "all" ? selectedCategoryIds : undefined,
       cityId: selectedCity !== "all" ? selectedCity : undefined,
-      regionId: selectedRegion !== "all" ? selectedRegion : undefined,
-      tier: selectedTier !== "all" ? (selectedTier as ListingTier) : undefined,
       bounds: appliedBounds,
     }),
-    [appliedBounds, debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity, selectedRegion, selectedTier]
+    [appliedBounds, debouncedSearch, selectedCategory, selectedCategoryIds, selectedCity]
   );
 
   const {
@@ -214,7 +207,7 @@ function MapExplorerContent() {
     error,
   } = usePublishedListings(listingFilters);
 
-  const isLoading = listingsLoading || citiesLoading || regionsLoading || categoriesLoading;
+  const isLoading = listingsLoading || citiesLoading || categoriesLoading;
 
   const mapPoints = useMemo<MapListingPoint[]>(
     () =>
@@ -255,13 +248,13 @@ function MapExplorerContent() {
 
   const clearFilters = () => {
     setSearch("");
-    setSelectedRegion("all");
     setSelectedCity("all");
     setSelectedCategory("all");
-    setSelectedTier("all");
     setPendingBounds(null);
     setActiveId(null);
     const nextParams = new URLSearchParams(searchParams);
+    nextParams.delete("region");
+    nextParams.delete("tier");
     nextParams.delete("north");
     nextParams.delete("south");
     nextParams.delete("east");
@@ -271,10 +264,8 @@ function MapExplorerContent() {
 
   const hasActiveFilters =
     Boolean(search.trim()) ||
-    selectedRegion !== "all" ||
     selectedCity !== "all" ||
     selectedCategory !== "all" ||
-    selectedTier !== "all" ||
     Boolean(appliedBounds);
 
   useEffect(() => {
@@ -326,7 +317,7 @@ function MapExplorerContent() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-[calc(4rem+10px)] sm:pt-[calc(5rem+10px)] pb-16" data-cms-page="map">
+      <main className={`${STANDARD_PUBLIC_CONTENT_TOP_CLASS} pb-16`} data-cms-page="map">
         <div className="app-container content-max">
           {isBlockEnabled("hero", true) ? (
             <CmsBlock pageId="map" blockId="hero" as="section" className="pb-6 -mx-4 md:-mx-6 lg:mx-0">
@@ -357,7 +348,7 @@ function MapExplorerContent() {
             </CmsBlock>
           ) : null}
 
-          <section className="sticky top-16 z-30 -mx-4 border-y border-border/70 bg-background/95 px-4 py-3 shadow-sm backdrop-blur md:-mx-6 md:px-6 lg:top-20 lg:mx-0 lg:rounded-2xl lg:border lg:px-4">
+          <section className="relative z-30 -mx-4 border-y border-border/70 bg-background/95 px-4 py-3 shadow-sm backdrop-blur md:-mx-6 md:px-6 lg:mx-0 lg:rounded-2xl lg:border lg:px-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <div className="flex min-w-0 items-center gap-2 pr-1 text-sm font-semibold text-foreground sm:shrink-0">
                 <Filter className="h-4 w-4 text-primary" />
@@ -367,27 +358,13 @@ function MapExplorerContent() {
               <div className="relative min-w-0 flex-1 sm:min-w-[240px] lg:max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
+                  id="map-filter-search"
+                  name="map-filter-search"
                   placeholder={getText("filters.searchPlaceholder", t("directory.searchPlaceholder"))}
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   className="h-10 pl-10"
                 />
-              </div>
-
-              <div className="min-w-0 flex-1 sm:min-w-[150px] sm:flex-none">
-                <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-                  <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder={t("directory.allRegions")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("directory.allRegions")}</SelectItem>
-                    {regions.map((region) => (
-                      <SelectItem key={region.id} value={region.id}>
-                        {region.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
 
               <div className="min-w-0 flex-1 sm:min-w-[140px] sm:flex-none">
@@ -432,19 +409,6 @@ function MapExplorerContent() {
                         </SelectItem>
                       );
                     })}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="min-w-0 flex-1 sm:min-w-[130px] sm:flex-none">
-                <Select value={selectedTier} onValueChange={setSelectedTier}>
-                  <SelectTrigger className="h-10 w-full">
-                    <SelectValue placeholder={t("directory.allTiers")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">{t("directory.allTiers")}</SelectItem>
-                    <SelectItem value="signature">{t("directory.tierSignature")}</SelectItem>
-                    <SelectItem value="verified">{t("directory.tierVerified")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

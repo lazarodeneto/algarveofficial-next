@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type ComponentType } from "react";
+import { useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/sections/HeroSection";
@@ -185,6 +185,69 @@ const DEFAULT_SECTION_ORDER = [
 ];
 
 const DEFAULT_DISABLED_BLOCK_IDS = new Set(["featured-city"]);
+const IMMEDIATE_HOME_SECTION_IDS = new Set<string>();
+const DEFERRED_SECTION_MIN_HEIGHTS: Record<string, string> = {
+  "quick-links": "620px",
+  "smart-search": "340px",
+  curated: "920px",
+  regions: "520px",
+  categories: "560px",
+  cities: "620px",
+  "all-cities": "620px",
+  "featured-city": "520px",
+  vip: "560px",
+  "all-listings": "1120px",
+  "algarve-guide": "640px",
+  newsletter: "360px",
+  cta: "420px",
+  trust: "420px",
+};
+
+function DeferredHomeSection({
+  children,
+  minHeight = "520px",
+}: {
+  children: ReactNode;
+  minHeight?: string;
+}) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    if (shouldRender) return undefined;
+
+    const element = rootRef.current;
+    if (!element) return undefined;
+
+    if (typeof window.IntersectionObserver !== "function") {
+      const timeoutId = window.setTimeout(() => setShouldRender(true), 1200);
+      return () => window.clearTimeout(timeoutId);
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setShouldRender(true);
+        observer.disconnect();
+      },
+      { rootMargin: "240px 0px" },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [shouldRender]);
+
+  return (
+    <div
+      ref={rootRef}
+      className="min-w-0"
+      style={shouldRender ? undefined : { minHeight }}
+      aria-hidden={shouldRender ? undefined : "true"}
+    >
+      {shouldRender ? children : null}
+    </div>
+  );
+}
 
 function moveSectionBefore(order: string[], sectionId: string, beforeSectionId: string) {
   const sectionIndex = order.indexOf(sectionId);
@@ -299,11 +362,10 @@ const Index = () => {
     const SectionComponent = SECTION_COMPONENTS[id];
     if (!SectionComponent) return null;
 
-    return (
+    const section = (
       <CmsBlock
         pageId="home"
         blockId={id}
-        key={id}
         as="section"
         defaultEnabled={defaultEnabled}
       >
@@ -314,6 +376,19 @@ const Index = () => {
           />
         </SoftReveal>
       </CmsBlock>
+    );
+
+    if (IMMEDIATE_HOME_SECTION_IDS.has(id)) {
+      return <div key={id}>{section}</div>;
+    }
+
+    return (
+      <DeferredHomeSection
+        key={id}
+        minHeight={DEFERRED_SECTION_MIN_HEIGHTS[id] ?? "520px"}
+      >
+        {section}
+      </DeferredHomeSection>
     );
   };
 
@@ -328,11 +403,15 @@ const Index = () => {
         <div className="mx-auto w-full content-max density">
           {settings ? sectionsToRender.map(renderSection) : null}
         </div>
-        <SoftReveal className="min-w-0">
-          <HomeFinalEndcap />
-        </SoftReveal>
+        <DeferredHomeSection minHeight="260px">
+          <SoftReveal className="min-w-0">
+            <HomeFinalEndcap />
+          </SoftReveal>
+        </DeferredHomeSection>
       </main>
-      <Footer />
+      <DeferredHomeSection minHeight="520px">
+        <Footer />
+      </DeferredHomeSection>
     </div>
   );
 };

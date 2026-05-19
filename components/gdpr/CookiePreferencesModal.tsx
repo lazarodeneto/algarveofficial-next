@@ -239,7 +239,7 @@ export function CookiePreferencesModal({
           <button
             type="button"
             onClick={onAcceptAll}
-            className="h-12 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
+            className="h-12 rounded-xl bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700"
           >
             {t("cookie.acceptAll", t("cookie.accept"))}
           </button>

@@ -15,6 +15,7 @@ import { buildLocalizedPath } from "@/lib/i18n/routing";
 import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { resolveHero, resolvePageContent } from "@/lib/cms/resolve-hero";
 import { normalizePageConfig } from "@/lib/cms/normalize-page-config";
+import { cn } from "@/lib/utils";
 import { CmsPageRenderer } from "@/components/cms/renderers/CmsPageRenderer";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
@@ -23,7 +24,10 @@ import { GolfFinder } from "@/components/golf/GolfFinder";
 import { LeaderboardTable } from "@/components/golf/LeaderboardTable";
 import { HeroBackgroundMedia } from "@/components/sections/HeroBackgroundMedia";
 import { LiveStyleHero } from "@/components/sections/LiveStyleHero";
-import { STANDARD_PUBLIC_HERO_WRAPPER_CLASS } from "@/components/sections/hero-layout";
+import {
+  STANDARD_PUBLIC_CONTENT_TOP_CLASS,
+  STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
+} from "@/components/sections/hero-layout";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -193,10 +197,11 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
   const DEFAULT_ALT = t("golf.hero.alt");
   const DEFAULT_CTA_COURSES = t("golf.hero.ctaCourses");
   const DEFAULT_CTA_LEADERBOARD = t("golf.hero.ctaLeaderboard");
+  const heroEnabled = isCmsBlockEnabled("hero", true);
 
   return (
     <>
-      {isCmsBlockEnabled("hero", true) ? (
+      {heroEnabled ? (
         <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
           <CmsBlock pageId="golf" blockId="hero" as="section">
             <LiveStyleHero
@@ -234,7 +239,13 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
         </div>
       ) : null}
 
-      <main id="main-content" className="app-container pb-20 pt-12 md:pt-16">
+      <main
+        id="main-content"
+        className={cn(
+          "app-container pb-20",
+          heroEnabled ? "pt-12 md:pt-16" : STANDARD_PUBLIC_CONTENT_TOP_CLASS,
+        )}
+      >
         {isDiscoveryEnabled ? (
           <section className="mx-auto max-w-6xl py-12">
             {(showDiscoveryLabel && discoveryLabel) || (showDiscoveryTitle && discoveryTitle) || (showDiscoverySubtitle && discoverySubtitle) ? (

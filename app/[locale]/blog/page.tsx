@@ -10,6 +10,7 @@ import { buildLocalizedMetadata } from "@/lib/seo/metadata-builders";
 import { buildBreadcrumbSchema, buildItemListSchema } from "@/lib/seo/advanced/schema-builders";
 import { BlogClient, type BlogPostRow } from "@/components/blog/BlogClient";
 import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 import {
   getPublicBlogAuthors,
   getPublicBlogPosts,
@@ -144,7 +145,7 @@ function BlogServerShell({
 
   return (
     <div id="blog-server-shell" className="min-h-screen bg-background text-foreground">
-      <main className="app-container pt-[calc(4rem+2.5rem)] pb-16 sm:pt-[calc(5rem+3rem)]">
+      <main className={`app-container pb-16 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
         {heroEnabled ? (
           <section className="mb-8 max-w-4xl">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">

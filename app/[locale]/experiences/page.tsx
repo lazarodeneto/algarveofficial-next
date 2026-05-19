@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import ExperiencesClient from "@/components/experiences/ExperiencesClient";
 import { RouteLoadingState } from "@/components/layout/RouteLoadingState";
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 import { DEFAULT_LOCALE, isValidLocale, type Locale } from "@/lib/i18n/config";
 import {
   buildAbsoluteRouteUrl,
@@ -86,7 +87,7 @@ export default async function ExperiencesPage({ params }: PageProps) {
       />
 
       <div id="experiences-server-shell" className="min-h-screen bg-background text-foreground">
-        <main className="app-container pt-32 pb-20">
+        <main className={`app-container pb-20 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}>
           <section className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
               {tx["experiences.hero.badge"] ?? "Curated Adventures"}

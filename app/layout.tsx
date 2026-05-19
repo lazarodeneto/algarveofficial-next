@@ -21,6 +21,7 @@ const playfair = Playfair_Display({
   style: ["normal", "italic"],
   variable: "--font-playfair",
   display: "swap",
+  preload: false,
 });
 
 const inter = Inter({
@@ -35,6 +36,7 @@ const firaSans = Fira_Sans({
   weight: ["500", "700", "900"],
   variable: "--font-fira-sans",
   display: "swap",
+  preload: false,
 });
 
 const fontVariables = `${playfair.variable} ${inter.variable} ${firaSans.variable}`;

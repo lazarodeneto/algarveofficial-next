@@ -24,6 +24,7 @@ import {
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { RouteMessageState } from '@/components/layout/RouteMessageState';
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from '@/components/sections/hero-layout';
 import {
   ArticleRelatedListingCards,
   ArticleRelatedGuides,
@@ -320,7 +321,7 @@ export default function BlogPost({
       />
       <Header localeSwitchPaths={localeSwitchPaths} />
       
-      <main className="pt-20">
+      <main className={STANDARD_PUBLIC_CONTENT_TOP_CLASS}>
         {/* Hero Image */}
         <div className={cn(
           "relative h-[40vh] overflow-hidden md:h-[50vh]",

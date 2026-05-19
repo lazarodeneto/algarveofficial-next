@@ -15,11 +15,11 @@ vi.mock("@/components/ListingImage", () => ({
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key: string, options?: { count?: number }) => {
+    t: (key: string, options?: { count?: number; defaultValue?: string }) => {
       if (key === "categoryLayouts.accommodation.stars") {
         return `${options?.count ?? 0} stars`;
       }
-      return key;
+      return options?.defaultValue ?? key;
     },
   }),
 }));
@@ -109,6 +109,140 @@ describe("category-specific listing layouts", () => {
 
     expect(screen.getByText("listing.location")).toBeInTheDocument();
     expect(screen.getAllByText("Praia Coordenada, Lagoa, Algarve Portugal").length).toBeGreaterThan(0);
+  });
+
+  it("renders structured beach practical details, nearby items, and FAQ content", () => {
+    render(
+      <BeachesLayout
+        details={{
+          parking_info: "Parking is listed by the official tourism source.",
+          accessibility_info: "Access involves stairs.",
+          lifeguard_info: "Seasonal supervision should be checked locally.",
+          blue_flag_info: "Blue Flag status was not verified for the current year.",
+          nearby_beaches: [
+            {
+              name: "Praia Vizinha",
+              description: "A nearby published beach listing.",
+              href: "/listing/praia-vizinha",
+              verification_status: "Verified",
+            },
+          ],
+          nearby_restaurants: [
+            {
+              name: "Restaurante Teste",
+              type: "Restaurant",
+              description: "Official website verified nearby restaurant.",
+              slug: "restaurante-teste",
+              url: "https://example.com",
+            },
+          ],
+          nearby_attractions: [
+            {
+              name: "Coastal Trail",
+              type: "Walking trail",
+              description: "A verified coastal route.",
+              slug: "coastal-trail",
+            },
+          ],
+          faq_items: [
+            {
+              question: "Where is Praia Teste?",
+              answer: "Praia Teste is in Lagoa.",
+            },
+          ],
+        }}
+        listingName="Praia Teste"
+        cityName="Lagoa"
+      />,
+    );
+
+    expect(screen.getByText("Practical details")).toBeInTheDocument();
+    expect(screen.getByText("Parking")).toHaveClass("font-fira", "font-bold");
+    expect(screen.getByText("Parking is listed by the official tourism source.")).toBeInTheDocument();
+    expect(screen.getByText("Nearby beaches")).toBeInTheDocument();
+    expect(screen.getByText("Praia Vizinha")).toHaveClass("font-fira", "font-bold");
+    expect(screen.getByText("Nearby restaurants")).toBeInTheDocument();
+    expect(screen.getByText("Restaurante Teste")).toHaveClass("font-fira", "font-bold");
+    expect(screen.getByRole("link", { name: /Restaurante Teste/ })).toHaveAttribute("href", "/listing/restaurante-teste");
+    expect(screen.getByText("Nearby attractions")).toBeInTheDocument();
+    expect(screen.getByText("Coastal Trail")).toBeInTheDocument();
+    expect(screen.getByText("FAQ")).toBeInTheDocument();
+    expect(screen.getByText("Where is Praia Teste?")).toHaveClass("font-fira", "font-bold");
+  });
+
+  it("does not let stale localized beach details override verified base content", () => {
+    render(
+      <BeachesLayout
+        locale="pt-pt"
+        details={{
+          last_verified_at: "2026-05-18",
+          full_description: "New verified beach description.",
+          parking_info: "Verified parking detail.",
+          localized_content: {
+            "pt-pt": {
+              full_description: "Old translated beach description.",
+            },
+          },
+        }}
+        listingName="Praia Teste"
+        cityName="Lagoa"
+      />,
+    );
+
+    expect(screen.getByText("New verified beach description.")).toBeInTheDocument();
+    expect(screen.queryByText("Old translated beach description.")).not.toBeInTheDocument();
+    expect(screen.getByText("Verified parking detail.")).toBeInTheDocument();
+  });
+
+  it("renders nearby business cards for beach pages with internal listing links", () => {
+    render(
+      <BeachesLayout
+        details={{ highlights: ["Verified beach context"] }}
+        listingName="Praia Teste"
+        cityName="Lagoa"
+        nearbyBusinessListings={[
+          {
+            id: "business-1",
+            slug: "restaurante-teste",
+            name: "Restaurante Teste",
+            short_description: "Published restaurant listing close to the beach.",
+            featured_image_url: null,
+            updated_at: null,
+            distance_km: 1.2,
+            city: { name: "Lagoa" },
+            category: { name: "Restaurants", slug: "restaurants" },
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getAllByText("Nearby businesses").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Restaurante Teste").at(-1)).toHaveClass("font-fira", "font-bold");
+    expect(screen.getByText("Restaurants · Lagoa · ~1.2 km")).toBeInTheDocument();
+    const restaurantLinks = screen.getAllByRole("link", { name: /Restaurante Teste/ });
+    expect(restaurantLinks[restaurantLinks.length - 1]).toHaveAttribute("href", "/listing/test");
+  });
+
+  it("does not render unrelated fallback nearby listing cards for beach pages", () => {
+    render(
+      <BeachesLayout
+        details={{ highlights: ["Verified beach context"] }}
+        listingName="Praia Teste"
+        cityName="Lagoa"
+        nearbyListings={[
+          {
+            id: "far-1",
+            slug: "far-beach",
+            name: "Far Beach",
+            featured_image_url: null,
+            city: { name: "Aljezur" },
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.queryByText("Far Beach")).not.toBeInTheDocument();
+    expect(screen.queryByText("More attractions near Lagoa")).not.toBeInTheDocument();
   });
 
   it("does not render a beach map from fallback coordinates when category data explicitly has no coordinates", () => {

@@ -349,10 +349,17 @@ export function getAllowedListingGalleryImageInputs<T extends ListingGalleryImag
   );
   if (allowedGalleryKeys.size === 0) return [];
 
+  const seenGalleryKeys = new Set<string>();
   return getSortedGalleryInputs(galleryImages)
     .filter((image) => {
       const imageUrl = normalizeListingImageUrl(image.image_url ?? image.url);
       if (!imageUrl) return false;
-      return allowedGalleryKeys.has(getCanonicalImageKey(imageUrl));
+      const canonicalKey = getCanonicalImageKey(imageUrl);
+      if (!allowedGalleryKeys.has(canonicalKey) || seenGalleryKeys.has(canonicalKey)) {
+        return false;
+      }
+
+      seenGalleryKeys.add(canonicalKey);
+      return true;
     }) as T[];
 }

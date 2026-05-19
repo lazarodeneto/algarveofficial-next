@@ -19,6 +19,7 @@ export async function GET() {
   const siteUrl = getSiteUrl();
   const xml = buildSitemapIndexXml(
     [
+      `${siteUrl}/sitemap-seo-max.xml`,
       `${siteUrl}/sitemap.xml`,
       `${siteUrl}/sitemap-blog.xml`,
       `${siteUrl}/sitemap-events.xml`,

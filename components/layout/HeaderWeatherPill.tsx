@@ -94,11 +94,14 @@ export function HeaderWeatherPill({ compact = false, embedded = false, location 
     }
 
     setWeather(null);
-    setIsLoading(true);
+    setIsLoading(false);
 
     const controller = new AbortController();
+    let hasStarted = false;
 
     async function loadWeather() {
+      setIsLoading(true);
+
       try {
         const response = await fetch(locationConfig.url, {
           signal: controller.signal,
@@ -141,9 +144,23 @@ export function HeaderWeatherPill({ compact = false, embedded = false, location 
       }
     }
 
-    void loadWeather();
+    const startLoad = () => {
+      if (hasStarted) return;
+      hasStarted = true;
+      void loadWeather();
+    };
 
-    return () => controller.abort();
+    const passiveOnce: AddEventListenerOptions = { once: true, passive: true };
+    window.addEventListener("pointerdown", startLoad, passiveOnce);
+    window.addEventListener("scroll", startLoad, passiveOnce);
+    window.addEventListener("keydown", startLoad, { once: true });
+
+    return () => {
+      controller.abort();
+      window.removeEventListener("pointerdown", startLoad);
+      window.removeEventListener("scroll", startLoad);
+      window.removeEventListener("keydown", startLoad);
+    };
   }, [locationConfig.cacheKey, locationConfig.url]);
 
   const display = useMemo(() => {

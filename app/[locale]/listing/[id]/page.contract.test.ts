@@ -19,6 +19,12 @@ describe("localized listing page translation contract", () => {
     expect(source).toContain("publicListingTranslationOrNull");
   });
 
+  it("does not let stale beach translations override verified beach upgrades", () => {
+    expect(source).toContain("shouldUseBeachBaseContent(publicListing.details)");
+    expect(source).toContain("isVerifiedBeachListing");
+    expect(source).toContain("SUPPORTED_LOCALES.map((locale) => [locale, null])");
+  });
+
   it("keeps English/source fallback behavior for missing translations", () => {
     expect(source).toContain("getLocalizedRequiredValue");
     expect(source).toContain("return hasTranslation ? \"\" : fallback");

@@ -11,6 +11,7 @@ import { buildWebPageSchema, buildFaqSchema } from "@/lib/seo/schemaBuilders.js"
 import { createPublicServerClient } from "@/lib/supabase/public-server";
 import { getServerTranslations } from "@/lib/i18n/server";
 import PartnerClient from "@/components/partner/PartnerClient";
+import { STANDARD_PUBLIC_CONTENT_TOP_CLASS } from "@/components/sections/hero-layout";
 import type { PartnerSettings } from "@/hooks/usePartnerSettings";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ?? "https://algarveofficial.com";
@@ -172,7 +173,11 @@ export default async function LocalePartnerPage({
       ) : null}
 
       <div id="partner-server-shell" className="min-h-screen bg-background text-foreground" suppressHydrationWarning>
-        <main id="main-content" className="app-container pt-32 pb-20" suppressHydrationWarning>
+        <main
+          id="main-content"
+          className={`app-container pb-20 ${STANDARD_PUBLIC_CONTENT_TOP_CLASS}`}
+          suppressHydrationWarning
+        >
           <section className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
             <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
               {partnerLabel}

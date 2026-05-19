@@ -8,12 +8,9 @@ import {
   Building2,
   ChevronDown,
   Compass,
-  Crown,
   Filter,
   Loader2,
-  MapPin,
   Search,
-  ShieldCheck,
   Sparkles,
   Star,
   Sun,
@@ -65,7 +62,6 @@ import {
 } from "@/lib/categoryMerges";
 import { translateCategoryName } from "@/lib/translateCategory";
 import { supabase } from "@/integrations/supabase/client";
-import type { Database } from "@/integrations/supabase/types";
 import { buildMunicipalityCityIndex } from "@/lib/cities/municipalityIndex";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import {
@@ -118,11 +114,9 @@ const Experiences = ({
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>(defaultCategorySlug);
-  const [selectedTier, setSelectedTier] = useState<Database["public"]["Tables"]["listings"]["Row"]["tier"] | "all">("all");
   const [shouldScrollToResults, setShouldScrollToResults] = useState(false);
   const scopedMemberSlugs = useMemo(
     () => getMergedMemberSlugs(defaultCategorySlug),
@@ -138,12 +132,6 @@ const Experiences = ({
     () => buildMergedCategoryOptions(categories),
     [categories],
   );
-  const scopedCategories = useMemo(() => {
-    const scopedSlugSet = new Set(scopedMemberSlugs);
-    return mergedCategories.filter((category) =>
-      category.memberSlugs.some((slug) => scopedSlugSet.has(slug)),
-    );
-  }, [mergedCategories, scopedMemberSlugs]);
 
   // Extract URL parameters and convert slugs to IDs
   useEffect(() => {
@@ -157,7 +145,7 @@ const Experiences = ({
       : defaultCategorySlug;
     const nextCategory =
       resolvedCategory === "all" ||
-      scopedCategories.some((category) => category.slug === resolvedCategory)
+      mergedCategories.some((category) => category.slug === resolvedCategory)
         ? resolvedCategory
         : defaultCategorySlug;
 
@@ -184,57 +172,56 @@ const Experiences = ({
       }
     }
 
-    const regionParam = params.get("region");
-    const nextRegion = regionParam ?? "all";
-
-    setSelectedRegion((previousRegion) =>
-      previousRegion === nextRegion ? previousRegion : nextRegion,
-    );
     setSelectedCities((previousCities) =>
       previousCities.length === 0 ? previousCities : [],
     );
-  }, [categories, cities, defaultCategorySlug, mergedCategories, scopedCategories]);
+
+    if (params.has("region") || params.has("tier")) {
+      params.delete("region");
+      params.delete("tier");
+      const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ""}${window.location.hash}`;
+      window.history.replaceState(window.history.state, "", nextUrl);
+    }
+  }, [categories, cities, defaultCategorySlug, mergedCategories]);
 
   const categoryMissingFromOptions = useMemo(
     () =>
       selectedCategory !== "all" &&
-      !scopedCategories.some((category) => category.slug === selectedCategory),
-    [scopedCategories, selectedCategory],
+      !mergedCategories.some((category) => category.slug === selectedCategory),
+    [mergedCategories, selectedCategory],
   );
 
 
   const scopedCategoryIds = useMemo(() => {
     return getMergedCategoryBySlug(defaultCategorySlug, mergedCategories)?.memberIds ?? [];
   }, [defaultCategorySlug, mergedCategories]);
+  const allCategoryIds = useMemo(
+    () => Array.from(new Set(mergedCategories.flatMap((category) => category.memberIds))),
+    [mergedCategories],
+  );
   const selectedCategoryIds = useMemo(() => {
     if (selectedCategory === "all") {
-      return Array.from(
-        new Set(scopedCategories.flatMap((category) => category.memberIds)),
-      );
+      return allCategoryIds;
     }
     return (
-      getMergedCategoryBySlug(selectedCategory, scopedCategories)?.memberIds ??
-      getMergedCategoryBySlug(defaultCategorySlug, scopedCategories)?.memberIds ??
+      getMergedCategoryBySlug(selectedCategory, mergedCategories)?.memberIds ??
+      getMergedCategoryBySlug(defaultCategorySlug, mergedCategories)?.memberIds ??
       []
     );
-  }, [defaultCategorySlug, scopedCategories, selectedCategory]);
+  }, [allCategoryIds, defaultCategorySlug, mergedCategories, selectedCategory]);
 
   const hasActiveFilters =
     selectedCategory !== defaultCategorySlug ||
-    selectedRegion !== "all" ||
     selectedCity !== "all" ||
     selectedCities.length > 0 ||
-    selectedTier !== "all" ||
     debouncedSearch !== "";
 
   const clearFilters = useCallback(() => {
     setSearch("");
     setDebouncedSearch("");
-    setSelectedRegion("all");
     setSelectedCity("all");
     setSelectedCities([]);
     setSelectedCategory(defaultCategorySlug);
-    setSelectedTier("all");
   }, [defaultCategorySlug]);
 
   // City listing counts scoped to selected top-level category.
@@ -348,12 +335,10 @@ const Experiences = ({
       "experiences-listings",
       defaultCategorySlug,
       debouncedSearch,
-      selectedRegion,
       selectedCity,
       [...selectedCities].sort().join(","),
       selectedCategory,
       [...selectedCategoryIds].sort().join(","),
-      selectedTier,
       locale,
     ],
     queryFn: async () => {
@@ -391,12 +376,6 @@ const Experiences = ({
       // Fallback to single city selection
       else if (selectedCity !== "all") {
         query = query.eq("city_id", selectedCity);
-      }
-      if (selectedRegion !== "all") {
-        query = query.eq("region_id", selectedRegion);
-      }
-      if (selectedTier !== "all") {
-        query = query.eq("tier", selectedTier);
       }
       query = query
         .order("tier", { ascending: true })
@@ -670,6 +649,8 @@ const Experiences = ({
                       <div className="relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                         <Input
+                          id="experiences-filter-search"
+                          name="experiences-filter-search"
                           placeholder={t(
                             "directory.searchPlaceholder",
                           )}
@@ -681,45 +662,7 @@ const Experiences = ({
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="space-y-2">
-                          <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-primary" />
-                            {t("directory.region")}
-                          </label>
-                          <Select
-                            value={selectedRegion}
-                            onValueChange={setSelectedRegion}
-                          >
-                            <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
-                              <SelectValue
-                                placeholder={t(
-                                  "directory.allRegions",
-                                )}
-                              />
-                            </SelectTrigger>
-                            <SelectContent className="bg-popover border-border shadow-lg">
-                              <SelectItem value="all">
-                                {t(
-                                  "directory.allRegions",
-                                )}
-                              </SelectItem>
-                              {[...regions]
-                                .sort((a, b) =>
-                                  a.name.localeCompare(b.name),
-                                )
-                                .map((region) => (
-                                  <SelectItem
-                                    key={region.id}
-                                    value={region.id}
-                                  >
-                                    {region.name}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
                             <Building2 className="h-4 w-4 text-primary" />
@@ -785,7 +728,7 @@ const Experiences = ({
                               <SelectItem value="all">
                                 {t("directory.allCategories")}
                               </SelectItem>
-                              {[...scopedCategories]
+                              {[...mergedCategories]
                                 .sort((a, b) =>
                                   a.name.localeCompare(b.name),
                                 )
@@ -801,46 +744,6 @@ const Experiences = ({
                                     )}
                                   </SelectItem>
                                 ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-body-xs font-medium text-muted-foreground flex items-center gap-2">
-                            <Crown className="h-4 w-4 text-primary" />
-                            {t("directory.tier")}
-                          </label>
-                          <Select
-                            value={selectedTier}
-                            onValueChange={(value) =>
-                              setSelectedTier(
-                                value as Database["public"]["Tables"]["listings"]["Row"]["tier"] | "all",
-                              )
-                            }
-                          >
-                            <SelectTrigger className="h-12 bg-muted/30 border-border hover:bg-muted/50 focus:bg-background">
-                              <SelectValue
-                                placeholder={t(
-                                  "directory.allTiers",
-                                )}
-                              />
-                            </SelectTrigger>
-                            <SelectContent className="bg-popover border-border shadow-lg">
-                              <SelectItem value="all">
-                                {t("directory.allTiers")}
-                              </SelectItem>
-                              <SelectItem value="signature">
-                                <div className="flex items-center gap-2">
-                                  <Crown className="h-4 w-4 text-primary" />
-                                  {t("directory.tierSignature")}
-                                </div>
-                              </SelectItem>
-                              <SelectItem value="verified">
-                                <div className="flex items-center gap-2">
-                                  <ShieldCheck className="h-4 w-4 text-green-500" />
-                                  {t("directory.tierVerified")}
-                                </div>
-                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </div>

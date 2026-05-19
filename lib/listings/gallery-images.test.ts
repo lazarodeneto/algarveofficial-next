@@ -319,4 +319,18 @@ describe("listing gallery images", () => {
       "image-9",
     ]);
   });
+
+  it("does not return duplicate raw gallery rows for the same canonical image", () => {
+    const allowedRows = getAllowedListingGalleryImageInputs({
+      tier: "verified",
+      galleryImages: [
+        { id: "first", image_url: "https://example.com/a.jpg?w=800", display_order: 1 },
+        { id: "duplicate", image_url: "https://example.com/a.jpg?width=1200", display_order: 2 },
+        { id: "second", image_url: "https://example.com/b.jpg", display_order: 3 },
+      ],
+      listingName: "Verified listing",
+    });
+
+    expect(allowedRows.map((image) => image.id)).toEqual(["first", "second"]);
+  });
 });

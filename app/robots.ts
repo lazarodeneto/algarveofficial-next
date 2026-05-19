@@ -60,6 +60,7 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: [
+      `${siteUrl}/sitemap-seo-max.xml`,
       `${siteUrl}/sitemap_index.xml`,
       `${siteUrl}/sitemap.xml`,
       `${siteUrl}/sitemap-blog.xml`,

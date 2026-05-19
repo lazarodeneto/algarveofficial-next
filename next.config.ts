@@ -18,6 +18,32 @@ const scriptSrc = [
   "https://tpwdg.com",
 ].join(" ");
 
+const styleSrc = "'self' 'unsafe-inline' https://fonts.googleapis.com";
+
+const connectSrc = [
+  "'self'",
+  "https://*.supabase.co",
+  "wss://*.supabase.co",
+  "https://www.google-analytics.com",
+  "https://*.google-analytics.com",
+  "https://analytics.google.com",
+  "https://*.analytics.google.com",
+  "https://*.googletagmanager.com",
+  "https://analytics.tiktok.com",
+  "https://*.onetrust.com",
+  "https://geolocation.onetrust.com",
+  "https://cdn.cookie-script.com",
+  "https://tpwdg.com",
+  "https://www.apistp.com",
+  "https://suggest.apistp.com",
+  "https://www.aviasales.com",
+  "https://aviasales.com",
+  "https://www.hotellook.com",
+  "https://hotellook.com",
+  "https://*.ingest.sentry.io",
+  "https://*.ingest.us.sentry.io",
+].join(" ");
+
 const cspDirectives = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -26,11 +52,16 @@ const cspDirectives = [
   "worker-src 'self' blob:",
   "child-src 'self' blob:",
   `script-src ${scriptSrc}`,
-  `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
+  `script-src-elem ${scriptSrc}`,
+  "script-src-attr 'unsafe-inline'",
+  `style-src ${styleSrc}`,
+  `style-src-elem ${styleSrc}`,
+  "style-src-attr 'unsafe-inline'",
   `font-src 'self' data: https://fonts.gstatic.com`,
   `img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com`,
-  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://analytics.tiktok.com https://*.onetrust.com https://geolocation.onetrust.com https://cdn.cookie-script.com https://tpwdg.com https://www.apistp.com https://suggest.apistp.com https://www.aviasales.com https://aviasales.com https://www.hotellook.com https://hotellook.com`,
+  `connect-src ${connectSrc}`,
   `media-src 'self' blob: https:`,
+  `manifest-src 'self'`,
   `frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://tpwdg.com https://www.aviasales.com https://aviasales.com https://www.hotellook.com https://hotellook.com`,
   `frame-ancestors 'self' https://algarveofficial.com https://*.algarveofficial.com`,
   `upgrade-insecure-requests`,
@@ -40,7 +71,6 @@ const cspHeaderValue = cspDirectives.join("; ");
 
 const cspReportOnlyValue = cspDirectives
   .filter((directive) => directive !== "upgrade-insecure-requests")
-  .map((directive) => (directive === "default-src 'self'" ? "default-src 'none'" : directive))
   .concat("report-uri /api/csp-report")
   .join("; ");
 

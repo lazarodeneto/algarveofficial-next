@@ -27,18 +27,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function NotFound() {
   const locale = await getRequestLocale();
-  const tx = await getServerTranslations(locale, [
-    "notFound.title",
-    "notFound.description",
-    "notFound.backHome",
-  ]);
 
   return (
     <LocalizedNotFoundState
-      title={tx["notFound.title"]}
-      description={tx["notFound.description"]}
-      backHomeLabel={tx["notFound.backHome"]}
       homeHref={buildStaticRoutePath("home", locale)}
+      beachesHref={buildStaticRoutePath("beaches", locale)}
+      mapHref={buildStaticRoutePath("map", locale)}
+      experiencesHref={buildStaticRoutePath("experiences", locale)}
     />
   );
 }
