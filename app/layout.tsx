@@ -4,7 +4,6 @@ import { Inter, Playfair_Display, Fira_Sans } from "next/font/google";
 import { unstable_cache } from "next/cache";
 
 import "../index.css";
-import { AppLazyMotion } from "@/components/providers/AppLazyMotion";
 import { ClientRuntimeScripts } from "@/components/providers/ClientRuntimeScripts";
 import { RootProviders } from "@/components/providers/RootProviders";
 import { VercelTelemetry } from "@/components/providers/VercelTelemetry";
@@ -107,12 +106,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang={htmlLang} data-locale={locale} suppressHydrationWarning className={fontVariables}>
       <head>
-        {supabaseOrigin ? (
-          <>
-            <link rel="preconnect" href={supabaseOrigin} crossOrigin="" />
-            <link rel="dns-prefetch" href={supabaseOrigin} />
-          </>
-        ) : null}
+        {supabaseOrigin ? <link rel="dns-prefetch" href={supabaseOrigin} /> : null}
       </head>
       <body className={fontVariables}>
         <ClientRuntimeScripts googleTagId={googleTagId} />
@@ -124,9 +118,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-        <AppLazyMotion>
-          <RootProviders>{children}</RootProviders>
-        </AppLazyMotion>
+        <RootProviders>{children}</RootProviders>
         {enableVercelTelemetry ? <VercelTelemetry /> : null}
       </body>
     </html>

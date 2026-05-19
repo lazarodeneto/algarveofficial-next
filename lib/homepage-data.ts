@@ -35,7 +35,6 @@ import {
 import {
   buildHomepageListingPool,
   getLisbonDateSeed,
-  HOMEPAGE_LISTING_LIMIT,
   splitHomepageListings,
 } from "@/lib/listings/homepage-listing-pool";
 import {
@@ -59,7 +58,6 @@ const HOMEPAGE_CATEGORY_FIELDS =
   "id, name, slug, short_description, description, icon, image_url, is_active, is_featured, display_order, created_at";
 const HOMEPAGE_CITY_FIELDS =
   "id, name, slug, short_description, description, image_url, hero_image_url, latitude, longitude, is_active, is_featured, display_order, created_at";
-const HOMEPAGE_LISTING_CANDIDATE_GROUP_LIMIT = Math.max(HOMEPAGE_LISTING_LIMIT * 2, 46);
 function getServerSupabase() {
   return createPublicServerClient();
 }
@@ -380,83 +378,6 @@ async function fetchPublishedListings(
   );
 }
 
-async function fetchHomepageListingCandidateGroup(
-  supabase: ReturnType<typeof getServerSupabase>,
-  group: "signature" | "verified" | "fallback",
-): Promise<ListingWithRelations[]> {
-  let query = supabase
-    .from("listings")
-    .select(
-      `
-      ${PUBLIC_LISTING_FIELDS},
-      city:cities(${PUBLIC_CITY_FIELDS}),
-      region:regions(${PUBLIC_REGION_FIELDS}),
-      category:categories(${PUBLIC_CATEGORY_FIELDS})
-    `,
-    )
-    .eq("status", "published")
-    .order("created_at", { ascending: false })
-    .limit(HOMEPAGE_LISTING_CANDIDATE_GROUP_LIMIT);
-
-  if (group === "signature" || group === "verified") {
-    query = query.eq("tier", group);
-  } else {
-    query = query
-      .neq("tier", "signature")
-      .neq("tier", "verified")
-      .not("google_rating", "is", null);
-  }
-
-  const { data, error } = await query;
-  if (error) return [];
-  return (data ?? []) as unknown as ListingWithRelations[];
-}
-
-async function fetchHomepageListingCandidates(
-  supabase: ReturnType<typeof getServerSupabase>,
-  locale: Locale,
-): Promise<ListingWithRelations[]> {
-  const [signatureListings, verifiedListings, fallbackListings] = await Promise.all([
-    fetchHomepageListingCandidateGroup(supabase, "signature"),
-    fetchHomepageListingCandidateGroup(supabase, "verified"),
-    fetchHomepageListingCandidateGroup(supabase, "fallback"),
-  ]);
-
-  const listingsById = new Map<string, ListingWithRelations>();
-  for (const listing of [...signatureListings, ...verifiedListings, ...fallbackListings]) {
-    if (!listingsById.has(listing.id)) {
-      listingsById.set(listing.id, listing);
-    }
-  }
-
-  const candidates = [...listingsById.values()];
-
-  if (locale === "en" || candidates.length === 0) {
-    return candidates;
-  }
-
-  const listingIds = candidates.map((listing) => listing.id);
-  const cityIds = candidates.map((listing) => listing.city?.id).filter(Boolean) as string[];
-  const regionIds = candidates.map((listing) => listing.region?.id).filter(Boolean) as string[];
-  const categoryIds = candidates.map((listing) => listing.category?.id).filter(Boolean) as string[];
-
-  const [listingTranslations, cityTranslations, regionTranslations, categoryTranslations] =
-    await Promise.all([
-      fetchListingTranslations(locale, listingIds),
-      fetchCityTranslations(locale, cityIds),
-      fetchRegionTranslations(locale, regionIds),
-      fetchCategoryTranslations(locale, categoryIds),
-    ]);
-
-  return mergeListingLocalizations(
-    candidates,
-    listingTranslations,
-    cityTranslations,
-    regionTranslations,
-    categoryTranslations,
-  );
-}
-
 async function fetchCuratedAssignments(
   supabase: ReturnType<typeof getServerSupabase>,
 ): Promise<CuratedListingWithRelations[]> {
@@ -650,46 +571,10 @@ export async function getDehydratedHomeCriticalState(locale?: string): Promise<{
   const resolvedLocale = normalizeHomepageLocale(locale ?? "en");
   const supabase = getServerSupabase();
 
-  const [homepageSettings, globalSettings, homepageListingCandidates, cmsRuntimeSettings] = await Promise.all([
-    fetchHomepageSettingsWithTranslation(supabase, resolvedLocale),
-    fetchGlobalSettings(supabase),
-    fetchHomepageListingCandidates(supabase, resolvedLocale),
-    fetchPageBuilderRuntimeSettings(resolvedLocale),
-  ]);
-  const homepageListingPool = buildHomepageListingPool(homepageListingCandidates, getLisbonDateSeed());
-  const homepageListingSplit = splitHomepageListings(homepageListingPool);
-
+  const homepageSettings = await fetchHomepageSettingsWithTranslation(supabase, resolvedLocale);
   const queryClient = createAppQueryClient();
 
   queryClient.setQueryData(homepageSettingsQueryKey(resolvedLocale), homepageSettings);
-  queryClient.setQueryData(
-    homepageListingSplitQueryKey("editors", resolvedLocale),
-    homepageListingSplit.editorsSelection,
-  );
-  queryClient.setQueryData(
-    homepageListingSplitQueryKey("premium", resolvedLocale),
-    homepageListingSplit.premiumListings,
-  );
-  queryClient.setQueryData(
-    globalSettingsQueryKey(HOME_QUICK_LINK_SETTING_KEYS, "default"),
-    globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),
-  );
-  queryClient.setQueryData(
-    globalSettingsQueryKey(HOME_QUICK_LINK_SETTING_KEYS, resolvedLocale),
-    globalSettings.filter((setting) => HOME_QUICK_LINK_SETTING_KEYS.includes(setting.key)),
-  );
-  queryClient.setQueryData(
-    globalSettingsQueryKey([HERO_OVERLAY_INTENSITY_SETTING_KEY], "default"),
-    globalSettings.filter((setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY),
-  );
-  queryClient.setQueryData(
-    globalSettingsQueryKey([HERO_OVERLAY_INTENSITY_SETTING_KEY], resolvedLocale),
-    globalSettings.filter((setting) => setting.key === HERO_OVERLAY_INTENSITY_SETTING_KEY),
-  );
-  queryClient.setQueryData(
-    globalSettingsQueryKey(CMS_PAGE_BUILDER_RUNTIME_KEYS, resolvedLocale),
-    keepHomepageCmsRuntimeSettings(cmsRuntimeSettings),
-  );
   if (resolvedLocale !== "en" && homepageSettings?.id) {
     queryClient.setQueryData(
       homepageSettingsTranslationQueryKey(homepageSettings.id, resolvedLocale),

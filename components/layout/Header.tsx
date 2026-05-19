@@ -22,7 +22,6 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { BrandLogo } from "@/components/ui/brand-logo";
-import { HeaderMegaMenu, MobileMegaMenuSections } from "./HeaderMegaMenu";
 import { HeaderWeatherPill, type HeaderWeatherLocation } from "./HeaderWeatherPill";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
@@ -37,6 +36,33 @@ const CommandSearch = dynamic(
   () => import("@/components/ui/command-search").then((module) => module.CommandSearch),
   { ssr: false },
 );
+const HeaderMegaMenu = dynamic(
+  () => import("./HeaderMegaMenu").then((module) => module.HeaderMegaMenu),
+  { ssr: false },
+);
+const MobileMegaMenuSections = dynamic(
+  () => import("./HeaderMegaMenu").then((module) => module.MobileMegaMenuSections),
+  { ssr: false },
+);
+
+function useViewportMatch(query: string) {
+  const [matches, setMatches] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return undefined;
+    }
+
+    const mediaQuery = window.matchMedia(query);
+    const syncMatch = () => setMatches(mediaQuery.matches);
+
+    syncMatch();
+    mediaQuery.addEventListener("change", syncMatch);
+    return () => mediaQuery.removeEventListener("change", syncMatch);
+  }, [query]);
+
+  return matches;
+}
 
 interface HeaderProps {
   localeSwitchPaths?: Record<string, string>;
@@ -51,6 +77,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const { t } = useTranslation();
   const l = useLocalePath();
   const pathname = usePathname() ?? "/";
+  const canRenderDesktopNavigation = useViewportMatch("(min-width: 960px)");
   const barePath = stripLocaleFromPathname(pathname);
   const isLeftSidebarActive = !SIDEBAR_EXCLUDED_PREFIXES.some((prefix) =>
     barePath.startsWith(prefix),
@@ -180,7 +207,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
             {/* Primary Navigation */}
             <div className="hidden min-w-0 flex-1 items-center justify-center min-[960px]:flex min-[1280px]:justify-start">
-              <HeaderMegaMenu />
+              {canRenderDesktopNavigation ? <HeaderMegaMenu /> : null}
             </div>
 
             {/* Laptop Actions (1024-1359): compact utility row */}

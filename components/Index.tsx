@@ -129,6 +129,10 @@ const HomeFinalEndcap = dynamic(
   },
 );
 const Footer = dynamic(() => import("@/components/layout/Footer").then((mod) => mod.Footer));
+const DeferredHomeMotion = dynamic(
+  () => import("@/components/providers/AppLazyMotion").then((mod) => mod.AppLazyMotion),
+  { ssr: false },
+);
 
 // Section ID to component mapping
 const SECTION_COMPONENTS: Record<string, ComponentType<HomeSectionComponentProps>> = {
@@ -184,6 +188,7 @@ const DEFAULT_SECTION_ORDER = [
 
 const DEFAULT_DISABLED_BLOCK_IDS = new Set(["featured-city"]);
 const CRITICAL_HOME_SECTION_IDS = new Set<string>();
+const HOME_MOTION_SECTION_IDS = new Set(["categories", "cities", "newsletter"]);
 
 function scheduleDeferredHomeSectionReveal(callback: () => void) {
   let disposed = false;
@@ -240,10 +245,12 @@ function DeferredHomeSection({
   children,
   id,
   placeholder,
+  withMotion = false,
 }: {
   children: ReactNode;
   id: string;
   placeholder?: ReactNode;
+  withMotion?: boolean;
 }) {
   const [shouldRender, setShouldRender] = useState(false);
 
@@ -254,7 +261,13 @@ function DeferredHomeSection({
 
   return (
     <div data-home-section-deferred={id}>
-      {shouldRender ? children : placeholder}
+      {shouldRender ? (
+        withMotion ? (
+          <DeferredHomeMotion>{children}</DeferredHomeMotion>
+        ) : (
+          children
+        )
+      ) : placeholder}
     </div>
   );
 }
@@ -392,6 +405,7 @@ const Index = () => {
       <DeferredHomeSection
         key={id}
         id={id}
+        withMotion={HOME_MOTION_SECTION_IDS.has(id)}
         placeholder={
           id === "quick-links" ? (
             <HomeQuickLinksStaticPreview

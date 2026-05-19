@@ -1,6 +1,5 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/contexts/ThemeContext";
-import { m } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 interface ThemeToggleProps {
@@ -26,18 +25,13 @@ export function ThemeToggle({ variant = "default", className }: ThemeToggleProps
         )}
         aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
       >
-        <m.span
-          key={isDark ? "sun" : "moon"}
-          initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
-          animate={{ rotate: 0, opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-        >
+        <span className="inline-flex transition-[opacity,transform] duration-200 ease-out">
           {isDark ? (
             <Sun className="h-4 w-4 text-white" />
           ) : (
             <Moon className="h-4 w-4 text-foreground/80" />
           )}
-        </m.span>
+        </span>
       </button>
     );
   }
@@ -58,17 +52,18 @@ export function ThemeToggle({ variant = "default", className }: ThemeToggleProps
       <Moon className="absolute right-2 h-4 w-4 text-foreground/40" />
       
       {/* Sliding thumb with glass effect */}
-      <m.div
-        className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 shadow-lg"
-        animate={{ x: isDark ? 30 : 0 }}
-        transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      <span
+        className={cn(
+          "relative z-10 flex h-6 w-6 items-center justify-center rounded-full border border-white/30 bg-white/20 shadow-lg backdrop-blur-sm transition-transform duration-200 ease-out",
+          isDark ? "translate-x-[30px]" : "translate-x-0",
+        )}
       >
         {isDark ? (
           <Moon className="h-3.5 w-3.5 text-primary" />
         ) : (
           <Sun className="h-3.5 w-3.5 text-foreground" />
         )}
-      </m.div>
+      </span>
     </button>
   );
 }

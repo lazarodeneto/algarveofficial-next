@@ -368,7 +368,7 @@ export function HeroSection() {
               {heroBadge}
             </p>
 
-            <h1 className="[font-family:Georgia,serif] text-[clamp(2.75rem,10vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
+            <h1 className="[font-family:Georgia,serif] text-[clamp(2.75rem,10vw,6.75rem)] font-normal leading-[0.92] tracking-normal text-white">
               <span className="block">{heroTitleLead},</span>
               <span className="block italic text-primary">{heroTitleHighlight}</span>
             </h1>
