@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { usePathname } from "next/navigation";
 
 import { PublicSiteSidebar } from "@/components/layout/PublicSiteSidebar";
+import { isAuthRoutePath } from "@/lib/i18n/route-rules";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 interface PublicSiteFrameProps {
@@ -18,7 +19,9 @@ export function PublicSiteFrame({ children }: PublicSiteFrameProps) {
   // Strip locale prefix before checking route prefixes
   // so /en/admin, /pt-pt/admin, etc. are all correctly identified
   const barePath = stripLocaleFromPathname(pathname);
-  const shouldHideSidebar = SIDEBAR_EXCLUDED_PREFIXES.some((prefix) => barePath.startsWith(prefix));
+  const shouldHideSidebar =
+    isAuthRoutePath(pathname) ||
+    SIDEBAR_EXCLUDED_PREFIXES.some((prefix) => barePath.startsWith(prefix));
 
   if (shouldHideSidebar) {
     return <>{children}</>;

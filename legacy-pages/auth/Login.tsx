@@ -11,13 +11,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, ArrowLeft, Mail, Lock, CheckCircle } from 'lucide-react';
 import { GoogleIcon } from '@/components/ui/google-icon';
-import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useLocalePath } from '@/hooks/useLocalePath';
 
 export default function Login() {
   const { t } = useTranslation();
-  const { login, loginWithGoogle, isLoading, isAuthenticated, user, getDashboardPath } = useAuth();
+  const { login, loginWithGoogle, isAuthenticated, user, getDashboardPath } = useAuth();
   const router = useRouter();
   const l = useLocalePath();
   const [email, setEmail] = useState('');
@@ -113,12 +112,7 @@ export default function Login() {
 
       {/* Right Panel - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <m.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
+        <div className="w-full max-w-md">
           {/* Mobile back link */}
           <Link 
             href={l("/")} 
@@ -251,7 +245,7 @@ export default function Login() {
               </CardFooter>
             </form>
           </Card>
-        </m.div>
+        </div>
       </div>
     </div>
   );

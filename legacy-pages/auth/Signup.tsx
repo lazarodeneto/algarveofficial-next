@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, ArrowLeft, Mail, Lock, User, CheckCircle, Globe } from 'lucide-react';
-import { m } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useLocalePath } from '@/hooks/useLocalePath';
 
@@ -132,12 +131,7 @@ export default function Signup() {
 
       {/* Right Panel - Signup Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
-        <m.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="w-full max-w-md"
-        >
+        <div className="w-full max-w-md">
           {/* Mobile back link */}
           <Link 
             href={l("/")} 
@@ -310,7 +304,7 @@ export default function Signup() {
               </CardFooter>
             </form>
           </Card>
-        </m.div>
+        </div>
       </div>
     </div>
   );
