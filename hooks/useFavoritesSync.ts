@@ -1,10 +1,14 @@
 import { useEffect, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 // localStorage keys used by the favorite hooks
 const LISTINGS_STORAGE_KEY = 'algarve-favorite-listings';
 const CATEGORIES_STORAGE_KEY = 'algarve-favorite-categories';
+
+async function getSupabaseClient() {
+  const { supabase } = await import("@/integrations/supabase/client");
+  return supabase;
+}
 
 interface LocalFavorite {
   id: string;
@@ -28,6 +32,8 @@ export function useFavoritesSync() {
 
     const syncFavoritesToSupabase = async () => {
       try {
+        const supabase = await getSupabaseClient();
+
         // Get localStorage favorites
         const localListings = getLocalFavorites(LISTINGS_STORAGE_KEY);
         const localCategories = getLocalFavorites(CATEGORIES_STORAGE_KEY);

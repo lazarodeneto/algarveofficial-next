@@ -1,7 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentType } from "react";
 
 import { useLocalePath } from "@/hooks/useLocalePath";
 import {
@@ -9,15 +8,14 @@ import {
   CURRENT_COOKIE_CONSENT_VERSION,
 } from "@/lib/cookieConsent";
 
-const DeferredCookieConsentDrawer = dynamic(
-  () =>
-    import("@/components/gdpr/CookieConsentDrawer").then(
-      (module) => module.CookieConsentDrawer,
-    ),
-  { ssr: false },
-);
-
 interface CookieConsentBannerWrapperProps {
+  deferInitialPrompt?: boolean;
+}
+
+interface CookieConsentDrawerProps {
+  privacyUrl: string;
+  cookieUrl: string;
+  version: string;
   deferInitialPrompt?: boolean;
 }
 
@@ -58,6 +56,7 @@ export function CookieConsentBannerWrapper({
 }: CookieConsentBannerWrapperProps) {
   const l = useLocalePath();
   const [enabled, setEnabled] = useState(!deferInitialPrompt);
+  const [Drawer, setDrawer] = useState<ComponentType<CookieConsentDrawerProps> | null>(null);
 
   useEffect(() => {
     if (!deferInitialPrompt) {
@@ -74,10 +73,25 @@ export function CookieConsentBannerWrapper({
     };
   }, [deferInitialPrompt]);
 
-  if (!enabled) return null;
+  useEffect(() => {
+    if (!enabled || Drawer) return undefined;
+
+    let disposed = false;
+    void import("@/components/gdpr/CookieConsentDrawer").then((module) => {
+      if (!disposed) {
+        setDrawer(() => module.CookieConsentDrawer);
+      }
+    });
+
+    return () => {
+      disposed = true;
+    };
+  }, [Drawer, enabled]);
+
+  if (!enabled || !Drawer) return null;
 
   return (
-    <DeferredCookieConsentDrawer
+    <Drawer
       privacyUrl={l("/privacy-policy")}
       cookieUrl={l("/cookie-policy")}
       version={CURRENT_COOKIE_CONSENT_VERSION}

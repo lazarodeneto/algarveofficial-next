@@ -33,6 +33,7 @@ import { I18nProvider } from "./I18nProvider";
 interface LiteAppProvidersProps {
   children: ReactNode;
   initialMessages?: LocaleMessages;
+  initialMessagesArePartial?: boolean;
   initialCmsRuntimeSettings?: RuntimeSettingRow[];
   locale?: string;
 }
@@ -194,6 +195,7 @@ function LiteCmsPageBuilderProvider({
 export function LiteAppProviders({
   children,
   initialMessages,
+  initialMessagesArePartial = false,
   initialCmsRuntimeSettings,
   locale,
 }: LiteAppProvidersProps) {
@@ -210,7 +212,10 @@ export function LiteAppProviders({
 
   return (
     <QueryClientProvider client={queryClient}>
-      <I18nProvider initialMessages={initialMessages}>
+      <I18nProvider
+        initialMessages={initialMessages}
+        initialMessagesArePartial={initialMessagesArePartial}
+      >
         <HtmlLocaleSync />
         <GlobalErrorBoundary>
           <ThemeProvider>

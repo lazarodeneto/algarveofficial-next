@@ -2,7 +2,6 @@
 
 import { ReactNode, useState, useEffect, useRef, lazy, Suspense, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { stripLocaleFromPathname } from "@/lib/i18n/routing";
@@ -16,6 +15,11 @@ interface MaintenanceGuardProps {
 
 const IP_TIMEOUT_MS = 5000;
 const subscribeToClient = () => () => {};
+
+async function getSupabaseClient() {
+  const { supabase } = await import("@/integrations/supabase/client");
+  return supabase;
+}
 
 function scheduleMaintenanceSettingsCheck(callback: () => void) {
   const timeoutId = window.setTimeout(callback, 12000);
@@ -58,6 +62,7 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
 
     const fetchClientIp = async () => {
       try {
+        const supabase = await getSupabaseClient();
         const { data, error } = await supabase.functions.invoke('get-client-ip');
         if (!error && data?.ip) {
           setClientIp(data.ip);

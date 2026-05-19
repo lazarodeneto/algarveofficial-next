@@ -1,4 +1,3 @@
-import { m } from "framer-motion";
 import Link from "next/link";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { useFavoriteCategories } from "@/hooks/useFavoriteCategories";
@@ -70,34 +69,24 @@ export function CategoriesSection() {
     <section id="categories" className="py-24 bg-background lg:py-[40px]">
       <div className="app-container">
         {/* Section Header */}
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mx-auto mb-10 max-w-[720px] text-center md:mb-12"
-        >
+        <div className="mx-auto mb-10 max-w-[720px] text-center md:mb-12">
           <h2 className="text-title font-serif font-medium text-foreground">
             {t("sections.homepage.categories.title")}
           </h2>
           <p className="mx-auto mt-3 max-w-[720px] text-body text-muted-foreground dark:text-white/80">
             {t("sections.homepage.categories.intro")}
           </p>
-        </m.div>
+        </div>
 
         {/* Categories Grid */}
         <div className="grid gap-4 md:gap-5 lg:gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,16rem),1fr))]">
-          {categoriesWithListings.map((category, index) => {
+          {categoriesWithListings.map((category) => {
             const IconComponent = getCategoryIconComponent(category.icon ?? undefined);
             const displayName = translateCategoryName(t, category.slug, category.name);
             
             return (
-              <m.div
+              <div
                 key={category.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
                 className="relative group min-w-0 h-full"
               >
                 {/* Favorite Button - Top Right */}
@@ -124,7 +113,7 @@ export function CategoriesSection() {
                     {getCategoryCount(category)} {t("sections.categories.listings")}
                   </span>
                 </Link>
-              </m.div>
+              </div>
             );
           })}
         </div>

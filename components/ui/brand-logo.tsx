@@ -115,7 +115,7 @@ export function BrandLogo({
         )
       ) : null}
       {showText && (
-        <span className={cn(config.text, "font-serif font-bold tracking-tight", wordmarkClassName)}>
+        <span className={cn(config.text, "font-serif font-normal tracking-tight", wordmarkClassName)}>
           <span className="brand-logo-algarve text-gradient-gold">{siteFirstWord}</span>
           {siteRestLabel ? (
             <span className="brand-logo-official text-black">{siteRestLabel}</span>

@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
-import dynamic from "next/dynamic";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { SoftReveal } from "@/components/ui/SoftReveal";
-import { useHomepageSettings } from "@/hooks/useHomepageSettings";
+import { usePublicHomepageSettings } from "@/hooks/usePublicHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { CmsBlock } from "@/components/cms/CmsBlock";
 import { cmsText, getHomeSectionCopy, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
+import type { HomeSectionRenderable } from "@/components/home/home-section-loader";
 
 function HomeSectionFallback() {
   return (
@@ -35,122 +35,34 @@ function VipSectionFallback() {
   );
 }
 
-type HomeSectionComponentProps = {
-  copy?: HomeSectionCopy;
-  listingCount?: number;
-};
-type HomeSectionRenderable = ComponentType<HomeSectionComponentProps>;
+const FINAL_ENDCAP_FALLBACK = () => (
+  <div className="bg-background pb-14 pt-4 sm:pb-18 lg:pb-20" aria-hidden="true">
+    <div className="app-container content-max">
+      <div className="h-44 rounded-sm border border-border/50 bg-muted/35 animate-pulse sm:h-48" />
+    </div>
+  </div>
+);
 
-function selectHomeSection(module: unknown, exportName: string): HomeSectionRenderable {
-  return (module as Record<string, HomeSectionRenderable>)[exportName];
+function renderVipSectionFallback() {
+  return <VipSectionFallback />;
 }
 
-const withHomeSectionLoading = (
-  loader: () => Promise<unknown>,
-  select?: (module: unknown) => HomeSectionRenderable,
-  loading: () => ReturnType<typeof HomeSectionFallback> = () => <HomeSectionFallback />,
-) =>
-  dynamic<HomeSectionComponentProps>(async () => {
-    const mod = await loader();
-    return select ? select(mod) : (mod as { default: HomeSectionRenderable }).default;
-  }, {
-    loading,
-  });
-
-const RegionsSection = withHomeSectionLoading(
-  () => import("@/components/sections/RegionsSection"),
-  (mod) => selectHomeSection(mod, "RegionsSection"),
-);
-const HomeQuickLinksSection = dynamic<HomeSectionComponentProps>(
-  () =>
-    import("@/components/sections/HomeQuickLinksSection").then(
-      (mod) => mod.HomeQuickLinksSection as ComponentType<HomeSectionComponentProps>,
-    ),
-);
-const HomeSmartSearchSection = dynamic(
-  () => import("@/components/sections/HomeSmartSearchSection").then((mod) => mod.HomeSmartSearchSection),
-);
-const CategoriesSection = withHomeSectionLoading(
-  () => import("@/components/sections/CategoriesSection"),
-  (mod) => selectHomeSection(mod, "CategoriesSection"),
-);
-const CitiesSection = withHomeSectionLoading(
-  () => import("@/components/sections/CitiesSection"),
-  (mod) => selectHomeSection(mod, "CitiesSection"),
-);
-const HomepageSignatureCollection = withHomeSectionLoading(
-  () => import("@/components/sections/HomepageSignatureCollection"),
-  (mod) => selectHomeSection(mod, "HomepageSignatureCollection"),
-  () => <VipSectionFallback />,
-);
-const SignatureMapSection = withHomeSectionLoading(
-  () => import("@/components/sections/SignatureMapSection"),
-  (mod) => selectHomeSection(mod, "SignatureMapSection"),
-  () => <VipSectionFallback />,
-);
-const CTASection = withHomeSectionLoading(
-  () => import("@/components/sections/CTASection"),
-  (mod) => selectHomeSection(mod, "CTASection"),
-);
-const AllListingsSection = withHomeSectionLoading(
-  () => import("@/components/sections/AllListingsSection"),
-  (mod) => selectHomeSection(mod, "AllListingsSection"),
-);
-const FeaturedCitySection = withHomeSectionLoading(
-  () => import("@/components/sections/FeaturedCitySection"),
-  (mod) => selectHomeSection(mod, "FeaturedCitySection"),
-);
-const HomeAllCitiesSection = withHomeSectionLoading(
-  () => import("@/components/sections/HomeAllCitiesSection"),
-  (mod) => selectHomeSection(mod, "HomeAllCitiesSection"),
-);
-const AlgarveGuideSection = withHomeSectionLoading(
-  () => import("@/components/sections/AlgarveGuideSection"),
-  (mod) => selectHomeSection(mod, "AlgarveGuideSection"),
-);
-const NewsletterSection = withHomeSectionLoading(
-  () => import("@/components/sections/NewsletterSection"),
-  (mod) => selectHomeSection(mod, "NewsletterSection"),
-);
-const HomeTrustSection = withHomeSectionLoading(
-  () => import("@/components/sections/HomeTrustSection"),
-  (mod) => selectHomeSection(mod, "HomeTrustSection"),
-);
-const HomeFinalEndcap = dynamic(
-  () => import("@/components/sections/HomeFinalEndcap").then((mod) => mod.HomeFinalEndcap),
-  {
-    loading: () => (
-      <div className="bg-background pb-14 pt-4 sm:pb-18 lg:pb-20" aria-hidden="true">
-        <div className="app-container content-max">
-          <div className="h-44 rounded-sm border border-border/50 bg-muted/35 animate-pulse sm:h-48" />
-        </div>
-      </div>
-    ),
-  },
-);
-const Footer = dynamic(() => import("@/components/layout/Footer").then((mod) => mod.Footer));
-const DeferredHomeMotion = dynamic(
-  () => import("@/components/providers/AppLazyMotion").then((mod) => mod.AppLazyMotion),
-  { ssr: false },
-);
-
-// Section ID to component mapping
-const SECTION_COMPONENTS: Record<string, ComponentType<HomeSectionComponentProps>> = {
-  "quick-links": HomeQuickLinksSection,
-  "smart-search": HomeSmartSearchSection,
-  regions: RegionsSection,
-  categories: CategoriesSection,
-  curated: HomepageSignatureCollection,
-  cities: CitiesSection,
-  "all-cities": HomeAllCitiesSection,
-  "featured-city": FeaturedCitySection,
-  vip: SignatureMapSection,
-  "all-listings": AllListingsSection,
-  "algarve-guide": AlgarveGuideSection,
-  newsletter: NewsletterSection,
-  cta: CTASection,
-  trust: HomeTrustSection,
-};
+const HOME_SECTION_IDS = new Set([
+  "quick-links",
+  "smart-search",
+  "regions",
+  "categories",
+  "curated",
+  "cities",
+  "all-cities",
+  "featured-city",
+  "vip",
+  "all-listings",
+  "algarve-guide",
+  "newsletter",
+  "cta",
+  "trust",
+]);
 
 const PUBLIC_HOME_SECTION_ID_BY_ADMIN_SECTION_ID: Record<string, string> = {
   categories: "quick-links",
@@ -188,7 +100,6 @@ const DEFAULT_SECTION_ORDER = [
 
 const DEFAULT_DISABLED_BLOCK_IDS = new Set(["featured-city"]);
 const CRITICAL_HOME_SECTION_IDS = new Set<string>();
-const HOME_MOTION_SECTION_IDS = new Set(["categories", "cities", "newsletter"]);
 
 function scheduleDeferredHomeSectionReveal(callback: () => void) {
   let disposed = false;
@@ -245,12 +156,10 @@ function DeferredHomeSection({
   children,
   id,
   placeholder,
-  withMotion = false,
 }: {
   children: ReactNode;
   id: string;
   placeholder?: ReactNode;
-  withMotion?: boolean;
 }) {
   const [shouldRender, setShouldRender] = useState(false);
 
@@ -261,15 +170,71 @@ function DeferredHomeSection({
 
   return (
     <div data-home-section-deferred={id}>
-      {shouldRender ? (
-        withMotion ? (
-          <DeferredHomeMotion>{children}</DeferredHomeMotion>
-        ) : (
-          children
-        )
-      ) : placeholder}
+      {shouldRender ? children : placeholder}
     </div>
   );
+}
+
+function DeferredLoadedHomeSection({
+  loadKind = "section",
+  sectionId,
+  copy,
+  listingCount,
+  loading,
+}: {
+  loadKind?: "section" | "final-endcap" | "footer";
+  sectionId?: string;
+  copy?: HomeSectionCopy;
+  listingCount?: number;
+  loading?: () => ReactNode;
+}) {
+  const [SectionComponent, setSectionComponent] = useState<HomeSectionRenderable | null>(null);
+  const [loadError, setLoadError] = useState<unknown>(null);
+
+  useEffect(() => {
+    let disposed = false;
+
+    setSectionComponent(null);
+    setLoadError(null);
+
+    void import("@/components/home/home-section-loader")
+      .then((module) => {
+        if (loadKind === "final-endcap") {
+          return module.loadHomeFinalEndcap();
+        }
+        if (loadKind === "footer") {
+          return module.loadHomeFooter();
+        }
+        if (!sectionId) return null;
+        return module.loadHomeSection(sectionId);
+      })
+      .then((loadedComponent) => {
+        if (disposed) return;
+        if (!loadedComponent) {
+          throw new Error(`Unknown home section: ${sectionId ?? loadKind}`);
+        }
+        setSectionComponent(() => loadedComponent);
+      })
+      .catch((error: unknown) => {
+        if (!disposed) {
+          setLoadError(error);
+        }
+      });
+
+    return () => {
+      disposed = true;
+    };
+  }, [loadKind, sectionId]);
+
+  if (loadError) {
+    throw loadError;
+  }
+
+  if (!SectionComponent) {
+    return <>{loading?.() ?? <HomeSectionFallback />}</>;
+  }
+
+  return <SectionComponent copy={copy} listingCount={listingCount} />;
 }
 
 function moveSectionBefore(order: string[], sectionId: string, beforeSectionId: string) {
@@ -317,7 +282,7 @@ function normalizeHomeSectionOrder(sectionOrder: string[]) {
 
   sectionOrder.forEach((sectionId) => {
     const normalizedId = LEGACY_SECTION_ID_BY_HOME_SECTION[sectionId] ?? sectionId;
-    if (normalizedId in SECTION_COMPONENTS && !normalized.includes(normalizedId)) {
+    if (HOME_SECTION_IDS.has(normalizedId) && !normalized.includes(normalizedId)) {
       normalized.push(normalizedId);
     }
   });
@@ -341,8 +306,16 @@ function getHomeSectionCopySourceId(sectionId: string) {
   return HOME_SECTION_COPY_SOURCE_ID_BY_PUBLIC_SECTION_ID[sectionId] ?? sectionId;
 }
 
+function getHomeSectionLoading(sectionId: string): (() => ReactNode) | undefined {
+  if (sectionId === "curated" || sectionId === "vip") {
+    return renderVipSectionFallback;
+  }
+
+  return undefined;
+}
+
 const Index = () => {
-  const { settings, isLoading } = useHomepageSettings();
+  const { settings, isLoading } = usePublicHomepageSettings();
   const { getBlockOrder, isBlockEnabled } = useCmsPageBuilder("home");
 
   // Compute which sections to render and in what order
@@ -378,8 +351,9 @@ const Index = () => {
     const defaultEnabled = !DEFAULT_DISABLED_BLOCK_IDS.has(id);
     if (!enabled || !isBlockEnabled(id, defaultEnabled)) return null;
 
-    const SectionComponent = SECTION_COMPONENTS[id];
-    if (!SectionComponent) return null;
+    if (!HOME_SECTION_IDS.has(id)) return null;
+
+    const sectionCopy = getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id));
 
     const content = (
       <CmsBlock
@@ -390,8 +364,10 @@ const Index = () => {
         defaultEnabled={defaultEnabled}
       >
         <SoftReveal className="min-w-0">
-          <SectionComponent
-            copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
+          <DeferredLoadedHomeSection
+            sectionId={id}
+            copy={sectionCopy}
+            loading={getHomeSectionLoading(id)}
           />
         </SoftReveal>
       </CmsBlock>
@@ -405,11 +381,10 @@ const Index = () => {
       <DeferredHomeSection
         key={id}
         id={id}
-        withMotion={HOME_MOTION_SECTION_IDS.has(id)}
         placeholder={
           id === "quick-links" ? (
             <HomeQuickLinksStaticPreview
-              copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
+              copy={sectionCopy}
             />
           ) : null
         }
@@ -432,12 +407,15 @@ const Index = () => {
         </div>
         <DeferredHomeSection id="final-endcap">
           <SoftReveal className="min-w-0">
-            <HomeFinalEndcap />
+            <DeferredLoadedHomeSection
+              loadKind="final-endcap"
+              loading={FINAL_ENDCAP_FALLBACK}
+            />
           </SoftReveal>
         </DeferredHomeSection>
       </main>
       <DeferredHomeSection id="footer">
-        <Footer />
+        <DeferredLoadedHomeSection loadKind="footer" />
       </DeferredHomeSection>
     </div>
   );

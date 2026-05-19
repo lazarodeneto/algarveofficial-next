@@ -2,16 +2,13 @@
 import { ArrowRight, CalendarPlus, ChevronDown, MapPinned } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import { usePublicHeroSettings } from "@/hooks/usePublicHeroSettings";
 import { useHydratedGlobalSettings } from "@/hooks/useHydratedGlobalSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useTranslation } from "react-i18next";
 import { useConnectionQuality } from "@/hooks/useConnectionQuality";
-import { useTripPlanner } from "@/hooks/useTripPlanner";
 import { useAuth } from "@/contexts/AuthContextBase";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
 import { useLocalePath } from "@/hooks/useLocalePath";
@@ -20,15 +17,6 @@ import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { addImageVersion, buildSupabaseImageUrl } from "@/lib/imageUrls";
 import { STANDARD_PUBLIC_HERO_SURFACE_CLASS } from "@/components/sections/hero-layout";
-
-const CreateTripDialog = dynamic(
-  () => import("@/components/trip-planner/CreateTripDialog").then((m) => m.CreateTripDialog),
-  { ssr: false },
-);
-const LoginModal = dynamic(
-  () => import("@/components/ui/login-modal").then((m) => m.LoginModal),
-  { ssr: false },
-);
 
 function getInitialReducedMotionPreference() {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -164,11 +152,6 @@ const HeroVideo = ({ videoUrl, posterUrl }: { videoUrl: string; posterUrl?: stri
   <HeroVideoPlayer key={videoUrl} videoUrl={videoUrl} posterUrl={posterUrl} />
 );
 
-async function showToast(type: "info" | "success", message: string) {
-  const { toast } = await import("sonner");
-  toast[type](message);
-}
-
 export function HeroSection() {
   const hydrated = useHydrated();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
@@ -182,9 +165,7 @@ export function HeroSection() {
   const locale = useCurrentLocale();
   const { t } = useTranslation();
   const { isSlow } = useConnectionQuality();
-  const { createTrip } = useTripPlanner();
-  const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
-  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const l = useLocalePath();
 
   // Home Page Editor owns hero media. CMS page-builder text remains available
@@ -219,46 +200,6 @@ export function HeroSection() {
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
     }
-  };
-
-  // Trip planner dialog/auth state
-  const [tripPlannerOpen, setTripPlannerOpen] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [pendingTripPlannerOpen, setPendingTripPlannerOpen] = useState(false);
-
-  const openTripPlanner = () => {
-    if (!isAuthenticated) {
-      setPendingTripPlannerOpen(true);
-      void showToast("info", t("hero.loginRequired"));
-      setShowLoginModal(true);
-      return;
-    }
-
-    setTripPlannerOpen(true);
-  };
-
-  useEffect(() => {
-    if (!pendingTripPlannerOpen || !isAuthenticated) return;
-
-    const timeoutId = window.setTimeout(() => {
-      setShowLoginModal(false);
-      setTripPlannerOpen(true);
-      setPendingTripPlannerOpen(false);
-    }, 0);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isAuthenticated, pendingTripPlannerOpen]);
-
-  const handleCreateTrip = (data: { title: string; description?: string; start_date: string; end_date: string }) => {
-    if (!isAuthenticated) {
-      void showToast("info", t("hero.loginRequired"));
-      setShowLoginModal(true);
-      return;
-    }
-
-    const newTrip = createTrip(data);
-    void showToast("success", t("hero.tripCreated"));
-    router.push(`${l("/dashboard/trips")}?trip=${encodeURIComponent(newTrip.id)}`);
   };
 
   const mediaType = settings?.hero_media_type || "video";
@@ -323,6 +264,10 @@ export function HeroSection() {
 
   const primaryCtaHref = resolveCtaHref(primaryCtaTarget);
   const primaryCtaIsExternal = /^https?:\/\//i.test(primaryCtaTarget);
+  const tripPlannerHref = l("/dashboard/trips");
+  const secondaryCtaHref = isAuthenticated
+    ? tripPlannerHref
+    : l(`/login?next=${encodeURIComponent(tripPlannerHref)}`);
   const mediaMode = useMemo<"video" | "poster" | "none" | "loading">(() => {
     if (isHeroSettingsLoading) return "loading";
 
@@ -400,23 +345,21 @@ export function HeroSection() {
                 variant="heroOutline"
                 size="lg"
                 className="hidden min-h-12 w-full px-7 sm:inline-flex sm:w-auto"
-                type="button"
-                onClick={openTripPlanner}
-                disabled={isAuthLoading}
+                asChild
               >
-                <CalendarPlus className="h-4 w-4" />
-                {secondaryCtaLabel}
+                <Link href={secondaryCtaHref}>
+                  <CalendarPlus className="h-4 w-4" />
+                  {secondaryCtaLabel}
+                </Link>
               </Button>
             </div>
-            <button
-              type="button"
-              onClick={openTripPlanner}
-              disabled={isAuthLoading}
+            <Link
+              href={secondaryCtaHref}
               className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-white/75 underline underline-offset-4 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:hidden"
             >
               <CalendarPlus className="h-3.5 w-3.5" />
               {secondaryCtaLabel} <ArrowRight className="h-3.5 w-3.5" />
-            </button>
+            </Link>
             <div className="flex max-w-2xl flex-wrap items-center gap-x-5 gap-y-2 pt-3 text-xs font-semibold text-white/78 sm:pt-4">
               <span>{t("sections.homepage.hero.proof.curated")}</span>
               <span>{t("sections.homepage.hero.proof.verified")}</span>
@@ -424,23 +367,6 @@ export function HeroSection() {
             </div>
           </div>
         </div>
-
-        {/* Trip Planner Dialog */}
-        {hydrated && tripPlannerOpen ? (
-          <CreateTripDialog
-            open={tripPlannerOpen}
-            onClose={() => setTripPlannerOpen(false)}
-            onSave={handleCreateTrip}
-          />
-        ) : null}
-        {hydrated && showLoginModal ? (
-          <LoginModal
-            open={showLoginModal}
-            onOpenChange={setShowLoginModal}
-            title={t("hero.tripLoginTitle")}
-            description={t("hero.tripLoginDescription")}
-          />
-        ) : null}
 
         {/* Mobile scroll hint — fading bottom edge */}
         <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent lg:hidden" />

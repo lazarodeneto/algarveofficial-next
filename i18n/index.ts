@@ -100,9 +100,20 @@ function addBundledLocale(locale: string, data: LocaleMessages) {
   i18n.addResourceBundle(locale, "translation", data, true, true);
 }
 
-export function primeLocale(locale: string, data: LocaleMessages) {
+interface PrimeLocaleOptions {
+  cacheAsBundled?: boolean;
+}
+
+export function primeLocale(
+  locale: string,
+  data: LocaleMessages,
+  options: PrimeLocaleOptions = {},
+) {
   const normalizedLocale = normalizeLocale(locale);
-  addBundledLocale(normalizedLocale, data);
+  i18n.addResourceBundle(normalizedLocale, "translation", data, true, true);
+  if (options.cacheAsBundled !== false) {
+    bundled.set(normalizedLocale, data);
+  }
 }
 
 async function loadEnglishSource() {

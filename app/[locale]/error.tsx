@@ -4,7 +4,6 @@
 
 import { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
-import * as Sentry from "@sentry/nextjs";
 import { useTranslation } from "react-i18next";
 
 import { RouteMessageState } from "@/components/layout/RouteMessageState";
@@ -28,7 +27,6 @@ export default function LocaleError({ error, reset }: LocaleErrorProps) {
 
   useEffect(() => {
     console.error("Locale route error boundary caught an error:", getErrorDiagnostics(error));
-    Sentry.captureException(error);
   }, [error]);
 
   return (

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { m } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -62,7 +61,6 @@ export interface SharedListingCardProps {
 export function SharedListingCard({
   listing,
   href,
-  index = 0,
   isFavorite = false,
   onToggleFavorite,
   onCardClick,
@@ -86,12 +84,7 @@ export function SharedListingCard({
   const isVerified = listing.tier === "verified";
 
   return (
-    <m.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.05, 0.5) }}
-      className={cn("h-full", className)}
-    >
+    <div className={cn("h-full", className)}>
         <article className="group relative z-0 isolate glass-box glass-box-listing-shimmer overflow-hidden flex flex-col h-full [backface-visibility:hidden]">
           <Link
             href={href}
@@ -189,6 +182,6 @@ export function SharedListingCard({
             </div>
           </div>
         </article>
-    </m.div>
+    </div>
   );
 }

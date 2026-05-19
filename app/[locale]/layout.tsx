@@ -128,23 +128,17 @@ export default async function LocaleLayout({
       <CookieConsentBannerWrapper deferInitialPrompt={isHomepageRequest} />
     </>
   );
-  let framedSite = siteFrame;
-
-  if (!isHomepageRequest) {
-    const { AppLazyMotion } = await import("@/components/providers/AppLazyMotion");
-    framedSite = <AppLazyMotion>{siteFrame}</AppLazyMotion>;
-  }
-
   let providerTree: ReactNode;
   if (isHomepageRequest) {
     const { LiteAppProviders } = await import("@/components/providers/LiteAppProviders");
     providerTree = (
         <LiteAppProviders
           initialMessages={messages}
+          initialMessagesArePartial
           initialCmsRuntimeSettings={providerCmsRuntimeSettings}
           locale={locale}
         >
-        {framedSite}
+        {siteFrame}
       </LiteAppProviders>
     );
   } else {
@@ -155,7 +149,7 @@ export default async function LocaleLayout({
           initialCmsRuntimeSettings={providerCmsRuntimeSettings}
           locale={locale}
         >
-        {framedSite}
+        {siteFrame}
       </AppProviders>
     );
   }

@@ -18,6 +18,7 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { createAppQueryClient } from "@/lib/react-query";
 import { globalSettingsQueryKey } from "@/lib/query-keys";
 import type { RuntimeSettingRow } from "@/lib/cms/runtime-settings";
+import { AppLazyMotion } from "./AppLazyMotion";
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -59,7 +60,9 @@ export function AppProviders({
           <ThemeProvider>
             <TooltipProvider>
               <CmsPageBuilderProvider>
-                <UserEngagementProviders>{shell}</UserEngagementProviders>
+                <AppLazyMotion>
+                  <UserEngagementProviders>{shell}</UserEngagementProviders>
+                </AppLazyMotion>
               </CmsPageBuilderProvider>
             </TooltipProvider>
           </ThemeProvider>

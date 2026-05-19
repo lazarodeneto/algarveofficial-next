@@ -120,6 +120,7 @@ const reportOnlyHeaders = [
 const withBundleAnalyzer = bundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
 });
+const enableSentryBuildPlugin = process.env.SENTRY_BUILD_PLUGIN_ENABLED === "true";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
@@ -219,6 +220,10 @@ const nextConfig: NextConfig = {
 
   // ✅ Experimental features (modern Next.js 16)
   experimental: {
+    // The generated client router Bloom filter is a large 0/1 array that
+    // Lighthouse misclassifies as legacy JavaScript polyfills. This app is
+    // App Router-only, so we do not need the Pages Router client filter.
+    clientRouterFilter: false,
     scrollRestoration: true,
     staticGenerationMaxConcurrency: 2,
     staticGenerationMinPagesPerWorker: 120,
@@ -238,13 +243,17 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(withBundleAnalyzer(nextConfig), {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-  silent: true,
-  telemetry: false,
-  sourcemaps: {
-    disable: true,
-  },
-});
+const analyzedConfig = withBundleAnalyzer(nextConfig);
+
+export default enableSentryBuildPlugin
+  ? withSentryConfig(analyzedConfig, {
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      silent: true,
+      telemetry: false,
+      sourcemaps: {
+        disable: true,
+      },
+    })
+  : analyzedConfig;

@@ -1,8 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
-import { updateAdminSettingsRow } from "@/lib/admin/settings-client";
 
 export interface SiteSettings {
   id: string;
@@ -87,6 +85,20 @@ const applyColorsToDocument = (settings: SiteSettings) => {
 
 const STORAGE_KEY = 'site-settings-v1';
 
+async function getSupabaseClient() {
+  const { supabase } = await import("@/integrations/supabase/client");
+  return supabase;
+}
+
+async function updateSiteSettingsRow(newSettings: Partial<SiteSettings>) {
+  const { updateAdminSettingsRow } = await import("@/lib/admin/settings-client");
+  return updateAdminSettingsRow<SiteSettings>({
+    table: "site_settings",
+    updates: newSettings as Record<string, unknown>,
+    mode: "upsert",
+  });
+}
+
 function normalizeSiteSettings(settings: SiteSettings): SiteSettings {
   return {
     ...settings,
@@ -119,6 +131,7 @@ export function useSiteSettings(options: UseSiteSettingsOptions = {}) {
   const { data: settings, isLoading, error } = useQuery({
     queryKey: ['site-settings'],
     queryFn: async () => {
+      const supabase = await getSupabaseClient();
       const { data, error } = await supabase
         .from('site_settings')
         .select('*')
@@ -164,11 +177,7 @@ export function useSiteSettings(options: UseSiteSettingsOptions = {}) {
         return {} as SiteSettings;
       }
 
-      const data = await updateAdminSettingsRow<SiteSettings>({
-        table: "site_settings",
-        updates: newSettings as Record<string, unknown>,
-        mode: "upsert",
-      });
+      const data = await updateSiteSettingsRow(newSettings);
       if (!data) throw new Error('Site settings not found after update');
       return normalizeSiteSettings(data as SiteSettings);
     },

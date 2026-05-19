@@ -1,5 +1,4 @@
 import { PremiumCard } from "@/components/ui/premium-card";
-import { m } from "framer-motion";
 import Link from "next/link";
 import { ArrowRight, MapPinned } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -86,13 +85,7 @@ export function CitiesSection() {
     >
       <div className="app-container">
         {/* Section Header */}
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
+        <div className="text-center mb-16">
           <span className="text-sm font-medium text-primary tracking-[0.2em] uppercase">
             {t("sections.homepage.cities.label")}
           </span>
@@ -102,7 +95,7 @@ export function CitiesSection() {
           <p className="mt-4 text-body text-muted-foreground max-w-2xl mx-auto">
             {t("sections.homepage.cities.subtitle")}
           </p>
-        </m.div>
+        </div>
 
         {/* Cities Grid */}
         {isLoading ? (
@@ -154,20 +147,14 @@ export function CitiesSection() {
         )}
 
         {/* View All Button */}
-        <m.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-12 text-center"
-        >
+        <div className="mt-12 text-center">
           <Link href={l("/visit")}>
             <Button variant="premium" size="lg">
               {t("sections.homepage.cities.viewAll")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
-        </m.div>
+        </div>
       </div>
     </section>
   );

@@ -22,6 +22,7 @@ const LOCALE_DB_MAP: Record<string, string> = {
 const HOMEPAGE_INITIAL_MESSAGE_PREFIXES = [
   "accessibility",
   "auth.loginFailed",
+  "categories",
   "categoryNames",
   "common",
   "cookie",
@@ -33,7 +34,11 @@ const HOMEPAGE_INITIAL_MESSAGE_PREFIXES = [
   "listing.badge",
   "listing.experience",
   "nav",
+  "newsletter",
+  "sections.categories",
+  "sections.cities",
   "sections.homepage",
+  "sections.listings",
   "theme",
   "weather",
 ] as const;

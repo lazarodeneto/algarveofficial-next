@@ -109,14 +109,14 @@ describe("BrandLogo", () => {
     expect(screen.getByText("Official")).toHaveClass("text-black");
   });
 
-  it("renders the wordmark with bold weight by default", () => {
+  it("renders the wordmark with normal weight by default", () => {
     mockState.hydrated = true;
     mockState.resolvedTheme = "light";
     mockState.settings = null;
 
     render(<BrandLogo showIcon={false} asLink={false} />);
 
-    expect(screen.getByText("Algarve").parentElement).toHaveClass("font-bold");
-    expect(screen.getByText("Algarve").parentElement).not.toHaveClass("font-normal");
+    expect(screen.getByText("Algarve").parentElement).toHaveClass("font-normal");
+    expect(screen.getByText("Algarve").parentElement).not.toHaveClass("font-bold");
   });
 });

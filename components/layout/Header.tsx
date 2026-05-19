@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback, type ComponentProps } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  type ComponentProps,
+  type ComponentType,
+} from "react";
 import NextLink from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
@@ -28,20 +35,15 @@ import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 import { cn } from "@/lib/utils";
 import { useMobileChromeScrollState } from "@/hooks/useMobileChromeScrollState";
 
+type HeaderMegaMenuComponent = ComponentType<{ overHero?: boolean }>;
+type MobileMegaMenuSectionsComponent = ComponentType<{ onNavigate: () => void }>;
+
 function Link(props: ComponentProps<typeof NextLink>) {
   return <NextLink prefetch={false} {...props} />;
 }
 
 const CommandSearch = dynamic(
   () => import("@/components/ui/command-search").then((module) => module.CommandSearch),
-  { ssr: false },
-);
-const HeaderMegaMenu = dynamic(
-  () => import("./HeaderMegaMenu").then((module) => module.HeaderMegaMenu),
-  { ssr: false },
-);
-const MobileMegaMenuSections = dynamic(
-  () => import("./HeaderMegaMenu").then((module) => module.MobileMegaMenuSections),
   { ssr: false },
 );
 
@@ -78,6 +80,8 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
   const l = useLocalePath();
   const pathname = usePathname() ?? "/";
   const canRenderDesktopNavigation = useViewportMatch("(min-width: 960px)");
+  const [DesktopMegaMenu, setDesktopMegaMenu] = useState<HeaderMegaMenuComponent | null>(null);
+  const [MobileMegaMenu, setMobileMegaMenu] = useState<MobileMegaMenuSectionsComponent | null>(null);
   const barePath = stripLocaleFromPathname(pathname);
   const isLeftSidebarActive = !SIDEBAR_EXCLUDED_PREFIXES.some((prefix) =>
     barePath.startsWith(prefix),
@@ -98,6 +102,36 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
   // Search modal state (local to Header)
   const [searchOpen, setSearchOpen] = useState(false);
+
+  useEffect(() => {
+    if (!canRenderDesktopNavigation || DesktopMegaMenu) return undefined;
+
+    let disposed = false;
+    void import("./HeaderMegaMenu").then((module) => {
+      if (!disposed) {
+        setDesktopMegaMenu(() => module.HeaderMegaMenu);
+      }
+    });
+
+    return () => {
+      disposed = true;
+    };
+  }, [DesktopMegaMenu, canRenderDesktopNavigation]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen || MobileMegaMenu) return undefined;
+
+    let disposed = false;
+    void import("./HeaderMegaMenu").then((module) => {
+      if (!disposed) {
+        setMobileMegaMenu(() => module.MobileMegaMenuSections);
+      }
+    });
+
+    return () => {
+      disposed = true;
+    };
+  }, [MobileMegaMenu, mobileMenuOpen]);
 
   // Mirror mobile menu state to DOM for CSS failsafe (production caching workaround)
   useEffect(() => {
@@ -207,7 +241,7 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
 
             {/* Primary Navigation */}
             <div className="hidden min-w-0 flex-1 items-center justify-center min-[960px]:flex min-[1280px]:justify-start">
-              {canRenderDesktopNavigation ? <HeaderMegaMenu /> : null}
+              {canRenderDesktopNavigation && DesktopMegaMenu ? <DesktopMegaMenu /> : null}
             </div>
 
             {/* Laptop Actions (1024-1359): compact utility row */}
@@ -434,7 +468,9 @@ export default function Header({ localeSwitchPaths }: HeaderProps = {}) {
                   </div>
                   <div className="flex min-h-full flex-col min-[768px]:min-h-0">
 
-                    <MobileMegaMenuSections onNavigate={() => setMobileMenuOpen(false)} />
+                    {MobileMegaMenu ? (
+                      <MobileMegaMenu onNavigate={() => setMobileMenuOpen(false)} />
+                    ) : null}
 
                     <div className="mt-4 rounded-sm border border-black/10 bg-white/66 p-3 shadow-[0_14px_34px_-28px_rgba(15,23,42,0.45)] backdrop-blur-md dark:border-white/12 dark:bg-white/5">
                       <p className="mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">

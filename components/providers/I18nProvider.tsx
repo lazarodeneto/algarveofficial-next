@@ -10,14 +10,21 @@ import { useLocale } from "@/lib/i18n/locale-context";
 interface I18nProviderProps {
   children: ReactNode;
   initialMessages?: LocaleMessages;
+  initialMessagesArePartial?: boolean;
 }
 
-export function I18nProvider({ children, initialMessages }: I18nProviderProps) {
+export function I18nProvider({
+  children,
+  initialMessages,
+  initialMessagesArePartial = false,
+}: I18nProviderProps) {
   const locale = useLocale() as string;
   const i18n = useMemo(
     () => {
       if (initialMessages) {
-        primeLocale(locale, initialMessages);
+        primeLocale(locale, initialMessages, {
+          cacheAsBundled: !initialMessagesArePartial,
+        });
       }
 
       const instance = baseI18n.cloneInstance({
@@ -30,7 +37,7 @@ export function I18nProvider({ children, initialMessages }: I18nProviderProps) {
       }
       return instance;
     },
-    [initialMessages, locale],
+    [initialMessages, initialMessagesArePartial, locale],
   );
 
   useEffect(() => {
