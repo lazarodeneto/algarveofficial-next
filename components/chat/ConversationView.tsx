@@ -72,11 +72,10 @@ export const ConversationView = forwardRef<HTMLDivElement, ConversationViewProps
       let targetThreadId = localThreadId ?? threadId;
 
       // If no thread exists, create one first
-      if (!targetThreadId && initialListingId && initialOwnerId) {
+      if (!targetThreadId && initialListingId) {
         try {
           const newThread = await createOrFindThread.mutateAsync({
             listingId: initialListingId,
-            ownerId: initialOwnerId,
           });
           if (!newThread) return;
           targetThreadId = newThread.id;

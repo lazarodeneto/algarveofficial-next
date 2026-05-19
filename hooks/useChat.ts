@@ -84,36 +84,27 @@ export function useCreateOrFindThread() {
   const isBrowser = typeof window !== "undefined";
 
   return useMutation({
-    mutationFn: async ({ listingId, ownerId }: { listingId: string; ownerId: string }) => {
+    mutationFn: async ({ listingId }: { listingId: string }) => {
       if (!isBrowser) throw new Error("Chat unavailable in server context");
       if (!user) throw new Error("Must be logged in");
 
-      // First, try to find existing thread
-      const { data: existing } = await supabase
-        .from("chat_threads")
-        .select("*")
-        .eq("listing_id", listingId)
-        .eq("owner_id", ownerId)
-        .eq("viewer_id", user.id)
-        .single();
+      const { data: sessionData } = await supabase.auth.getSession();
+      const response = await fetch("/api/chat/threads", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(sessionData.session?.access_token ? { Authorization: `Bearer ${sessionData.session.access_token}` } : {}),
+        },
+        body: JSON.stringify({ listingId }),
+        cache: "no-store",
+      });
 
-      if (existing) return existing;
+      const body = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(body?.error?.message ?? "Failed to create chat thread");
+      }
 
-      // Create new thread
-      const { data, error } = await supabase
-        .from("chat_threads")
-        .insert({
-          listing_id: listingId,
-          owner_id: ownerId,
-          viewer_id: user.id,
-          channel: "whatsapp",
-          status: "active",
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return body.thread;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["chat-threads"] });

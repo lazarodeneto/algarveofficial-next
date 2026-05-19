@@ -25,6 +25,7 @@ const OwnerListings = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerL
 const OwnerMedia = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMedia"));
 const OwnerMembership = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMembership"));
 const OwnerMessages = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerMessages"));
+const OwnerCRM = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerCRM"));
 const OwnerOverview = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerOverview"));
 const OwnerPerformance = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerPerformance"));
 const OwnerSupport = withOwnerLoading(() => import("@/legacy-pages/owner/OwnerSupport"));
@@ -56,6 +57,7 @@ const staticRouteMap: Record<string, ComponentType> = {
   media: OwnerMedia,
   performance: OwnerPerformance,
   membership: OwnerMembership,
+  crm: OwnerCRM,
   messages: OwnerMessages,
   support: OwnerSupport,
   events: OwnerEvents,

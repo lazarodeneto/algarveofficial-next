@@ -11,6 +11,7 @@ import {
   CmsPageBuilderContextProvider,
   type CmsPageBuilderContextValue,
 } from "@/contexts/CmsPageBuilderContextBase";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { MobileMenuProvider } from "@/contexts/MobileMenuContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import type { LocaleMessages } from "@/i18n/locale-loader";
@@ -224,11 +225,13 @@ export function LiteAppProviders({
                 initialCmsRuntimeSettings={initialCmsRuntimeSettings}
                 locale={locale}
               >
-                <MobileMenuProvider>
-                  <RouteAccessibility />
-                  <FaviconUpdater />
-                  {children}
-                </MobileMenuProvider>
+                <AuthProvider>
+                  <MobileMenuProvider>
+                    <RouteAccessibility />
+                    <FaviconUpdater />
+                    {children}
+                  </MobileMenuProvider>
+                </AuthProvider>
               </LiteCmsPageBuilderProvider>
             </TooltipProvider>
           </ThemeProvider>

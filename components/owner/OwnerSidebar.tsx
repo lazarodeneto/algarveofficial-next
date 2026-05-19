@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   List,
   MessageSquare,
+  UsersRound,
 } from "lucide-react";
 import { BrandLogo } from "@/components/ui/brand-logo";
 import { ExpandableSidebar, type SidebarNavSection } from "@/components/navigation/ExpandableSidebar";
@@ -34,6 +35,7 @@ export function OwnerSidebar({ collapsed, onToggle }: OwnerSidebarProps) {
         { label: t("owner.sidebar.photosMedia"), href: l("/owner/media"), icon: Image },
         { label: t("owner.sidebar.performance", { defaultValue: "Performance" }), href: l("/owner/performance"), icon: BarChart3 },
         { label: t("owner.sidebar.membership"), href: l("/owner/membership"), icon: Crown },
+        { label: t("owner.sidebar.crm", { defaultValue: "CRM" }), href: l("/owner/crm"), icon: UsersRound },
         {
           label: t("owner.sidebar.messages"),
           href: l("/owner/messages"),

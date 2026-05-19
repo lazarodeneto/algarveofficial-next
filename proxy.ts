@@ -326,7 +326,7 @@ function notFoundResponse() {
   });
 }
 
-function redirectAnonymousAdminRequest(request: NextRequest, locale: AppLocale) {
+function redirectAnonymousDashboardRequest(request: NextRequest, locale: AppLocale) {
   const loginUrl = new URL(withLocalePrefix("/login", locale), request.url);
   const requestedPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
   loginUrl.searchParams.set("next", requestedPath);
@@ -506,8 +506,11 @@ export async function proxy(request: NextRequest) {
   const localeFromPath =
     firstSegment && isValidLocale(firstSegment) ? (firstSegment as AppLocale) : null;
 
-  if (strippedPathname.startsWith("/admin") && !hasSupabaseAuthCookie(request)) {
-    return redirectAnonymousAdminRequest(request, localeFromPath ?? DEFAULT_LOCALE);
+  if (
+    (strippedPathname.startsWith("/admin") || strippedPathname.startsWith("/owner")) &&
+    !hasSupabaseAuthCookie(request)
+  ) {
+    return redirectAnonymousDashboardRequest(request, localeFromPath ?? DEFAULT_LOCALE);
   }
 
   if (isSystemBypassPath(normalizedPathname)) {
@@ -632,8 +635,11 @@ export async function proxy(request: NextRequest) {
     // redirect cached in the opposite direction (/... -> /en/...), and
     // redirecting /en/... -> /... would create an unrecoverable loop.
 
-    if (strippedPathname.startsWith("/admin") && !hasSupabaseAuthCookie(request)) {
-      return redirectAnonymousAdminRequest(request, localeFromPath);
+    if (
+      (strippedPathname.startsWith("/admin") || strippedPathname.startsWith("/owner")) &&
+      !hasSupabaseAuthCookie(request)
+    ) {
+      return redirectAnonymousDashboardRequest(request, localeFromPath);
     }
 
     return nextWithRequestLocale(request, localeFromPath);
@@ -706,8 +712,11 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  if (strippedPathname.startsWith("/admin") && !hasSupabaseAuthCookie(request)) {
-    return redirectAnonymousAdminRequest(request, DEFAULT_LOCALE);
+  if (
+    (strippedPathname.startsWith("/admin") || strippedPathname.startsWith("/owner")) &&
+    !hasSupabaseAuthCookie(request)
+  ) {
+    return redirectAnonymousDashboardRequest(request, DEFAULT_LOCALE);
   }
 
   const legacyCategoryCityRequest =
