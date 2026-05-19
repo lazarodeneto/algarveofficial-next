@@ -50,7 +50,7 @@ export function PublicSiteSidebar() {
           {expanded ? (
             <span className="whitespace-nowrap font-serif text-lg font-normal tracking-tight">
               <span className="brand-logo-algarve text-gradient-gold">Algarve</span>
-              <span className="brand-logo-official text-black">Official</span>
+              <span className="brand-logo-official text-black dark:text-white">Official</span>
             </span>
           ) : null}
         </LocaleLink>

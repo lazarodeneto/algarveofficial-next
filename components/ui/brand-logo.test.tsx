@@ -99,14 +99,14 @@ describe("BrandLogo", () => {
     );
   });
 
-  it("keeps the official wordmark segment black", () => {
+  it("keeps the official wordmark black in light mode and white in dark mode", () => {
     mockState.hydrated = true;
     mockState.resolvedTheme = "light";
     mockState.settings = null;
 
     render(<BrandLogo showIcon={false} asLink={false} />);
 
-    expect(screen.getByText("Official")).toHaveClass("text-black");
+    expect(screen.getByText("Official")).toHaveClass("text-black", "dark:text-white");
   });
 
   it("renders the wordmark with normal weight by default", () => {

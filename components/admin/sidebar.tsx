@@ -159,7 +159,7 @@ export function Sidebar() {
             aria-hidden={!expanded}
           >
             <span className="brand-logo-algarve text-gradient-gold">Algarve</span>
-            <span className="brand-logo-official text-black">Official</span>
+            <span className="brand-logo-official text-black dark:text-white">Official</span>
           </span>
         </LocaleLink>
       </div>
