@@ -28,7 +28,7 @@ type AnalyticsWindow = Window & {
 
 const GOOGLE_TAG_SCRIPT_ID = "google-tag-manager-script";
 const THEME_STORAGE_KEY = "algarve-theme";
-const CACHE_RECOVERY_EPOCH = "2026-05-04-main-cache-refresh-1";
+const CACHE_RECOVERY_EPOCH = "2026-05-19-auth-provider-refresh-1";
 const CACHE_RECOVERY_STORAGE_KEY = "algarveofficial:cache-recovery-epoch";
 const CACHE_RECOVERY_SESSION_KEY = "algarveofficial:cache-recovery-reloaded";
 
