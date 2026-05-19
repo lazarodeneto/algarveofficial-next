@@ -19,49 +19,49 @@ const HOME_METADATA: Record<Locale, { title: string; description: string }> = {
       "A curated selection of the region's finest hotels, restaurants, experiences and properties, with full directory search across the Algarve.",
   },
   "pt-pt": {
-    title: "AlgarveOfficial | Villas de Luxo, Golfe e Restaurantes",
+    title: "Descubra os melhores lugares do Algarve para ficar, comer e investir",
     description:
-      "Descubra as melhores villas, restaurantes e campos de golfe do Algarve, selecionados por especialistas que conhecem cada recanto da costa mais prestigiada de Portugal.",
+      "Uma seleção cuidada dos melhores hotéis, restaurantes, experiências e propriedades da região, com pesquisa completa no diretório em todo o Algarve.",
   },
   fr: {
-    title: "AlgarveOfficial | Villas de Luxe, Golf et Restaurants",
+    title: "Découvrez les meilleures adresses de l’Algarve où séjourner, manger et investir",
     description:
-      "Découvrez les meilleures villas, restaurants et parcours de golf de l'Algarve, sélectionnés par des experts qui connaissent chaque recoin de la côte la plus prestigieuse du Portugal.",
+      "Une sélection soignée des meilleurs hôtels, restaurants, expériences et biens de la région, avec recherche complète dans l’annuaire de l’Algarve.",
   },
   de: {
-    title: "AlgarveOfficial | Luxusvillen, Golf und Restaurants",
+    title: "Entdecken Sie die besten Orte der Algarve zum Übernachten, Essen und Investieren",
     description:
-      "Entdecken Sie die besten Villen, Restaurants und Golfplätze der Algarve – kuratiert von Experten, die jeden Winkel der prestigeträchtigsten Küste Portugals kennen.",
+      "Eine kuratierte Auswahl der besten Hotels, Restaurants, Erlebnisse und Immobilien der Region, mit vollständiger Verzeichnissuche in der Algarve.",
   },
   es: {
-    title: "AlgarveOfficial | Villas de Lujo, Golf y Restaurantes",
+    title: "Descubre los mejores lugares del Algarve para alojarte, comer e invertir",
     description:
-      "Descubre las mejores villas, restaurantes y campos de golf del Algarve, seleccionados por expertos que conocen cada rincón de la costa más prestigiosa de Portugal.",
+      "Una selección cuidada de los mejores hoteles, restaurantes, experiencias y propiedades de la región, con búsqueda completa en el directorio del Algarve.",
   },
   it: {
-    title: "AlgarveOfficial | Ville di Lusso, Golf e Ristoranti",
+    title: "Scopri i migliori luoghi dell’Algarve dove soggiornare, mangiare e investire",
     description:
-      "Scopri le migliori ville, ristoranti e campi da golf dell'Algarve, selezionati da esperti che conoscono ogni angolo della costa più prestigiosa del Portogallo.",
+      "Una selezione curata dei migliori hotel, ristoranti, esperienze e proprietà della regione, con ricerca completa nella directory dell’Algarve.",
   },
   nl: {
-    title: "AlgarveOfficial | Luxe Villa's, Golf en Restaurants",
+    title: "Ontdek de beste plekken in de Algarve om te verblijven, eten en investeren",
     description:
-      "Ontdek de beste villa's, restaurants en golfbanen van de Algarve, samengesteld door experts die elke hoek van de meest prestigieuze kust van Portugal kennen.",
+      "Een zorgvuldig samengestelde selectie van de beste hotels, restaurants, ervaringen en panden in de regio, met volledige zoekfunctie in de Algarve-gids.",
   },
   sv: {
-    title: "AlgarveOfficial | Lyxvillor, Golf och Restauranger",
+    title: "Upptäck Algarves bästa platser att bo, äta och investera på",
     description:
-      "Upptäck Algarves bästa villor, restauranger och golfbanor, utvalda av experter som känner varje del av Portugals mest prestigefyllda kust.",
+      "Ett kurerat urval av regionens bästa hotell, restauranger, upplevelser och fastigheter, med komplett katalogsökning i hela Algarve.",
   },
   no: {
-    title: "AlgarveOfficial | Luksusvillaer, Golf og Restauranter",
+    title: "Oppdag Algarves beste steder å bo, spise og investere",
     description:
-      "Oppdag Algarves beste villaer, restauranter og golfbaner, kuratert av eksperter som kjenner hver del av Portugals mest prestisjefylte kyst.",
+      "Et kuratert utvalg av regionens beste hoteller, restauranter, opplevelser og eiendommer, med komplett katalogsøk i hele Algarve.",
   },
   da: {
-    title: "AlgarveOfficial | Luksusvillaer, Golf og Restauranter",
+    title: "Oplev Algarves bedste steder at bo, spise og investere",
     description:
-      "Opdag Algarves bedste villaer, restauranter og golfbaner, kurateret af eksperter der kender hver del af Portugals mest prestigefyldte kyst.",
+      "Et kurateret udvalg af regionens bedste hoteller, restauranter, oplevelser og ejendomme, med komplet katalogsøgning i hele Algarve.",
   },
 };
 
