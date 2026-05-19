@@ -247,21 +247,21 @@ export function GolfPageClient({ locale, courses, leaderboard, pageConfig }: Gol
         )}
       >
         {isDiscoveryEnabled ? (
-          <section className="mx-auto max-w-6xl py-12">
+          <section className="py-12">
             {(showDiscoveryLabel && discoveryLabel) || (showDiscoveryTitle && discoveryTitle) || (showDiscoverySubtitle && discoverySubtitle) ? (
-              <div className="rounded-lg border border-border/60 bg-card/80 p-8 shadow-sm backdrop-blur md:p-12">
+              <div className="mx-auto w-full max-w-[92rem] rounded-lg border border-border/60 bg-card/80 p-6 shadow-sm backdrop-blur md:p-10">
                 {showDiscoveryLabel && discoveryLabel ? (
                   <p className="text-xs font-medium uppercase tracking-[0.24em] text-primary">
                     {discoveryLabel}
                   </p>
                 ) : null}
                 {showDiscoveryTitle && discoveryTitle ? (
-                  <h2 className="mt-4 font-serif text-4xl font-medium leading-tight text-foreground md:text-6xl">
+                  <h2 className="mt-4 font-serif text-3xl text-foreground sm:text-4xl md:text-5xl">
                     {discoveryTitle}
                   </h2>
                 ) : null}
                 {showDiscoverySubtitle && discoverySubtitle ? (
-                  <p className="mt-4 max-w-3xl text-base leading-7 text-muted-foreground md:text-lg">
+                  <p className="mt-4 max-w-4xl text-base leading-7 text-muted-foreground md:text-lg">
                     {discoverySubtitle}
                   </p>
                 ) : null}
