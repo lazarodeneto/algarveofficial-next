@@ -22,6 +22,14 @@ export interface SiteSettings {
   ga_dashboard_url?: string | null;
 }
 
+interface UseSiteSettingsOptions {
+  enabled?: boolean;
+  refetchOnMount?: boolean | "always";
+  refetchOnWindowFocus?: boolean;
+  refetchOnReconnect?: boolean;
+  refetchInterval?: number | false;
+}
+
 // Convert RGBA to HSL for CSS variable compatibility
 const rgbaToHsl = (rgba: string): string => {
   const match = rgba.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
@@ -86,9 +94,10 @@ function normalizeSiteSettings(settings: SiteSettings): SiteSettings {
   };
 }
 
-export function useSiteSettings() {
+export function useSiteSettings(options: UseSiteSettingsOptions = {}) {
   const queryClient = useQueryClient();
   const isBrowser = typeof window !== "undefined";
+  const enabled = isBrowser && (options.enabled ?? true);
 
   // Try to load from local storage for initial data
   const getStoredSettings = (): SiteSettings | undefined => {
@@ -135,11 +144,11 @@ export function useSiteSettings() {
     initialDataUpdatedAt: 0,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     gcTime: 1000 * 60 * 5, // Keep in garbage collection for 5 minutes
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    refetchOnReconnect: true,
-    refetchInterval: 1000 * 60, // Keep critical flags (e.g., maintenance mode) updated while tab is open
-    enabled: isBrowser,
+    refetchOnMount: options.refetchOnMount ?? "always",
+    refetchOnWindowFocus: options.refetchOnWindowFocus ?? true,
+    refetchOnReconnect: options.refetchOnReconnect ?? true,
+    refetchInterval: options.refetchInterval ?? 1000 * 60, // Keep critical flags (e.g., maintenance mode) updated while tab is open
+    enabled,
   });
 
   // Apply colors whenever settings change
@@ -179,8 +188,8 @@ export function useSiteSettings() {
 
   return {
     settings: isBrowser ? settings : undefined,
-    isLoading: isBrowser ? isLoading : false,
-    error: isBrowser ? error : null,
+    isLoading: enabled ? isLoading : false,
+    error: enabled ? error : null,
     updateSettings: isBrowser ? updateSettingsMut.mutate : noopUpdateSettings,
     updateSettingsAsync: isBrowser ? updateSettingsMut.mutateAsync : noopUpdateSettingsAsync,
     isUpdating: isBrowser ? updateSettingsMut.isPending : false,

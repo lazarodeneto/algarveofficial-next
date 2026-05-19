@@ -173,10 +173,12 @@ export async function fetchCmsRuntimeSettings({
   locale: rawLocale,
   includeDraft = false,
 }: FetchCmsRuntimeSettingsOptions = {}): Promise<RuntimeSettingRow[]> {
-  try {
-    noStore();
-  } catch {
-    // The runtime helper is also imported by tests and utility code outside a Next request.
+  if (includeDraft) {
+    try {
+      noStore();
+    } catch {
+      // The runtime helper is also imported by tests and utility code outside a Next request.
+    }
   }
 
   const locale = normalizeCmsRuntimeLocale(rawLocale);

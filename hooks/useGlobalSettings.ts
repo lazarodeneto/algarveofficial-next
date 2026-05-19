@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { normalizeLocale } from "@/lib/i18n/config";
 import { CMS_GLOBAL_SETTING_KEYS } from "@/lib/cms/pageBuilderRegistry";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
@@ -24,6 +23,11 @@ interface UseGlobalSettingsOptions {
 }
 
 const EMPTY_GLOBAL_SETTINGS: GlobalSetting[] = [];
+
+async function getSupabaseClient() {
+  const { supabase } = await import("@/integrations/supabase/client");
+  return supabase;
+}
 
 export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
   const queryClient = useQueryClient();
@@ -79,6 +83,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
         }
       }
 
+      const supabase = await getSupabaseClient();
       let queryBuilder = supabase
         .from("global_settings")
         .select("key, value, category")
@@ -94,7 +99,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
       return (data ?? []) as GlobalSetting[];
     },
     staleTime: 5 * 60 * 1000,
-    refetchOnMount: (shouldUseCmsRuntime || isCmsPreviewRuntime) ? "always" : false,
+    refetchOnMount: isCmsPreviewRuntime ? "always" : false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
@@ -112,6 +117,7 @@ export function useGlobalSettings(options: UseGlobalSettingsOptions = {}) {
     mutationFn: async (settings: GlobalSetting[]) => {
       if (!settings.length) return [];
 
+      const supabase = await getSupabaseClient();
       const {
         data: { session },
       } = await supabase.auth.getSession();

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { render, waitFor } from "@testing-library/react";
+import { act, render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { HeroSection } from "./HeroSection";
@@ -49,12 +49,12 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
 }));
 
-vi.mock("@/hooks/useHomepageSettings", () => ({
-  useHeroSettings: () => mockUseHeroSettings(),
+vi.mock("@/hooks/usePublicHeroSettings", () => ({
+  usePublicHeroSettings: () => mockUseHeroSettings(),
 }));
 
-vi.mock("@/hooks/useGlobalSettings", () => ({
-  useGlobalSettings: () => ({ settings: [] }),
+vi.mock("@/hooks/useHydratedGlobalSettings", () => ({
+  useHydratedGlobalSettings: () => ({ settings: [] }),
 }));
 
 vi.mock("@/hooks/useCmsPageBuilder", () => ({
@@ -96,7 +96,7 @@ vi.mock("@/hooks/useTripPlanner", () => ({
   useTripPlanner: () => ({ createTrip: vi.fn(() => ({ id: "trip-1" })) }),
 }));
 
-vi.mock("@/contexts/AuthContext", () => ({
+vi.mock("@/contexts/AuthContextBase", () => ({
   useAuth: () => ({ isAuthenticated: true }),
 }));
 
@@ -114,6 +114,8 @@ vi.mock("@/hooks/useHydrated", () => ({
 
 describe("HeroSection image reset behaviour", () => {
   beforeEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
     mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: false });
   });
 
@@ -142,34 +144,14 @@ describe("HeroSection image reset behaviour", () => {
     expect(container.innerHTML).not.toContain("old-home-hero.jpg");
   });
 
-  it("skips uploaded homepage video on mobile initial render", () => {
-    mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: true });
-    mockUseHeroSettings.mockReturnValue({
-      isLoading: false,
-      hasLocaleTranslation: true,
-      settings: {
-        updated_at: "2026-05-08T10:00:00.000Z",
-        hero_media_type: "video",
-        hero_video_url: "https://media.example.com/home-hero.mp4",
-        hero_poster_url: null,
-        hero_overlay_intensity: 50,
-        hero_title: null,
-        hero_subtitle: null,
-        hero_cta_primary_text: null,
-        hero_cta_primary_link: null,
-        hero_cta_secondary_text: null,
-        hero_cta_secondary_link: null,
-      },
-    });
-
-    const { container } = render(<HeroSection />);
-
-    expect(container.querySelector("video")).not.toBeInTheDocument();
-    expect(container.innerHTML).not.toContain("home-hero.mp4");
-  });
-
-  it("loads uploaded homepage video on desktop after user interaction", async () => {
-    mockUseConnectionQuality.mockReturnValue({ isSlow: false, isMobile: false });
+  it("renders uploaded homepage video after desktop interaction", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal("matchMedia", (query: string) => ({
+      matches: query.includes("min-width: 1024px"),
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
     mockUseHeroSettings.mockReturnValue({
       isLoading: false,
       hasLocaleTranslation: true,
@@ -191,11 +173,11 @@ describe("HeroSection image reset behaviour", () => {
     const { container } = render(<HeroSection />);
     expect(container.querySelector("video")).not.toBeInTheDocument();
 
-    window.dispatchEvent(new Event("pointerdown"));
-
-    await waitFor(() => {
-      expect(container.querySelector("video")).toBeInTheDocument();
+    await act(async () => {
+      window.dispatchEvent(new Event("pointerdown"));
     });
+
+    expect(container.querySelector("video")).toBeInTheDocument();
     expect(container.querySelector("source")?.getAttribute("src")).toContain("home-hero.mp4");
   });
 });

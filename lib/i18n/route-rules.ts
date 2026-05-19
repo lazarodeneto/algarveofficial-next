@@ -4,6 +4,7 @@ export { DEFAULT_LOCALE_USES_PREFIX } from "@/lib/i18n/default-locale-policy";
 export const LOCALE_COOKIE_NAME = "NEXT_LOCALE";
 export const LOCALE_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
 export const REQUEST_LOCALE_HEADER_NAME = "x-algarve-locale";
+export const REQUEST_PATHNAME_HEADER_NAME = "x-algarve-pathname";
 
 export const SYSTEM_UNLOCALIZED_PREFIXES = [
   "/api",

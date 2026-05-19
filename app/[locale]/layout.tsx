@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
-import { AppProviders } from "@/components/providers/AppProviders";
 import { PublicSiteFrame } from "@/components/layout/PublicSiteFrame";
 import { DeferredPublicWidgets } from "@/components/layout/DeferredPublicWidgets";
 import { loadInitialLocaleMessages } from "@/i18n/server-locale";
@@ -16,8 +16,13 @@ import {
 } from "@/lib/i18n/config";
 import { buildMetadata } from "@/lib/metadata";
 import { getServerTranslations } from "@/lib/i18n/server";
-import { CMS_PAGE_BUILDER_RUNTIME_KEYS } from "@/lib/cms/pageBuilderRegistry";
-import { fetchCmsRuntimeSettings } from "@/lib/cms/runtime-settings";
+import {
+  CMS_GLOBAL_SETTING_KEYS,
+  CMS_PAGE_BUILDER_RUNTIME_KEYS,
+} from "@/lib/cms/pageBuilderRegistry";
+import { fetchCmsRuntimeSettings, type RuntimeSettingRow } from "@/lib/cms/runtime-settings";
+import { REQUEST_PATHNAME_HEADER_NAME } from "@/lib/i18n/route-rules";
+import { stripLocaleFromPathname } from "@/lib/i18n/routing";
 
 interface LocaleLayoutProps {
   children: ReactNode;
@@ -69,6 +74,26 @@ async function loadInitialCmsRuntimeSettings(locale: Locale) {
   }
 }
 
+function keepHomepageCmsRuntimeSettings(rows: RuntimeSettingRow[]): RuntimeSettingRow[] {
+  return rows.map((row) => {
+    if (row.key !== CMS_GLOBAL_SETTING_KEYS.pageConfigs) return row;
+
+    try {
+      const parsed = JSON.parse(row.value) as Record<string, unknown>;
+      const homeConfig = parsed.home;
+      return {
+        ...row,
+        value: JSON.stringify(homeConfig ? { home: homeConfig } : {}),
+      };
+    } catch {
+      return {
+        ...row,
+        value: "{}",
+      };
+    }
+  });
+}
+
 export default async function LocaleLayout({
   children,
   params,
@@ -85,22 +110,53 @@ export default async function LocaleLayout({
   // ✅ Get locale config
   const localeConfig = LOCALE_CONFIGS[locale] ?? LOCALE_CONFIGS.en;
   void localeConfig;
+  const requestHeaders = await headers();
+  const requestPathname = requestHeaders.get(REQUEST_PATHNAME_HEADER_NAME) ?? `/${locale}`;
+  const isHomepageRequest = stripLocaleFromPathname(requestPathname) === "/";
   const [messages, initialCmsRuntimeSettings] = await Promise.all([
-    loadInitialLocaleMessages(locale),
+    loadInitialLocaleMessages(locale, { scope: isHomepageRequest ? "homepage" : "full" }),
     loadInitialCmsRuntimeSettings(locale),
   ]);
+  const providerCmsRuntimeSettings = isHomepageRequest
+    ? keepHomepageCmsRuntimeSettings(initialCmsRuntimeSettings)
+    : initialCmsRuntimeSettings;
+
+  const siteFrame = (
+    <>
+      <PublicSiteFrame>{children}</PublicSiteFrame>
+      <DeferredPublicWidgets />
+      <CookieConsentBannerWrapper deferInitialPrompt={isHomepageRequest} />
+    </>
+  );
+
+  let providerTree: ReactNode;
+  if (isHomepageRequest) {
+    const { LiteAppProviders } = await import("@/components/providers/LiteAppProviders");
+    providerTree = (
+        <LiteAppProviders
+          initialMessages={messages}
+          initialCmsRuntimeSettings={providerCmsRuntimeSettings}
+          locale={locale}
+        >
+        {siteFrame}
+      </LiteAppProviders>
+    );
+  } else {
+    const { AppProviders } = await import("@/components/providers/AppProviders");
+    providerTree = (
+        <AppProviders
+          initialMessages={messages}
+          initialCmsRuntimeSettings={providerCmsRuntimeSettings}
+          locale={locale}
+        >
+        {siteFrame}
+      </AppProviders>
+    );
+  }
 
   return (
     <LocaleProvider locale={locale}>
-      <AppProviders
-        initialMessages={messages}
-        initialCmsRuntimeSettings={initialCmsRuntimeSettings}
-        locale={locale}
-      >
-        <PublicSiteFrame>{children}</PublicSiteFrame>
-        <DeferredPublicWidgets />
-        <CookieConsentBannerWrapper />
-      </AppProviders>
+      {providerTree}
     </LocaleProvider>
   );
 }

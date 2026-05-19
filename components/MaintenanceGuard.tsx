@@ -17,11 +17,17 @@ interface MaintenanceGuardProps {
 const IP_TIMEOUT_MS = 5000;
 const subscribeToClient = () => () => {};
 
+function scheduleMaintenanceSettingsCheck(callback: () => void) {
+  const timeoutId = window.setTimeout(callback, 12000);
+  return () => window.clearTimeout(timeoutId);
+}
+
 export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
   const { user } = useAuth();
   const pathname = usePathname() ?? "/";
   const isMounted = useSyncExternalStore(subscribeToClient, () => true, () => false);
   const [clientIp, setClientIp] = useState<string | null>(null);
+  const [settingsCheckEnabled, setSettingsCheckEnabled] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Whitelist routes that should always be accessible (with or without language prefix)
@@ -34,7 +40,14 @@ export function MaintenanceGuard({ children }: MaintenanceGuardProps) {
   // Check if current user is admin/editor
   const isAdmin = user?.role === 'admin' || user?.role === 'editor';
 
-  const { settings, isLoading } = useSiteSettings();
+  const { settings, isLoading } = useSiteSettings({
+    enabled: settingsCheckEnabled,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+  });
+
+  useEffect(() => scheduleMaintenanceSettingsCheck(() => setSettingsCheckEnabled(true)), []);
 
   // Only fetch client IP when maintenance mode is enabled
   useEffect(() => {

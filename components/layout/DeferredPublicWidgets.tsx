@@ -24,14 +24,6 @@ const WhatsAppChatButtonWrapper = dynamic(
   { ssr: false },
 );
 
-type IdleWindow = Window & {
-  requestIdleCallback?: (
-    callback: IdleRequestCallback,
-    options?: IdleRequestOptions,
-  ) => number;
-  cancelIdleCallback?: (handle: number) => void;
-};
-
 function isRetriableChunkError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   const normalized = message.toLowerCase();
@@ -59,44 +51,35 @@ function withDeferredImportRetry<T>(loader: () => Promise<T>) {
   };
 }
 
-function runWhenVisible(callback: () => void) {
-  if (document.visibilityState === "visible") {
-    callback();
-    return () => {};
-  }
-
-  const onVisible = () => {
-    if (document.visibilityState !== "visible") return;
-    document.removeEventListener("visibilitychange", onVisible);
-    callback();
-  };
-
-  document.addEventListener("visibilitychange", onVisible);
-  return () => document.removeEventListener("visibilitychange", onVisible);
-}
-
 function scheduleAfterInitialWork(callback: () => void) {
-  const runtimeWindow = window as IdleWindow;
-  let cleanupVisibility = () => {};
+  let disposed = false;
+  let timeoutId: number | null = null;
+
   const run = () => {
-    cleanupVisibility = runWhenVisible(callback);
+    if (disposed) return;
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+    callback();
   };
 
-  if (
-    typeof runtimeWindow.requestIdleCallback === "function" &&
-    typeof runtimeWindow.cancelIdleCallback === "function"
-  ) {
-    const idleId = runtimeWindow.requestIdleCallback(run, { timeout: 5000 });
-    return () => {
-      runtimeWindow.cancelIdleCallback?.(idleId);
-      cleanupVisibility();
-    };
-  }
+  timeoutId = window.setTimeout(run, 15000);
+  window.addEventListener("pointerdown", run, { once: true, passive: true });
+  window.addEventListener("keydown", run, { once: true });
+  window.addEventListener("scroll", run, { once: true, passive: true });
 
-  const timeoutId = window.setTimeout(run, 3000);
   return () => {
-    window.clearTimeout(timeoutId);
-    cleanupVisibility();
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
   };
 }
 

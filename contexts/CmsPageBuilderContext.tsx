@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
@@ -7,26 +7,14 @@ import {
   CMS_GLOBAL_SETTING_KEYS,
   normalizeCmsPageConfigs,
   type CmsDesignTokenMap,
-  type CmsPageConfigMap,
   type CmsTextOverrideMap,
 } from "@/lib/cms/pageBuilderRegistry";
 import { safeJsonParse } from "@/lib/cms/safe-json";
-
-interface CmsPageBuilderContextValue {
-  isLoading: boolean;
-  textOverrides: CmsTextOverrideMap;
-  pageConfigs: CmsPageConfigMap;
-  designTokens: CmsDesignTokenMap;
-  customCss: string;
-}
-
-const CmsPageBuilderContext = createContext<CmsPageBuilderContextValue>({
-  isLoading: false,
-  textOverrides: {},
-  pageConfigs: {},
-  designTokens: {},
-  customCss: "",
-});
+import {
+  CmsPageBuilderContextProvider,
+  type CmsPageBuilderContextValue,
+  useCmsPageBuilderContext,
+} from "@/contexts/CmsPageBuilderContextBase";
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -209,9 +197,7 @@ export function CmsPageBuilderProvider({ children }: { children: ReactNode }) {
     [isLoading, textOverrides, pageConfigs, designTokens, customCss],
   );
 
-  return <CmsPageBuilderContext.Provider value={value}>{children}</CmsPageBuilderContext.Provider>;
+  return <CmsPageBuilderContextProvider value={value}>{children}</CmsPageBuilderContextProvider>;
 }
 
-export function useCmsPageBuilderContext() {
-  return useContext(CmsPageBuilderContext);
-}
+export { useCmsPageBuilderContext };

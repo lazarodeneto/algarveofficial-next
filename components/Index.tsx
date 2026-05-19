@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ComponentType, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { useTranslation } from "react-i18next";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { SoftReveal } from "@/components/ui/SoftReveal";
-import { useHomepageListingSegment } from "@/hooks/useHomepageListingSegment";
 import { useHomepageSettings } from "@/hooks/useHomepageSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
-import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { CmsBlock } from "@/components/cms/CmsBlock";
-import { getHomeSectionCopy, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
-import { normalizePublicContentLocale } from "@/lib/publicContentLocale";
+import { cmsText, getHomeSectionCopy, type HomeSectionCopy } from "@/lib/cms/home-section-copy";
 
 function HomeSectionFallback() {
   return (
@@ -185,66 +183,78 @@ const DEFAULT_SECTION_ORDER = [
 ];
 
 const DEFAULT_DISABLED_BLOCK_IDS = new Set(["featured-city"]);
-const IMMEDIATE_HOME_SECTION_IDS = new Set<string>();
-const DEFERRED_SECTION_MIN_HEIGHTS: Record<string, string> = {
-  "quick-links": "620px",
-  "smart-search": "340px",
-  curated: "920px",
-  regions: "520px",
-  categories: "560px",
-  cities: "620px",
-  "all-cities": "620px",
-  "featured-city": "520px",
-  vip: "560px",
-  "all-listings": "1120px",
-  "algarve-guide": "640px",
-  newsletter: "360px",
-  cta: "420px",
-  trust: "420px",
-};
+const CRITICAL_HOME_SECTION_IDS = new Set<string>();
+
+function scheduleDeferredHomeSectionReveal(callback: () => void) {
+  let disposed = false;
+  let timeoutId: number | null = null;
+
+  const run = () => {
+    if (disposed) return;
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+    callback();
+  };
+
+  timeoutId = window.setTimeout(run, 15000);
+  window.addEventListener("pointerdown", run, { once: true, passive: true });
+  window.addEventListener("keydown", run, { once: true });
+  window.addEventListener("scroll", run, { once: true, passive: true });
+
+  return () => {
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+  };
+}
+
+function HomeQuickLinksStaticPreview({ copy }: { copy?: HomeSectionCopy }) {
+  const { t } = useTranslation();
+
+  return (
+    <section className="relative z-10 bg-background pb-10 pt-3 sm:pb-12 sm:pt-4 lg:pb-14 lg:pt-5" aria-hidden="true">
+      <div className="app-container content-max">
+        <div className="mx-auto mb-6 max-w-[720px] text-center sm:mb-8">
+          <h2 className="font-serif text-[clamp(2rem,4vw,3.25rem)] font-medium leading-[0.98] tracking-normal text-foreground">
+            {cmsText(copy?.title, t("sections.homepage.categories.title"))}
+          </h2>
+          <p className="mx-auto mt-3 max-w-[720px] text-base leading-relaxed text-muted-foreground dark:text-white/80 sm:text-lg">
+            {cmsText(copy?.subtitle ?? copy?.description, t("sections.homepage.categories.intro"))}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function DeferredHomeSection({
   children,
-  minHeight = "520px",
+  id,
+  placeholder,
 }: {
   children: ReactNode;
-  minHeight?: string;
+  id: string;
+  placeholder?: ReactNode;
 }) {
-  const rootRef = useRef<HTMLDivElement>(null);
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
     if (shouldRender) return undefined;
-
-    const element = rootRef.current;
-    if (!element) return undefined;
-
-    if (typeof window.IntersectionObserver !== "function") {
-      const timeoutId = window.setTimeout(() => setShouldRender(true), 1200);
-      return () => window.clearTimeout(timeoutId);
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting) return;
-        setShouldRender(true);
-        observer.disconnect();
-      },
-      { rootMargin: "240px 0px" },
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
+    return scheduleDeferredHomeSectionReveal(() => setShouldRender(true));
   }, [shouldRender]);
 
   return (
-    <div
-      ref={rootRef}
-      className="min-w-0"
-      style={shouldRender ? undefined : { minHeight }}
-      aria-hidden={shouldRender ? undefined : "true"}
-    >
-      {shouldRender ? children : null}
+    <div data-home-section-deferred={id}>
+      {shouldRender ? children : placeholder}
     </div>
   );
 }
@@ -321,10 +331,6 @@ function getHomeSectionCopySourceId(sectionId: string) {
 const Index = () => {
   const { settings, isLoading } = useHomepageSettings();
   const { getBlockOrder, isBlockEnabled } = useCmsPageBuilder("home");
-  const locale = normalizePublicContentLocale(useCurrentLocale());
-  const { data: editorListings = [] } = useHomepageListingSegment("editors", locale);
-  const { data: premiumListings = [] } = useHomepageListingSegment("premium", locale);
-  const homepageListingCount = editorListings.length + premiumListings.length;
 
   // Compute which sections to render and in what order
   const sectionsToRender = useMemo(() => {
@@ -362,32 +368,39 @@ const Index = () => {
     const SectionComponent = SECTION_COMPONENTS[id];
     if (!SectionComponent) return null;
 
-    const section = (
+    const content = (
       <CmsBlock
         pageId="home"
         blockId={id}
+        key={id}
         as="section"
         defaultEnabled={defaultEnabled}
       >
         <SoftReveal className="min-w-0">
           <SectionComponent
             copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
-            listingCount={id === "cta" && homepageListingCount > 0 ? homepageListingCount : undefined}
           />
         </SoftReveal>
       </CmsBlock>
     );
 
-    if (IMMEDIATE_HOME_SECTION_IDS.has(id)) {
-      return <div key={id}>{section}</div>;
+    if (CRITICAL_HOME_SECTION_IDS.has(id)) {
+      return content;
     }
 
     return (
       <DeferredHomeSection
         key={id}
-        minHeight={DEFERRED_SECTION_MIN_HEIGHTS[id] ?? "520px"}
+        id={id}
+        placeholder={
+          id === "quick-links" ? (
+            <HomeQuickLinksStaticPreview
+              copy={getHomeSectionCopy(settings?.section_copy, getHomeSectionCopySourceId(id))}
+            />
+          ) : null
+        }
       >
-        {section}
+        {content}
       </DeferredHomeSection>
     );
   };
@@ -403,13 +416,13 @@ const Index = () => {
         <div className="mx-auto w-full content-max density">
           {settings ? sectionsToRender.map(renderSection) : null}
         </div>
-        <DeferredHomeSection minHeight="260px">
+        <DeferredHomeSection id="final-endcap">
           <SoftReveal className="min-w-0">
             <HomeFinalEndcap />
           </SoftReveal>
         </DeferredHomeSection>
       </main>
-      <DeferredHomeSection minHeight="520px">
+      <DeferredHomeSection id="footer">
         <Footer />
       </DeferredHomeSection>
     </div>

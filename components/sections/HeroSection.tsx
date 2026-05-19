@@ -6,24 +6,20 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useHeroSettings } from "@/hooks/useHomepageSettings";
-import { useGlobalSettings } from "@/hooks/useGlobalSettings";
+import { usePublicHeroSettings } from "@/hooks/usePublicHeroSettings";
+import { useHydratedGlobalSettings } from "@/hooks/useHydratedGlobalSettings";
 import { useCmsPageBuilder } from "@/hooks/useCmsPageBuilder";
 import { useTranslation } from "react-i18next";
 import { useConnectionQuality } from "@/hooks/useConnectionQuality";
 import { useTripPlanner } from "@/hooks/useTripPlanner";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContextBase";
 import { HERO_OVERLAY_INTENSITY_SETTING_KEY, normalizeHeroOverlayIntensity } from "@/lib/heroOverlay";
 import { useLocalePath } from "@/hooks/useLocalePath";
 import { useHydrated } from "@/hooks/useHydrated";
 import { useCurrentLocale } from "@/hooks/useCurrentLocale";
 import { getSafeCmsImageSrc } from "@/lib/cms/image-source";
 import { addImageVersion, buildSupabaseImageUrl } from "@/lib/imageUrls";
-import {
-  STANDARD_PUBLIC_HERO_SURFACE_CLASS,
-  STANDARD_PUBLIC_HERO_WRAPPER_CLASS,
-} from "@/components/sections/hero-layout";
+import { STANDARD_PUBLIC_HERO_SURFACE_CLASS } from "@/components/sections/hero-layout";
 
 const CreateTripDialog = dynamic(
   () => import("@/components/trip-planner/CreateTripDialog").then((m) => m.CreateTripDialog),
@@ -57,6 +53,49 @@ function getPrefersReducedData() {
     navigator.webkitConnection;
 
   return Boolean(connection?.saveData);
+}
+
+function canLoadDecorativeHeroVideo() {
+  if (typeof window === "undefined") return false;
+  if (typeof window.matchMedia === "function") {
+    if (!window.matchMedia("(min-width: 1024px)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    if (window.matchMedia("(prefers-reduced-data: reduce)").matches) return false;
+  }
+
+  return !getPrefersReducedData();
+}
+
+function scheduleDecorativeHeroVideoLoad(callback: () => void) {
+  let disposed = false;
+  let timeoutId: number | null = null;
+
+  const run = () => {
+    if (disposed) return;
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+    callback();
+  };
+
+  timeoutId = window.setTimeout(run, 20000);
+  window.addEventListener("pointerdown", run, { once: true, passive: true });
+  window.addEventListener("keydown", run, { once: true });
+  window.addEventListener("scroll", run, { once: true, passive: true });
+
+  return () => {
+    disposed = true;
+    if (timeoutId !== null) {
+      window.clearTimeout(timeoutId);
+    }
+    window.removeEventListener("pointerdown", run);
+    window.removeEventListener("keydown", run);
+    window.removeEventListener("scroll", run);
+  };
 }
 
 function HeroPosterImage({
@@ -125,20 +164,24 @@ const HeroVideo = ({ videoUrl, posterUrl }: { videoUrl: string; posterUrl?: stri
   <HeroVideoPlayer key={videoUrl} videoUrl={videoUrl} posterUrl={posterUrl} />
 );
 
+async function showToast(type: "info" | "success", message: string) {
+  const { toast } = await import("sonner");
+  toast[type](message);
+}
 
 export function HeroSection() {
   const hydrated = useHydrated();
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     getInitialReducedMotionPreference,
   );
-  const [canLoadVideoEnhancement, setCanLoadVideoEnhancement] = useState(false);
-  const { settings, isLoading: isHeroSettingsLoading } = useHeroSettings();
-  const { settings: runtimeSettings } = useGlobalSettings({
+  const [allowHeroVideo, setAllowHeroVideo] = useState(false);
+  const { settings, isLoading: isHeroSettingsLoading } = usePublicHeroSettings();
+  const { settings: runtimeSettings } = useHydratedGlobalSettings({
     keys: [HERO_OVERLAY_INTENSITY_SETTING_KEY],
   });
   const locale = useCurrentLocale();
   const { t } = useTranslation();
-  const { isSlow, isMobile } = useConnectionQuality();
+  const { isSlow } = useConnectionQuality();
   const { createTrip } = useTripPlanner();
   const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
@@ -148,9 +191,10 @@ export function HeroSection() {
   // for copy, but stale CMS media must not override a reset homepage image.
   const { getText } = useCmsPageBuilder("home");
 
-  // Keep the poster as the initial hero surface. The configured video is large,
-  // so load it only after real desktop user activity on fast connections.
-  const shouldSkipVideo = prefersReducedMotion || isSlow || isMobile;
+  // Determine if video should be skipped for accessibility/performance.
+  // Mobile is not skipped by default; modern mobile browsers can autoplay muted
+  // playsInline video, and the connection hook handles slow/data-saver cases.
+  const shouldSkipVideo = prefersReducedMotion || isSlow;
 
   useEffect(() => {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -164,23 +208,11 @@ export function HeroSection() {
   }, []);
 
   useEffect(() => {
-    if (shouldSkipVideo || !hydrated) {
-      return undefined;
-    }
-
-    const enableVideo = () => setCanLoadVideoEnhancement(true);
-    const eventOptions: AddEventListenerOptions = { once: true, passive: true };
-
-    window.addEventListener("pointerdown", enableVideo, eventOptions);
-    window.addEventListener("keydown", enableVideo, { once: true });
-    window.addEventListener("scroll", enableVideo, eventOptions);
-
-    return () => {
-      window.removeEventListener("pointerdown", enableVideo);
-      window.removeEventListener("keydown", enableVideo);
-      window.removeEventListener("scroll", enableVideo);
-    };
-  }, [hydrated, shouldSkipVideo]);
+    if (!canLoadDecorativeHeroVideo()) return undefined;
+    return scheduleDecorativeHeroVideoLoad(() => {
+      setAllowHeroVideo(canLoadDecorativeHeroVideo());
+    });
+  }, []);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -197,7 +229,7 @@ export function HeroSection() {
   const openTripPlanner = () => {
     if (!isAuthenticated) {
       setPendingTripPlannerOpen(true);
-      toast.info(t("hero.loginRequired"));
+      void showToast("info", t("hero.loginRequired"));
       setShowLoginModal(true);
       return;
     }
@@ -219,13 +251,13 @@ export function HeroSection() {
 
   const handleCreateTrip = (data: { title: string; description?: string; start_date: string; end_date: string }) => {
     if (!isAuthenticated) {
-      toast.info(t("hero.loginRequired"));
+      void showToast("info", t("hero.loginRequired"));
       setShowLoginModal(true);
       return;
     }
 
     const newTrip = createTrip(data);
-    toast.success(t("hero.tripCreated"));
+    void showToast("success", t("hero.tripCreated"));
     router.push(`${l("/dashboard/trips")}?trip=${encodeURIComponent(newTrip.id)}`);
   };
 
@@ -248,7 +280,7 @@ export function HeroSection() {
 
   const canEnhanceHeroVideo =
     hydrated &&
-    canLoadVideoEnhancement &&
+    allowHeroVideo &&
     hasVideoUrl &&
     !shouldSkipVideo &&
     !getPrefersReducedData();
@@ -308,7 +340,7 @@ export function HeroSection() {
   }, [hasPosterUrl, hasVideoUrl, isHeroSettingsLoading, mediaType, shouldSkipVideo]);
 
   return (
-    <div className={STANDARD_PUBLIC_HERO_WRAPPER_CLASS}>
+    <div className="px-0 pb-4 pt-[calc(4.75rem+18px)] sm:pb-5 sm:pt-[calc(5rem+20px)] lg:px-6">
       <section className={STANDARD_PUBLIC_HERO_SURFACE_CLASS}>
         {/* Video Background */}
         <div className="absolute inset-0 bg-black">
@@ -336,7 +368,7 @@ export function HeroSection() {
               {heroBadge}
             </p>
 
-            <h1 className="font-serif text-[clamp(2.75rem,10vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
+            <h1 className="[font-family:Georgia,serif] text-[clamp(2.75rem,10vw,6.75rem)] font-semibold leading-[0.92] tracking-normal text-white">
               <span className="block">{heroTitleLead},</span>
               <span className="block italic text-primary">{heroTitleHighlight}</span>
             </h1>

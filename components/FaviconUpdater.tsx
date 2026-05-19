@@ -1,13 +1,10 @@
 import { useEffect } from "react";
-import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 /**
  * FaviconUpdater component that listens to site settings
  * and dynamically updates the browser's favicon.
  */
 export function FaviconUpdater() {
-    useSiteSettings();
-
     useEffect(() => {
         const faviconUrl = "/algarveofficial-icon-gold.png";
         const appleTouchIconUrl = "/icons/apple-touch-icon.png";

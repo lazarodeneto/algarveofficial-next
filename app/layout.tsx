@@ -17,7 +17,6 @@ import { createPublicServerClient } from "@/lib/supabase/public-server";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-playfair",
   display: "swap",
@@ -26,14 +25,13 @@ const playfair = Playfair_Display({
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-inter",
   display: "swap",
 });
 
 const firaSans = Fira_Sans({
   subsets: ["latin"],
-  weight: ["500", "700", "900"],
+  weight: ["700"],
   variable: "--font-fira-sans",
   display: "swap",
   preload: false,

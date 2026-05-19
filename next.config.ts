@@ -16,6 +16,7 @@ const scriptSrc = [
   "https://accounts.google.com",
   "https://apis.google.com",
   "https://tpwdg.com",
+  "https://vercel.live",
 ].join(" ");
 
 const styleSrc = "'self' 'unsafe-inline' https://fonts.googleapis.com";
@@ -58,10 +59,10 @@ const cspDirectives = [
   `style-src-elem ${styleSrc}`,
   "style-src-attr 'unsafe-inline'",
   `font-src 'self' data: https://fonts.gstatic.com`,
+  `manifest-src 'self'`,
   `img-src 'self' data: blob: https: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.ggpht.com https://*.ytimg.com https://*.unsplash.com`,
   `connect-src ${connectSrc}`,
   `media-src 'self' blob: https:`,
-  `manifest-src 'self'`,
   `frame-src 'self' https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://tpwdg.com https://www.aviasales.com https://aviasales.com https://www.hotellook.com https://hotellook.com`,
   `frame-ancestors 'self' https://algarveofficial.com https://*.algarveofficial.com`,
   `upgrade-insecure-requests`,

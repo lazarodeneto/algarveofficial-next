@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { CSSProperties } from "react";
-import { useCmsPageBuilderContext } from "@/contexts/CmsPageBuilderContext";
+import { useCmsPageBuilderContext } from "@/contexts/CmsPageBuilderContextBase";
 import { normalizePublicContactEmail } from "@/lib/contactEmail";
 import {
   isKnownCmsPageId,
