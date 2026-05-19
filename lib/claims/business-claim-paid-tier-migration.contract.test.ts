@@ -17,7 +17,7 @@ const adminApprovalMigration = readFileSync(
     process.cwd(),
     "supabase",
     "migrations",
-    "20260511193000_sync_business_claim_tier_to_listing.sql",
+    "20260519161000_guard_paid_claim_approval_subscription.sql",
   ),
   "utf8",
 );
@@ -54,6 +54,19 @@ describe("paid business claim tier guard migration", () => {
     );
     expect(adminApprovalMigration).toContain(
       "WHEN 'verified'::public.business_claim_tier THEN 'verified'::public.listing_tier",
+    );
+  });
+
+  it("requires active Stripe-backed subscription state before approving paid claim tiers", () => {
+    expect(adminApprovalMigration).toContain("FROM public.owner_subscriptions os");
+    expect(adminApprovalMigration).toContain("os.tier_source = 'stripe'");
+    expect(adminApprovalMigration).toContain("os.status IN ('active', 'trialing', 'past_due')");
+    expect(adminApprovalMigration).toContain("os.plan_type = 'fixed_2026'");
+    expect(adminApprovalMigration).toContain("os.end_date >= current_date");
+    expect(adminApprovalMigration).toContain("IF _selected_tier_rank > 0 THEN");
+    expect(adminApprovalMigration).toContain("COALESCE(_subscription_tier_rank, 0) < _selected_tier_rank");
+    expect(adminApprovalMigration).toContain(
+      "Active paid Stripe subscription is required before approving this paid tier claim",
     );
   });
 

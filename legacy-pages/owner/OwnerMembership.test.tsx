@@ -51,8 +51,8 @@ const membershipTiers = [
   {
     id: "signature",
     name: "Signature",
-    monthly: { display: "€99", note: "month" },
-    annual: { display: "€990", note: "year", savings: 198, monthlyEquivalent: "€82.5/mo" },
+    monthly: { display: "€190", note: "month" },
+    annual: { display: "€1,900", note: "year", savings: 380, monthlyEquivalent: "€158.3/mo" },
     benefits: ["Benefit B"],
     limitations: [],
     highlight: false,
@@ -136,7 +136,7 @@ describe("OwnerMembership billing actions", () => {
     mocks.createCheckout.mockResolvedValue(undefined);
     render(<OwnerMembership />);
 
-    fireEvent.click(screen.getByRole("button", { name: "owner.membership.subscribeNow" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "owner.membership.subscribeNow" })[0]);
 
     expect(mocks.createCheckout).toHaveBeenCalledWith("verified", "monthly");
     expect(mocks.changePlan).not.toHaveBeenCalled();
@@ -177,7 +177,7 @@ describe("OwnerMembership billing actions", () => {
 
     render(<OwnerMembership />);
 
-    fireEvent.click(screen.getByRole("button", { name: "owner.membership.subscribeNow" }));
+    fireEvent.click(screen.getAllByRole("button", { name: "owner.membership.subscribeNow" })[0]);
 
     expect(mocks.changePlan).toHaveBeenCalledWith("verified", "monthly");
     expect(mocks.createCheckout).not.toHaveBeenCalled();
@@ -203,5 +203,17 @@ describe("OwnerMembership billing actions", () => {
 
     expect(mocks.changePlan).not.toHaveBeenCalled();
     expect(mocks.createCheckout).not.toHaveBeenCalled();
+  });
+
+  it("allows unsubscribed owners to start Signature monthly checkout", async () => {
+    mocks.createCheckout.mockResolvedValue(undefined);
+    render(<OwnerMembership />);
+
+    const subscribeButtons = screen.getAllByRole("button", { name: "owner.membership.subscribeNow" });
+    fireEvent.click(subscribeButtons[1]);
+
+    expect(mocks.createCheckout).toHaveBeenCalledWith("signature", "monthly");
+    expect(mocks.changePlan).not.toHaveBeenCalled();
+    expect(screen.queryByText("By Invitation Only")).not.toBeInTheDocument();
   });
 });

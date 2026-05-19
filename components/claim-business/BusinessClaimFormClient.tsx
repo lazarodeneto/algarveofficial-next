@@ -178,11 +178,14 @@ function getSelectedBillingPeriod(
 
   const detail = pricing?.[tier];
   const selectedPeriod = selectedBillingPeriods[tier];
-  if (selectedPeriod && detail?.options.some((option) => option.billingPeriod === selectedPeriod)) {
+  if (
+    selectedPeriod === "monthly" &&
+    detail?.options.some((option) => option.billingPeriod === "monthly")
+  ) {
     return selectedPeriod;
   }
 
-  return detail?.checkoutBillingPeriod ?? null;
+  return detail?.checkoutBillingPeriod === "monthly" ? "monthly" : null;
 }
 
 function getStatusMessage(status: ListingClaimStatus, tx: Record<string, string>) {
@@ -255,7 +258,7 @@ export function BusinessClaimFormClient({
 
     const detail = pricing?.[selectedTier];
     const fallbackPeriod = detail?.checkoutBillingPeriod;
-    if (!fallbackPeriod) return;
+    if (!detail || fallbackPeriod !== "monthly") return;
 
     setSelectedBillingPeriods((current) => {
       const currentPeriod = current[selectedTier];
@@ -395,6 +398,7 @@ export function BusinessClaimFormClient({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          source: "claim",
           tier,
           billing_period: billingPeriod,
           claim_id: claimId,
@@ -878,14 +882,18 @@ export function BusinessClaimFormClient({
                       selectedBillingPeriods={selectedBillingPeriods}
                       onSelectTier={handleTierSelect}
                       compact
+                      showAnnualPricing={false}
                     />
-                    {isPaidTier(selectedTier) && (pricing?.[selectedTier]?.options.length ?? 0) > 1 ? (
+                    {isPaidTier(selectedTier) &&
+                    (pricing?.[selectedTier]?.options.filter((option) => option.billingPeriod === "monthly").length ?? 0) > 1 ? (
                       <div
                         className="grid gap-2 sm:grid-cols-2"
                         role="radiogroup"
                         aria-label={tx["claimBusinessPartnership.pricing.selectionHint"]}
                       >
-                        {pricing?.[selectedTier]?.options.map((option) => {
+                        {pricing?.[selectedTier]?.options
+                          .filter((option) => option.billingPeriod === "monthly")
+                          .map((option) => {
                           const selectedPeriod =
                             getSelectedBillingPeriod(selectedTier, pricing, selectedBillingPeriods) ===
                             option.billingPeriod;

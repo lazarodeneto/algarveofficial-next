@@ -24,6 +24,15 @@ import { planTypeFromBillingPeriod } from "@/lib/subscriptions/types";
 type PaidTier = "verified" | "signature";
 type BillingPeriod = "monthly" | "yearly" | "promo";
 type ListingTier = "unverified" | "verified" | "signature";
+type CheckoutSource = "owner" | "claim";
+
+interface CheckoutBody {
+  source?: string;
+  tier?: string;
+  billing_period?: string;
+  listing_id?: string;
+  claim_id?: string;
+}
 
 const TIER_RANK: Record<ListingTier, number> = {
   unverified: 0,
@@ -50,6 +59,73 @@ function normalizeCheckoutBillingPeriod(value: unknown): BillingPeriod | null {
   const period = normalizePricingBillingPeriod(value as any);
   if (period === "monthly" || period === "yearly" || period === "promo") return period;
   return null;
+}
+
+function normalizeCheckoutSource(value: unknown): CheckoutSource | null {
+  if (typeof value !== "string" || value.trim() === "") return null;
+  const source = value.trim().toLowerCase();
+  if (source === "owner" || source === "claim") return source;
+  return null;
+}
+
+function isStripePriceId(value: unknown): value is string {
+  return typeof value === "string" && /^price_[A-Za-z0-9_]+$/.test(value.trim());
+}
+
+function getPricingPriceCents(row: SubscriptionPricingRow | undefined | null) {
+  if (!row) return 0;
+  if (typeof row.price_cents === "number" && Number.isFinite(row.price_cents)) {
+    return row.price_cents;
+  }
+  return typeof row.price === "number" && Number.isFinite(row.price) ? row.price : 0;
+}
+
+function validateResolvedPricingRow({
+  pricing,
+  resolvedBillingPeriod,
+  tier,
+  checkoutSource,
+}: {
+  pricing: SubscriptionPricingRow | undefined;
+  resolvedBillingPeriod: BillingPeriod;
+  tier: PaidTier;
+  checkoutSource: CheckoutSource;
+}): { ok: true; stripePriceId: string } | { ok: false; status: number; error: string } {
+  if (!pricing) {
+    return { ok: false, status: 400, error: "Pricing not found." };
+  }
+
+  if (normalizePricingTier(pricing.tier) !== tier) {
+    return { ok: false, status: 400, error: "Pricing tier mismatch." };
+  }
+
+  if (normalizePricingBillingPeriod(pricing.billing_period as any) !== resolvedBillingPeriod) {
+    return { ok: false, status: 400, error: "Pricing period mismatch." };
+  }
+
+  if (pricing.is_active !== true) {
+    return { ok: false, status: 400, error: "Pricing is not available." };
+  }
+
+  if (checkoutSource === "claim" && resolvedBillingPeriod !== "monthly") {
+    return { ok: false, status: 400, error: "Claim checkout requires monthly pricing." };
+  }
+
+  const currency = typeof pricing.currency === "string" ? pricing.currency.toUpperCase() : "";
+  if (currency !== "EUR") {
+    return { ok: false, status: 400, error: "Pricing currency is not available." };
+  }
+
+  if (getPricingPriceCents(pricing) <= 0) {
+    return { ok: false, status: 400, error: "Pricing amount is not available." };
+  }
+
+  const stripePriceId = pricing.stripe_price_id?.trim();
+  if (!isStripePriceId(stripePriceId)) {
+    return { ok: false, status: 500, error: "Pricing configuration error." };
+  }
+
+  return { ok: true, stripePriceId };
 }
 
 function resolveSiteUrl(request: NextRequest) {
@@ -87,7 +163,7 @@ async function requireAuthenticatedClaimant(): Promise<OwnerAuth | OwnerAuthErro
 }
 
 export async function POST(request: NextRequest) {
-  let body: { tier?: string; billing_period?: string; listing_id?: string; claim_id?: string } | null = null;
+  let body: CheckoutBody | null = null;
   try {
     body = await request.json();
   } catch {
@@ -95,21 +171,45 @@ export async function POST(request: NextRequest) {
   }
 
   const claimId = typeof body?.claim_id === "string" ? body.claim_id.trim() : "";
+  const listingId = typeof body?.listing_id === "string" ? body.listing_id.trim() : "";
+  const rawSource = typeof body?.source === "string" ? body.source.trim() : "";
+  const normalizedSource = normalizeCheckoutSource(rawSource);
   const tier = normalizePaidTier(body?.tier);
   const billingPeriod = normalizeCheckoutBillingPeriod(body?.billing_period);
+
+  if (rawSource && !normalizedSource) {
+    return NextResponse.json({ error: "Invalid checkout source." }, { status: 400 });
+  }
+
+  if (normalizedSource === "owner" && claimId) {
+    return NextResponse.json({ error: "Use claim checkout for claim payments." }, { status: 400 });
+  }
+
+  const checkoutSource: CheckoutSource = normalizedSource ?? (claimId ? "claim" : "owner");
+
+  if (checkoutSource === "claim" && !claimId) {
+    return NextResponse.json({ error: "claim_id is required for claim checkout." }, { status: 400 });
+  }
+
+  if (claimId && listingId) {
+    return NextResponse.json(
+      { error: "Use either claim_id or listing_id for checkout, not both." },
+      { status: 400 },
+    );
+  }
 
   if (!tier || !billingPeriod) {
     return NextResponse.json({ error: "Invalid pricing selection." }, { status: 400 });
   }
 
-  if (claimId && billingPeriod !== "monthly") {
+  if (checkoutSource === "claim" && billingPeriod !== "monthly") {
     return NextResponse.json(
       { error: "Claim checkout requires monthly pricing." },
       { status: 400 },
     );
   }
 
-  const auth = claimId
+  const auth = checkoutSource === "claim"
     ? await requireAuthenticatedClaimant()
     : await requireAuthenticatedOwner(request);
   if ("error" in auth) return auth.error;
@@ -125,11 +225,10 @@ export async function POST(request: NextRequest) {
   }
 
   let checkoutClaimId: string | null = null;
-  const listingId = typeof body?.listing_id === "string" ? body.listing_id.trim() : "";
   let checkoutListingId: string | null = null;
   let checkoutListingSlug: string | null = null;
 
-  if (claimId) {
+  if (checkoutSource === "claim") {
     if (!isUuid(claimId)) {
       return NextResponse.json({ error: "Invalid claim selection." }, { status: 400 });
     }
@@ -176,13 +275,6 @@ export async function POST(request: NextRequest) {
   }
 
   if (listingId) {
-    if (checkoutClaimId) {
-      return NextResponse.json(
-        { error: "Use either claim_id or listing_id for checkout, not both." },
-        { status: 400 },
-      );
-    }
-
     if (!isUuid(listingId)) {
       return NextResponse.json({ error: "Invalid listing selection." }, { status: 400 });
     }
@@ -245,6 +337,19 @@ export async function POST(request: NextRequest) {
     (row) => row.id === resolvedPricing.id,
   );
   const resolvedBillingPeriod = resolvedPricing.billingPeriod;
+  const pricingValidation = validateResolvedPricingRow({
+    pricing,
+    resolvedBillingPeriod,
+    tier,
+    checkoutSource,
+  });
+  if (!pricingValidation.ok) {
+    return NextResponse.json(
+      { error: pricingValidation.error },
+      { status: pricingValidation.status },
+    );
+  }
+
   const planType = planTypeFromBillingPeriod(resolvedBillingPeriod);
 
   let overlap;
@@ -258,10 +363,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: overlap.reason, code: "PLAN_OVERLAP" }, { status: 409 });
   }
 
-  const stripePriceId = pricing?.stripe_price_id;
-  if (!stripePriceId) {
-    return NextResponse.json({ error: "Pricing configuration error." }, { status: 500 });
-  }
+  const stripePriceId = pricingValidation.stripePriceId;
 
   // Reuse existing Stripe customer to avoid duplicates; fall back to pre-filling email.
   let existingCustomerId: string | null = null;
@@ -276,6 +378,7 @@ export async function POST(request: NextRequest) {
   }
 
   const sessionMeta = {
+    checkout_source: checkoutSource,
     owner_id: auth.userId,
     userId: auth.userId,
     user_id: auth.userId,
@@ -284,6 +387,7 @@ export async function POST(request: NextRequest) {
     billing_period: resolvedBillingPeriod,
     requested_billing_period: billingPeriod,
     pricing_id: resolvedPricing.id,
+    stripe_price_id: stripePriceId,
     ...(checkoutClaimId ? { claim_id: checkoutClaimId } : {}),
     ...(checkoutListingId ? { listing_id: checkoutListingId } : {}),
   };

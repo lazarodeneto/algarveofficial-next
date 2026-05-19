@@ -246,6 +246,7 @@ interface PricingCardsProps extends TranslationProps {
   ctaHref?: string;
   className?: string;
   compact?: boolean;
+  showAnnualPricing?: boolean;
 }
 
 function Cell({
@@ -358,6 +359,7 @@ export function ClaimBusinessPricingCards({
   ctaHref,
   className,
   compact = false,
+  showAnnualPricing = true,
 }: PricingCardsProps) {
   const tiers: ClaimPartnershipTier[] = ["free", "verified", "signature"];
 
@@ -399,7 +401,9 @@ export function ClaimBusinessPricingCards({
           const priceNote = displayedPricing?.cadenceLabel ?? tx[`claimBusinessPartnership.tiers.${keyPrefix}.priceNote`];
           const supportingLabel = displayedPricing?.supportingLabel;
           const annualPricingOption =
-            tier === "free" ? null : getAnnualPricingDisplay(tx, pricingDetail, displayedPricing);
+            tier === "free" || !showAnnualPricing
+              ? null
+              : getAnnualPricingDisplay(tx, pricingDetail, displayedPricing);
           const showAnnualPricingOption =
             Boolean(annualPricingOption) &&
             annualPricingOption?.billingPeriod !== displayedPricing?.billingPeriod;

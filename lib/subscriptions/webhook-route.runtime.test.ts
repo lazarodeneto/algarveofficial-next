@@ -1,9 +1,10 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 
 const mocks = vi.hoisted(() => ({
   createServiceRoleClient: vi.fn(),
   getStripeServerClient: vi.fn(),
+  getStripeSecretKeyMode: vi.fn(),
   getStripeWebhookSecret: vi.fn(),
   applyTierToListings: vi.fn(),
   findByOwner: vi.fn(),
@@ -19,6 +20,7 @@ vi.mock("@/lib/supabase/service", () => ({
 
 vi.mock("@/lib/stripe/server", () => ({
   getStripeServerClient: mocks.getStripeServerClient,
+  getStripeSecretKeyMode: mocks.getStripeSecretKeyMode,
   getStripeWebhookSecret: mocks.getStripeWebhookSecret,
 }));
 
@@ -54,11 +56,66 @@ function webhookRequest(body = "{}") {
   }) as unknown as Parameters<typeof postWebhookRoute>[0];
 }
 
+beforeEach(() => {
+  mocks.getStripeSecretKeyMode.mockReturnValue(null);
+});
+
 afterEach(() => {
   vi.clearAllMocks();
 });
 
 describe("stripe webhook route runtime", () => {
+  it("rejects an invalid Stripe signature before recording the event", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      webhooks: {
+        constructEvent: vi.fn().mockImplementation(() => {
+          throw new Error("bad signature");
+        }),
+      },
+    });
+    mocks.getStripeWebhookSecret.mockReturnValue("whsec_test");
+
+    const response = await postWebhookRoute(webhookRequest());
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual({ error: "Invalid Stripe signature." });
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+    expect(mocks.recordStripeEvent).not.toHaveBeenCalled();
+  });
+
+  it("rejects webhook events whose livemode does not match STRIPE_SECRET_KEY mode", async () => {
+    const event = {
+      id: "evt_mode_mismatch",
+      type: "invoice.paid",
+      created: 1710000000,
+      livemode: false,
+      data: {
+        object: {
+          metadata: {
+            owner_id: "owner-1",
+          },
+        },
+      },
+    };
+
+    mocks.getStripeServerClient.mockReturnValue({
+      webhooks: {
+        constructEvent: vi.fn().mockReturnValue(event),
+      },
+    });
+    mocks.getStripeWebhookSecret.mockReturnValue("whsec_live");
+    mocks.getStripeSecretKeyMode.mockReturnValue("live");
+
+    const response = await postWebhookRoute(webhookRequest());
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual({ error: "Stripe event mode mismatch." });
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+    expect(mocks.recordStripeEvent).not.toHaveBeenCalled();
+  });
+
   it("applies listing tiers using the true before/after subscription state", async () => {
     const event = {
       id: "evt_test_1",
@@ -150,6 +207,45 @@ describe("stripe webhook route runtime", () => {
       next,
       "listing-1",
     );
+  });
+
+  it("does not fall back to unvalidated listing_id metadata when handler disables tier application", async () => {
+    const event = {
+      id: "evt_unvalidated_listing",
+      type: "invoice.paid",
+      created: 1710000004,
+      data: {
+        object: {
+          metadata: {
+            owner_id: "owner-1",
+            listing_id: "listing-from-metadata",
+          },
+        },
+      },
+    };
+
+    const previous = { owner_id: "owner-1", tier: "unverified", status: "pending" };
+    const next = { owner_id: "owner-1", tier: "verified", status: "active" };
+
+    mocks.getStripeServerClient.mockReturnValue({
+      webhooks: {
+        constructEvent: vi.fn().mockReturnValue(event),
+      },
+    });
+    mocks.getStripeWebhookSecret.mockReturnValue("whsec_test");
+    mocks.createServiceRoleClient.mockReturnValue({} as never);
+    mocks.recordStripeEvent.mockResolvedValue({
+      alreadyProcessed: false,
+      previousResult: null,
+    });
+    mocks.handler.mockResolvedValue({ ownerId: "owner-1", listingId: null, applyTier: false });
+    mocks.findByOwner.mockResolvedValueOnce(previous as never).mockResolvedValueOnce(next as never);
+
+    const response = await postWebhookRoute(webhookRequest());
+
+    expect(response.status).toBe(200);
+    expect(mocks.applyTierToListings).not.toHaveBeenCalled();
+    expect(mocks.markEvent).toHaveBeenCalledWith(expect.anything(), "evt_unvalidated_listing", "success");
   });
 
 

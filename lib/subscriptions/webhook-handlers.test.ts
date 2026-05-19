@@ -25,12 +25,56 @@ import {
 function createPricingSupabase({
   pricingById = {},
   pricingByStripePriceId = {},
+  listingsById = {},
+  claimsById = {},
 }: {
   pricingById?: Record<string, Record<string, unknown> | null>;
   pricingByStripePriceId?: Record<string, Record<string, unknown> | null>;
+  listingsById?: Record<string, Record<string, unknown> | null>;
+  claimsById?: Record<string, Record<string, unknown> | null>;
 } = {}) {
   return {
     from(table: string) {
+      if (table === "listings") {
+        return {
+          select() {
+            const filters = new Map<string, string>();
+            return {
+              eq(column: string, value: string) {
+                filters.set(column, value);
+                return this;
+              },
+              async maybeSingle() {
+                return {
+                  data: listingsById[filters.get("id") as string] ?? null,
+                  error: null,
+                };
+              },
+            };
+          },
+        };
+      }
+
+      if (table === "business_claims") {
+        return {
+          select() {
+            const filters = new Map<string, string>();
+            return {
+              eq(column: string, value: string) {
+                filters.set(column, value);
+                return this;
+              },
+              async maybeSingle() {
+                return {
+                  data: claimsById[filters.get("id") as string] ?? null,
+                  error: null,
+                };
+              },
+            };
+          },
+        };
+      }
+
       if (table !== "subscription_pricing") {
         throw new Error(`Unexpected table ${table}`);
       }
@@ -87,6 +131,13 @@ describe("subscription webhook handlers", () => {
           valid_to: null,
         },
       },
+      listingsById: {
+        "listing-1": {
+          id: "listing-1",
+          owner_id: "owner-1",
+          claim_status: "claimed",
+        },
+      },
     });
 
     const event = {
@@ -111,7 +162,7 @@ describe("subscription webhook handlers", () => {
 
     const result = await handleCheckoutCompleted({} as Stripe, supabase, event);
 
-    expect(result).toEqual({ ownerId: "owner-1", listingId: "listing-1" });
+    expect(result).toEqual({ ownerId: "owner-1", listingId: "listing-1", applyTier: true });
 
     expect(mocks.upsertSubscription).toHaveBeenCalledWith(
       supabase,
@@ -189,7 +240,7 @@ describe("subscription webhook handlers", () => {
     );
   });
 
-  it("returns explicit skipped result when checkout metadata is missing tier/billing", async () => {
+  it("returns explicit skipped result when checkout pricing metadata is missing", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const supabase = createPricingSupabase({});
 
@@ -213,11 +264,12 @@ describe("subscription webhook handlers", () => {
     expect(result).toEqual({
       ownerId: "owner-1",
       listingId: null,
+      applyTier: false,
       skipped: true,
-      reason: "missing_metadata",
+      reason: "invalid_pricing_metadata",
     });
     expect(warnSpy).toHaveBeenCalledWith(
-      "[webhook] checkout.session.completed: missing tier/billing metadata, skipping state write",
+      "[webhook] checkout.session.completed: invalid pricing metadata, skipping state write",
       expect.objectContaining({
         ownerId: "owner-1",
         sessionId: "cs_missing_metadata",
@@ -226,6 +278,133 @@ describe("subscription webhook handlers", () => {
     expect(mocks.upsertSubscription).not.toHaveBeenCalled();
 
     warnSpy.mockRestore();
+  });
+
+  it("skips checkout subscription writes when claim metadata does not match the DB claim", async () => {
+    const supabase = createPricingSupabase({
+      pricingById: {
+        "pricing-verified-monthly": {
+          id: "pricing-verified-monthly",
+          tier: "verified",
+          billing_period: "monthly",
+          stripe_price_id: "price_verified_monthly",
+          price_cents: 1900,
+          currency: "EUR",
+          valid_to: null,
+        },
+      },
+      claimsById: {
+        "claim-1": {
+          id: "claim-1",
+          listing_id: "listing-real",
+          claimant_user_id: "owner-2",
+          selected_tier: "verified",
+          status: "pending",
+        },
+      },
+    });
+
+    const event = {
+      created: 1710000000,
+      data: {
+        object: {
+          id: "cs_claim_bad",
+          mode: "subscription",
+          customer: "cus_test_1",
+          subscription: "sub_test_1",
+          metadata: {
+            checkout_source: "claim",
+            owner_id: "owner-1",
+            claim_id: "claim-1",
+            listing_id: "listing-real",
+            pricing_id: "pricing-verified-monthly",
+            stripe_price_id: "price_verified_monthly",
+            tier: "verified",
+            billing_period: "monthly",
+          },
+        },
+      },
+    } as unknown as Stripe.Event;
+
+    const result = await handleCheckoutCompleted({} as Stripe, supabase, event);
+
+    expect(result).toEqual({
+      ownerId: "owner-1",
+      listingId: null,
+      applyTier: false,
+      skipped: true,
+      reason: "claim_owner_mismatch",
+    });
+    expect(mocks.upsertSubscription).not.toHaveBeenCalled();
+  });
+
+  it("syncs an active claim subscription without applying the listing tier before approval", async () => {
+    const supabase = createPricingSupabase({
+      pricingByStripePriceId: {
+        price_verified_monthly: {
+          id: "pricing-verified-monthly",
+          tier: "verified",
+          billing_period: "monthly",
+          stripe_price_id: "price_verified_monthly",
+          price_cents: 1900,
+          currency: "EUR",
+          valid_to: null,
+        },
+      },
+      claimsById: {
+        "claim-1": {
+          id: "claim-1",
+          listing_id: "listing-1",
+          claimant_user_id: "owner-1",
+          selected_tier: "verified",
+          status: "pending",
+        },
+      },
+    });
+
+    const event = {
+      created: 1710000200,
+      data: {
+        object: {
+          id: "sub_claim_1",
+          customer: "cus_test_2",
+          status: "active",
+          cancel_at_period_end: false,
+          canceled_at: null,
+          trial_end: null,
+          metadata: {
+            checkout_source: "claim",
+            userId: "owner-1",
+            claim_id: "claim-1",
+            listing_id: "listing-1",
+            tier: "verified",
+          },
+          items: {
+            data: [
+              {
+                current_period_start: 1710000000,
+                current_period_end: 1712592000,
+                price: { id: "price_verified_monthly" },
+              },
+            ],
+          },
+        },
+      },
+    } as unknown as Stripe.Event;
+
+    const result = await handleSubscriptionCreatedOrUpdated({} as Stripe, supabase, event);
+
+    expect(result).toEqual({ ownerId: "owner-1", listingId: null, applyTier: false });
+    expect(mocks.upsertSubscription).toHaveBeenCalledWith(
+      supabase,
+      "owner-1",
+      expect.objectContaining({
+        tier: "verified",
+        status: "active",
+        stripe_price_id: "price_verified_monthly",
+      }),
+      { eventCreatedAt: 1710000200 },
+    );
   });
 
   it("activates the paid tier on invoice.paid", async () => {

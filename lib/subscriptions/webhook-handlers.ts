@@ -10,7 +10,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 
 import type { Database } from "@/integrations/supabase/types";
-import { normalizePricingTier } from "@/lib/pricing/pricing-resolver";
+import {
+  normalizePricingBillingPeriod,
+  normalizePricingTier,
+} from "@/lib/pricing/pricing-resolver";
 
 import { findByCheckoutSession, findByOwner, findByStripeSub, upsertSubscription } from "./db";
 import {
@@ -31,21 +34,56 @@ interface PricingLookup {
   price_cents: number;
   currency: string;
   valid_to: string | null;
+  is_active?: boolean | null;
 }
 
 // ---------- helpers ----------
 
+type EventMetadata = {
+  owner_id?: string | null;
+  userId?: string | null;
+  user_id?: string | null;
+  listing_id?: string | null;
+  claim_id?: string | null;
+  checkout_source?: string | null;
+  source?: string | null;
+  pricing_id?: string | null;
+  stripe_price_id?: string | null;
+  tier?: string | null;
+  billing_period?: string | null;
+} | null | undefined;
+
 function getMetadataOwnerId(
-  metadata: { owner_id?: string | null; userId?: string | null } | null | undefined,
+  metadata: EventMetadata,
 ): string | null {
-  return metadata?.owner_id ?? metadata?.userId ?? null;
+  return metadata?.owner_id ?? metadata?.userId ?? metadata?.user_id ?? null;
 }
 
 function getMetadataListingId(
-  metadata: { listing_id?: string | null } | null | undefined,
+  metadata: EventMetadata,
 ): string | null {
   const value = metadata?.listing_id?.trim();
   return value || null;
+}
+
+function getMetadataClaimId(metadata: EventMetadata): string | null {
+  const value = metadata?.claim_id?.trim();
+  return value || null;
+}
+
+function getMetadataStripePriceId(metadata: EventMetadata): string | null {
+  const value = metadata?.stripe_price_id?.trim();
+  return value || null;
+}
+
+function getMetadataCheckoutSource(metadata: EventMetadata): "owner" | "claim" {
+  if (getMetadataClaimId(metadata)) return "claim";
+  const source = (metadata?.checkout_source ?? metadata?.source ?? "").trim().toLowerCase();
+  return source === "claim" ? "claim" : "owner";
+}
+
+function isStripePriceId(value: unknown): value is string {
+  return typeof value === "string" && /^price_[A-Za-z0-9_]+$/.test(value.trim());
 }
 
 function unixToIso(value: number | null | undefined): string | null {
@@ -67,6 +105,142 @@ function asPaidTier(value: unknown): EffectiveTier | null {
   const tier = normalizePricingTier(value);
   if (tier === "verified" || tier === "signature") return tier;
   return null;
+}
+
+function validatePricingLookup(
+  pricing: PricingLookup | null,
+  expectedStripePriceId?: string | null,
+): { pricing: PricingLookup; tier: EffectiveTier; billingPeriod: "monthly" | "yearly" | "promo" } | null {
+  if (!pricing) return null;
+  const tier = asPaidTier(pricing.tier);
+  const billingPeriod = normalizePricingBillingPeriod(pricing.billing_period);
+  if (!tier || !billingPeriod) return null;
+  if (!isStripePriceId(pricing.stripe_price_id)) return null;
+  if (expectedStripePriceId && expectedStripePriceId !== pricing.stripe_price_id) return null;
+  if (pricing.price_cents <= 0) return null;
+  if ((pricing.currency ?? "").toUpperCase() !== "EUR") return null;
+  return { pricing, tier, billingPeriod };
+}
+
+async function validateClaimMetadata(
+  supabase: Supabase,
+  args: {
+    metadata: EventMetadata;
+    ownerId: string;
+    tier: EffectiveTier | null;
+  },
+): Promise<{ valid: true; listingId: string; status: string } | { valid: false; reason: string }> {
+  const claimId = getMetadataClaimId(args.metadata);
+  if (!claimId) return { valid: false, reason: "missing_claim_id" };
+
+  const { data, error } = await supabase
+    .from("business_claims")
+    .select("id, listing_id, claimant_user_id, selected_tier, status")
+    .eq("id", claimId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return { valid: false, reason: "claim_not_found" };
+
+  const claim = data as {
+    listing_id: string | null;
+    claimant_user_id: string | null;
+    selected_tier: string | null;
+    status: string | null;
+  };
+  const metadataListingId = getMetadataListingId(args.metadata);
+
+  if (!claim.listing_id || claim.claimant_user_id !== args.ownerId) {
+    return { valid: false, reason: "claim_owner_mismatch" };
+  }
+
+  if (args.tier && claim.selected_tier !== args.tier) {
+    return { valid: false, reason: "claim_tier_mismatch" };
+  }
+
+  if (metadataListingId && metadataListingId !== claim.listing_id) {
+    return { valid: false, reason: "claim_listing_mismatch" };
+  }
+
+  return { valid: true, listingId: claim.listing_id, status: claim.status ?? "" };
+}
+
+async function validateListingMetadata(
+  supabase: Supabase,
+  ownerId: string,
+  listingId: string,
+): Promise<{ valid: true; listingId: string } | { valid: false; reason: string }> {
+  const { data, error } = await supabase
+    .from("listings")
+    .select("id, owner_id, claim_status")
+    .eq("id", listingId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return { valid: false, reason: "listing_not_found" };
+
+  const listing = data as {
+    id: string;
+    owner_id: string | null;
+    claim_status: string | null;
+  };
+  if (listing.owner_id !== ownerId || listing.claim_status !== "claimed") {
+    return { valid: false, reason: "listing_owner_mismatch" };
+  }
+  return { valid: true, listingId: listing.id };
+}
+
+async function resolveApplicationScope(
+  supabase: Supabase,
+  args: {
+    metadata: EventMetadata;
+    ownerId: string;
+    tier: EffectiveTier | null;
+    allowApprovedClaimListing: boolean;
+    skipInvalidClaim?: boolean;
+    skipInvalidListing?: boolean;
+  },
+): Promise<{
+  listingId?: string | null;
+  applyTier: boolean;
+  skipped?: boolean;
+  reason?: string;
+}> {
+  if (getMetadataCheckoutSource(args.metadata) === "claim") {
+    const claim = await validateClaimMetadata(supabase, {
+      metadata: args.metadata,
+      ownerId: args.ownerId,
+      tier: args.tier,
+    });
+    if (!claim.valid) {
+      return {
+        listingId: null,
+        applyTier: false,
+        skipped: args.skipInvalidClaim,
+        reason: claim.reason,
+      };
+    }
+
+    const canApplyApprovedClaim =
+      args.allowApprovedClaimListing && claim.status === "approved";
+    return {
+      listingId: canApplyApprovedClaim ? claim.listingId : null,
+      applyTier: canApplyApprovedClaim,
+    };
+  }
+
+  const listingId = getMetadataListingId(args.metadata);
+  if (!listingId) return { applyTier: true };
+
+  const listing = await validateListingMetadata(supabase, args.ownerId, listingId);
+  if (!listing.valid) {
+    return {
+      listingId: null,
+      applyTier: false,
+      skipped: args.skipInvalidListing,
+      reason: listing.reason,
+    };
+  }
+
+  return { listingId: listing.listingId, applyTier: true };
 }
 
 interface ItemPeriod {
@@ -92,7 +266,7 @@ async function findPricingByStripePriceId(
 ): Promise<PricingLookup | null> {
   const { data, error } = await supabase
     .from("subscription_pricing")
-    .select("id, tier, billing_period, stripe_price_id, price_cents, currency, valid_to")
+    .select("id, tier, billing_period, stripe_price_id, price_cents, currency, valid_to, is_active")
     .eq("stripe_price_id", stripePriceId)
     .maybeSingle();
   if (error) throw error;
@@ -105,7 +279,7 @@ async function findPricingById(
 ): Promise<PricingLookup | null> {
   const { data, error } = await supabase
     .from("subscription_pricing")
-    .select("id, tier, billing_period, stripe_price_id, price_cents, currency, valid_to")
+    .select("id, tier, billing_period, stripe_price_id, price_cents, currency, valid_to, is_active")
     .eq("id", pricingId)
     .maybeSingle();
   if (error) throw error;
@@ -142,6 +316,7 @@ async function resolveOwnerId(
 interface HandlerResult {
   ownerId: string | null;
   listingId?: string | null;
+  applyTier?: boolean;
   skipped?: boolean;
   reason?: string;
 }
@@ -159,23 +334,36 @@ export async function handleCheckoutCompleted(
   }
   const ownerId = getMetadataOwnerId(session.metadata);
   if (!ownerId) return { ownerId: null };
-  const listingId = getMetadataListingId(session.metadata);
 
   const pricingId = session.metadata?.pricing_id ?? null;
   const pricing = pricingId ? await findPricingById(supabase, pricingId) : null;
-  const rawTier = pricing?.tier ?? session.metadata?.tier ?? null;
-  const rawBillingPeriod = pricing?.billing_period ?? session.metadata?.billing_period ?? null;
-  const tier = asPaidTier(rawTier);
-  const billingPeriod = rawBillingPeriod;
-  if (!tier || !billingPeriod) {
-    console.warn("[webhook] checkout.session.completed: missing tier/billing metadata, skipping state write", {
+  const validatedPricing = validatePricingLookup(pricing, getMetadataStripePriceId(session.metadata));
+  if (!validatedPricing) {
+    console.warn("[webhook] checkout.session.completed: invalid pricing metadata, skipping state write", {
       ownerId,
       sessionId: session.id,
-      tier: rawTier,
-      billingPeriod: rawBillingPeriod,
       pricingId,
     });
-    return { ownerId, listingId, skipped: true, reason: "missing_metadata" };
+    return { ownerId, listingId: null, applyTier: false, skipped: true, reason: "invalid_pricing_metadata" };
+  }
+
+  const { pricing: validPricing, tier, billingPeriod } = validatedPricing;
+  const scope = await resolveApplicationScope(supabase, {
+    metadata: session.metadata,
+    ownerId,
+    tier,
+    allowApprovedClaimListing: false,
+    skipInvalidClaim: true,
+    skipInvalidListing: true,
+  });
+  if (scope.skipped) {
+    return {
+      ownerId,
+      listingId: scope.listingId,
+      applyTier: false,
+      skipped: true,
+      reason: scope.reason ?? "invalid_metadata_scope",
+    };
   }
 
   const planType = planTypeFromBillingPeriod(billingPeriod);
@@ -187,10 +375,16 @@ export async function handleCheckoutCompleted(
   // fixed_2026: one-shot payment, immediately active. End date from pricing valid_to.
   if (planType === "fixed_2026") {
     if (session.mode === "payment" && session.payment_status !== "paid") {
-      return { ownerId, listingId, skipped: true, reason: "payment_not_paid" };
+      return {
+        ownerId,
+        listingId: scope.listingId,
+        applyTier: false,
+        skipped: true,
+        reason: "payment_not_paid",
+      };
     }
 
-    const endDate = pricing?.valid_to ?? "2026-12-31";
+    const endDate = validPricing.valid_to ?? "2026-12-31";
     await upsertSubscription(
       supabase,
       ownerId,
@@ -203,19 +397,25 @@ export async function handleCheckoutCompleted(
         stripe_customer_id: customerId,
         stripe_checkout_session_id: session.id,
         stripe_payment_intent_id: paymentIntentId,
-        stripe_price_id: pricing?.stripe_price_id ?? null,
-        price_cents: pricing?.price_cents ?? null,
-        currency: pricing?.currency ?? "EUR",
+        stripe_price_id: validPricing.stripe_price_id,
+        price_cents: validPricing.price_cents,
+        currency: validPricing.currency,
         start_date: todayDateOnly(),
         end_date: endDate,
       },
       { eventCreatedAt: event.created },
     );
-    return { ownerId, listingId };
+    return { ownerId, listingId: scope.listingId, applyTier: scope.applyTier };
   }
 
   if (session.mode !== "subscription") {
-    return { ownerId, listingId, skipped: true, reason: "unsupported_recurring_mode" };
+    return {
+      ownerId,
+      listingId: scope.listingId,
+      applyTier: false,
+      skipped: true,
+      reason: "unsupported_recurring_mode",
+    };
   }
 
   // Recurring: write a `pending` placeholder + IDs. customer.subscription.created
@@ -233,15 +433,15 @@ export async function handleCheckoutCompleted(
       stripe_customer_id: customerId,
       stripe_subscription_id: subscriptionId,
       stripe_checkout_session_id: session.id,
-      stripe_price_id: pricing?.stripe_price_id ?? null,
-      price_cents: pricing?.price_cents ?? null,
-      currency: pricing?.currency ?? "EUR",
+      stripe_price_id: validPricing.stripe_price_id,
+      price_cents: validPricing.price_cents,
+      currency: validPricing.currency,
       start_date: todayDateOnly(),
     },
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId, listingId };
+  return { ownerId, listingId: scope.listingId, applyTier: scope.applyTier };
 }
 
 export async function handleSubscriptionCreatedOrUpdated(
@@ -258,20 +458,31 @@ export async function handleSubscriptionCreatedOrUpdated(
     customerId,
   );
   if (!ownerId) return { ownerId: null };
-  const listingId = getMetadataListingId(sub.metadata);
 
   const period = firstItemPeriod(sub);
   const stripePriceId = period.priceId;
-  if (!stripePriceId) return { ownerId, listingId };
+  if (!stripePriceId) return { ownerId, applyTier: false };
 
   const pricing = await findPricingByStripePriceId(supabase, stripePriceId);
-  const tier = asPaidTier(pricing?.tier ?? null);
-  const billingPeriod = pricing?.billing_period ?? null;
-  if (!tier || !billingPeriod) {
+  const validatedPricing = validatePricingLookup(pricing, stripePriceId);
+  if (!validatedPricing) {
     console.warn(`[webhook] ${event.type}: no pricing row for stripe_price_id=${stripePriceId}; owner=${ownerId} sub state unchanged`);
-    return { ownerId, listingId };
+    return {
+      ownerId,
+      listingId: null,
+      applyTier: false,
+      skipped: true,
+      reason: "invalid_pricing",
+    };
   }
 
+  const { pricing: validPricing, tier, billingPeriod } = validatedPricing;
+  const scope = await resolveApplicationScope(supabase, {
+    metadata: sub.metadata,
+    ownerId,
+    tier,
+    allowApprovedClaimListing: true,
+  });
   const planType = planTypeFromBillingPeriod(billingPeriod);
   const status = mapStripeSubscriptionStatus(sub.status);
 
@@ -287,8 +498,8 @@ export async function handleSubscriptionCreatedOrUpdated(
       stripe_customer_id: customerId,
       stripe_subscription_id: sub.id,
       stripe_price_id: stripePriceId,
-      price_cents: pricing?.price_cents ?? null,
-      currency: pricing?.currency ?? "EUR",
+      price_cents: validPricing.price_cents,
+      currency: validPricing.currency,
       current_period_start: unixToIso(period.start),
       current_period_end: unixToIso(period.end),
       cancel_at_period_end: sub.cancel_at_period_end ?? false,
@@ -299,7 +510,7 @@ export async function handleSubscriptionCreatedOrUpdated(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId, listingId };
+  return { ownerId, listingId: scope.listingId, applyTier: scope.applyTier };
 }
 
 export async function handleSubscriptionDeleted(
@@ -316,7 +527,12 @@ export async function handleSubscriptionDeleted(
     customerId,
   );
   if (!ownerId) return { ownerId: null };
-  const listingId = getMetadataListingId(sub.metadata);
+  const scope = await resolveApplicationScope(supabase, {
+    metadata: sub.metadata,
+    ownerId,
+    tier: asPaidTier(sub.metadata?.tier ?? null),
+    allowApprovedClaimListing: true,
+  });
 
   const canceledAtIso = unixToIso(sub.canceled_at ?? sub.ended_at ?? null) ?? new Date().toISOString();
   await upsertSubscription(
@@ -333,7 +549,7 @@ export async function handleSubscriptionDeleted(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId, listingId };
+  return { ownerId, listingId: scope.listingId, applyTier: scope.applyTier };
 }
 
 export async function handleInvoicePaid(
@@ -359,20 +575,31 @@ export async function handleInvoicePaid(
     customerId,
   );
   if (!ownerId) return { ownerId: null };
-  const listingId = getMetadataListingId(sub.metadata);
 
   const period = firstItemPeriod(sub);
   const stripePriceId = period.priceId;
-  if (!stripePriceId) return { ownerId, listingId };
+  if (!stripePriceId) return { ownerId, applyTier: false };
 
   const pricing = await findPricingByStripePriceId(supabase, stripePriceId);
-  const tier = asPaidTier(pricing?.tier ?? null);
-  const billingPeriod = pricing?.billing_period ?? null;
-  if (!tier || !billingPeriod) {
+  const validatedPricing = validatePricingLookup(pricing, stripePriceId);
+  if (!validatedPricing) {
     console.warn(`[webhook] invoice.paid: no pricing row for stripe_price_id=${stripePriceId}; owner=${ownerId} sub state unchanged`);
-    return { ownerId, listingId };
+    return {
+      ownerId,
+      listingId: null,
+      applyTier: false,
+      skipped: true,
+      reason: "invalid_pricing",
+    };
   }
 
+  const { pricing: validPricing, tier, billingPeriod } = validatedPricing;
+  const scope = await resolveApplicationScope(supabase, {
+    metadata: sub.metadata,
+    ownerId,
+    tier,
+    allowApprovedClaimListing: true,
+  });
   const planType = planTypeFromBillingPeriod(billingPeriod);
   const status = mapStripeSubscriptionStatus(sub.status);
 
@@ -388,8 +615,8 @@ export async function handleInvoicePaid(
       stripe_customer_id: customerId,
       stripe_subscription_id: sub.id,
       stripe_price_id: stripePriceId,
-      price_cents: pricing?.price_cents ?? null,
-      currency: pricing?.currency ?? "EUR",
+      price_cents: validPricing.price_cents,
+      currency: validPricing.currency,
       current_period_start: unixToIso(period.start),
       current_period_end: unixToIso(period.end),
       cancel_at_period_end: sub.cancel_at_period_end ?? false,
@@ -398,7 +625,7 @@ export async function handleInvoicePaid(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId, listingId };
+  return { ownerId, listingId: scope.listingId, applyTier: scope.applyTier };
 }
 
 export async function handleInvoicePaymentFailed(
@@ -423,7 +650,12 @@ export async function handleInvoicePaymentFailed(
     customerId,
   );
   if (!ownerId) return { ownerId: null };
-  const listingId = getMetadataListingId(sub.metadata);
+  const scope = await resolveApplicationScope(supabase, {
+    metadata: sub.metadata,
+    ownerId,
+    tier: asPaidTier(sub.metadata?.tier ?? null),
+    allowApprovedClaimListing: true,
+  });
 
   // Trust Stripe's mapped status: past_due during retries, unpaid after final attempt.
   const status = mapStripeSubscriptionStatus(sub.status);
@@ -440,7 +672,7 @@ export async function handleInvoicePaymentFailed(
     { eventCreatedAt: event.created },
   );
 
-  return { ownerId, listingId };
+  return { ownerId, listingId: scope.listingId, applyTier: scope.applyTier };
 }
 
 export async function handleCheckoutExpired(
@@ -480,7 +712,7 @@ export async function handleTrialWillEnd(
     sub.id,
     customerId,
   );
-  return { ownerId, listingId: getMetadataListingId(sub.metadata) };
+  return { ownerId, listingId: getMetadataListingId(sub.metadata), applyTier: false };
 }
 
 export async function handleInvoiceFinalized(
@@ -493,7 +725,7 @@ export async function handleInvoiceFinalized(
     typeof invoice.subscription === "string" ? invoice.subscription : null;
   const customerId = typeof invoice.customer === "string" ? invoice.customer : null;
   const ownerId = await resolveOwnerId(supabase, null, stripeSubscriptionId, customerId);
-  return { ownerId };
+  return { ownerId, applyTier: false };
 }
 
 // Public dispatch table consumed by app/api/stripe/webhook/route.ts.

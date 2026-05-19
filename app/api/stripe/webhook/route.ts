@@ -4,7 +4,11 @@ export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 
-import { getStripeServerClient, getStripeWebhookSecret } from "@/lib/stripe/server";
+import {
+  getStripeSecretKeyMode,
+  getStripeServerClient,
+  getStripeWebhookSecret,
+} from "@/lib/stripe/server";
 import { createServiceRoleClient } from "@/lib/supabase/service";
 import { logSubscriptionMutation } from "@/lib/subscriptions/audit";
 import { applyTierToListings, findByOwner } from "@/lib/subscriptions/db";
@@ -51,6 +55,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid Stripe signature." }, { status: 400 });
   }
 
+  const expectedMode = getStripeSecretKeyMode();
+  if (expectedMode) {
+    const expectedLivemode = expectedMode === "live";
+    if (event.livemode !== expectedLivemode) {
+      console.error("[stripe-webhook] event livemode mismatch", {
+        eventId: event.id,
+        eventType: event.type,
+        expectedMode,
+        livemode: event.livemode,
+      });
+      return NextResponse.json({ error: "Stripe event mode mismatch." }, { status: 400 });
+    }
+  }
+
   const supabase = createServiceRoleClient();
   if (!supabase) {
     return NextResponse.json(
@@ -78,7 +96,8 @@ export async function POST(request: NextRequest) {
     const previous = previousOwnerId ? await findByOwner(supabase, previousOwnerId) : null;
     const result = await handler(stripe, supabase, event);
     const ownerId = result.ownerId ?? previousOwnerId;
-    const listingId = result.listingId ?? metadataListingId;
+    const listingId = result.listingId === undefined ? metadataListingId : result.listingId;
+    const shouldApplyTier = result.applyTier !== false;
     const next = ownerId ? await findByOwner(supabase, ownerId) : null;
 
     await logSubscriptionMutation(supabase, {
@@ -89,7 +108,7 @@ export async function POST(request: NextRequest) {
       stripeEventId: event.id,
     });
 
-    if (ownerId && next && !result.skipped) {
+    if (ownerId && next && !result.skipped && shouldApplyTier) {
       if (listingId) {
         await applyTierToListings(supabase, ownerId, next, listingId);
       } else {

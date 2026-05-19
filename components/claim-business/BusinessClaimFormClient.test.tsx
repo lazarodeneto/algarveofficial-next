@@ -171,9 +171,8 @@ describe("BusinessClaimFormClient", () => {
     expect(screen.getAllByText(tx["claimBusinessPartnership.tiers.unverified.price"]).length).toBeGreaterThan(0);
     expect(screen.getByText(tx["claimBusinessPartnership.tiers.verified.price"])).toBeInTheDocument();
     expect(screen.getAllByText(tx["claimBusinessPartnership.tiers.signature.price"]).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(tx["claimBusinessPartnership.pricing.annualOptionLabel"]).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(tx["claimBusinessPartnership.pricing.annualEstimateLabel"]).length).toBeGreaterThan(0);
-    expect(screen.getAllByText("/year").length).toBeGreaterThan(0);
+    expect(screen.queryByText(tx["claimBusinessPartnership.pricing.annualOptionLabel"])).not.toBeInTheDocument();
+    expect(screen.queryByText(tx["claimBusinessPartnership.pricing.annualEstimateLabel"])).not.toBeInTheDocument();
   });
 
   it("shows the proof document upload control in the verification section", async () => {
@@ -269,6 +268,7 @@ describe("BusinessClaimFormClient", () => {
       "/api/stripe/checkout",
       expect.objectContaining({
         body: JSON.stringify({
+          source: "claim",
           tier: "verified",
           billing_period: "monthly",
           claim_id: "claim-verified",
@@ -277,7 +277,7 @@ describe("BusinessClaimFormClient", () => {
     );
   });
 
-  it("uses the only available paid billing period instead of hardcoded monthly", async () => {
+  it("does not start claim checkout when only non-monthly paid pricing is available", async () => {
     const yearlyOnlyPricing: ClaimTierPricingDetails = {
       ...defaultPricing,
       verified: {
@@ -307,29 +307,27 @@ describe("BusinessClaimFormClient", () => {
             selected_tier: "verified",
             created_at: "2026-05-15T10:00:00.000Z",
           },
-        }, 201),
-      )
-      .mockResolvedValueOnce(await jsonResponse({ url: "https://checkout.stripe.test/verified-yearly" }));
+      }, 201),
+      );
 
     renderClaimForm(yearlyOnlyPricing);
     const user = await openFormAndFillRequiredFields();
     await user.click(screen.getByRole("button", { name: tx["claimBusinessForm.submitPaid"] }));
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
-      "/api/stripe/checkout",
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/business-claims",
       expect.objectContaining({
-        body: JSON.stringify({
-          tier: "verified",
-          billing_period: "yearly",
-          claim_id: "claim-verified-yearly",
-        }),
+        body: expect.stringContaining('"selectedTier":"verified"'),
       }),
+    );
+    expect(mocks.toastError).toHaveBeenCalledWith(
+      tx["claimBusinessForm.checkoutErrorTitle"],
+      expect.objectContaining({ description: tx["claimBusinessForm.checkoutError"] }),
     );
   });
 
-  it("uses the selected paid billing period when multiple periods are available", async () => {
+  it("uses monthly claim checkout even when other paid periods are present", async () => {
     const multiPeriodPricing: ClaimTierPricingDetails = {
       ...defaultPricing,
       verified: {
@@ -371,9 +369,8 @@ describe("BusinessClaimFormClient", () => {
 
     renderClaimForm(multiPeriodPricing);
     const user = await openFormAndFillRequiredFields();
-    expect(screen.getAllByText(tx["claimBusinessPartnership.pricing.annualOptionLabel"]).length).toBeGreaterThan(0);
-    expect(screen.getAllByText("/year").length).toBeGreaterThan(0);
-    await user.click(screen.getByRole("radio", { name: /€190/i }));
+    expect(screen.queryByText(tx["claimBusinessPartnership.pricing.annualOptionLabel"])).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio", { name: /€190/i })).not.toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: tx["claimBusinessForm.submitPaid"] }));
 
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
@@ -382,8 +379,9 @@ describe("BusinessClaimFormClient", () => {
       "/api/stripe/checkout",
       expect.objectContaining({
         body: JSON.stringify({
+          source: "claim",
           tier: "verified",
-          billing_period: "yearly",
+          billing_period: "monthly",
           claim_id: "claim-verified-selected-yearly",
         }),
       }),
@@ -416,6 +414,7 @@ describe("BusinessClaimFormClient", () => {
       "/api/stripe/checkout",
       expect.objectContaining({
         body: JSON.stringify({
+          source: "claim",
           tier: "signature",
           billing_period: "monthly",
           claim_id: "claim-signature",

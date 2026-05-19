@@ -253,6 +253,28 @@ describe("stripe checkout route runtime", () => {
     expect(mocks.sessionsCreate).not.toHaveBeenCalled();
   });
 
+  it("rejects listing checkout when the authenticated owner does not own the listing", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+    mocks.requireAuthenticatedOwner.mockResolvedValue({
+      userId: "owner-123",
+      email: "owner@test.com",
+    });
+    mocks.createServiceRoleClient.mockReturnValue(makeSupabaseMock([pricingRow], null));
+
+    const response = await postCheckoutRoute(
+      jsonRequest({
+        tier: "verified",
+        billing_period: "monthly",
+        listing_id: CLAIMED_LISTING_ID,
+      }),
+    );
+
+    expect(response.status).toBe(404);
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
+  });
+
   it("allows a paid business claim checkout without requiring owner role", async () => {
     mocks.getStripeServerClient.mockReturnValue({
       checkout: {
@@ -286,7 +308,12 @@ describe("stripe checkout route runtime", () => {
     mocks.findByOwner.mockResolvedValue(null);
 
     const response = await postCheckoutRoute(
-      jsonRequest({ tier: "verified", billing_period: "monthly", claim_id: CLAIM_ID }),
+      jsonRequest({
+        source: "claim",
+        tier: "verified",
+        billing_period: "monthly",
+        claim_id: CLAIM_ID,
+      }),
     );
 
     expect(response.status).toBe(200);
@@ -295,8 +322,10 @@ describe("stripe checkout route runtime", () => {
       expect.objectContaining({
         client_reference_id: "claimant-123",
         metadata: expect.objectContaining({
+          checkout_source: "claim",
           claim_id: CLAIM_ID,
           pricing_id: "pricing-verified-monthly",
+          stripe_price_id: "price_verified_monthly",
           listing_id: CLAIMED_LISTING_ID,
           owner_id: "claimant-123",
           userId: "claimant-123",
@@ -308,8 +337,10 @@ describe("stripe checkout route runtime", () => {
         }),
         subscription_data: expect.objectContaining({
           metadata: expect.objectContaining({
+            checkout_source: "claim",
             claim_id: CLAIM_ID,
             pricing_id: "pricing-verified-monthly",
+            stripe_price_id: "price_verified_monthly",
             listing_id: CLAIMED_LISTING_ID,
             owner_id: "claimant-123",
             userId: "claimant-123",
@@ -324,6 +355,94 @@ describe("stripe checkout route runtime", () => {
         cancel_url: expect.stringContaining("/claim-business/atlantic-bistro?checkout=cancel"),
       }),
     );
+  });
+
+  it("rejects explicit claim checkout when claim_id is missing", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ source: "claim", tier: "verified", billing_period: "monthly" }),
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(payload).toEqual({ error: "claim_id is required for claim checkout." });
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects claim checkout when the claim belongs to another user", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "claimant-123", email: "owner@test.com" } },
+          error: null,
+        }),
+      },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(
+      makeSupabaseMock([pricingRow], null, {
+        id: CLAIM_ID,
+        listing_id: CLAIMED_LISTING_ID,
+        claimant_user_id: "other-user",
+        selected_tier: "verified",
+        status: "pending",
+        listing: { id: CLAIMED_LISTING_ID, slug: "atlantic-bistro" },
+      }),
+    );
+
+    const response = await postCheckoutRoute(
+      jsonRequest({
+        source: "claim",
+        tier: "verified",
+        billing_period: "monthly",
+        claim_id: CLAIM_ID,
+      }),
+    );
+
+    expect(response.status).toBe(403);
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects claim checkout when the claim is not pending", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "claimant-123", email: "owner@test.com" } },
+          error: null,
+        }),
+      },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(
+      makeSupabaseMock([pricingRow], null, {
+        id: CLAIM_ID,
+        listing_id: CLAIMED_LISTING_ID,
+        claimant_user_id: "claimant-123",
+        selected_tier: "verified",
+        status: "approved",
+        listing: { id: CLAIMED_LISTING_ID, slug: "atlantic-bistro" },
+      }),
+    );
+
+    const response = await postCheckoutRoute(
+      jsonRequest({
+        source: "claim",
+        tier: "verified",
+        billing_period: "monthly",
+        claim_id: CLAIM_ID,
+      }),
+    );
+
+    expect(response.status).toBe(409);
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
   });
 
   it("rejects claim checkout when the claim tier does not match the checkout tier", async () => {
@@ -350,7 +469,12 @@ describe("stripe checkout route runtime", () => {
     );
 
     const response = await postCheckoutRoute(
-      jsonRequest({ tier: "verified", billing_period: "monthly", claim_id: CLAIM_ID }),
+      jsonRequest({
+        source: "claim",
+        tier: "verified",
+        billing_period: "monthly",
+        claim_id: CLAIM_ID,
+      }),
     );
 
     expect(response.status).toBe(409);
@@ -371,13 +495,70 @@ describe("stripe checkout route runtime", () => {
     });
 
     const response = await postCheckoutRoute(
-      jsonRequest({ tier: "verified", billing_period: "yearly", claim_id: CLAIM_ID }),
+      jsonRequest({ source: "claim", tier: "verified", billing_period: "yearly", claim_id: CLAIM_ID }),
     );
     const payload = await response.json();
 
     expect(response.status).toBe(400);
     expect(payload).toEqual({ error: "Claim checkout requires monthly pricing." });
     expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects free/unverified claim checkout before creating a Stripe session", async () => {
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+
+    const response = await postCheckoutRoute(
+      jsonRequest({ source: "claim", tier: "free", billing_period: "monthly", claim_id: CLAIM_ID }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(mocks.createServiceRoleClient).not.toHaveBeenCalled();
+    expect(mocks.sessionsCreate).not.toHaveBeenCalled();
+  });
+
+  it("rejects claim checkout when the monthly pricing row has no paid EUR amount", async () => {
+    const zeroPriceRow = {
+      ...pricingRow,
+      price_cents: 0,
+      price: 0,
+      display_price: "€0",
+    };
+    mocks.getStripeServerClient.mockReturnValue({
+      checkout: { sessions: { create: mocks.sessionsCreate } },
+    });
+    mocks.createServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "claimant-123", email: "owner@test.com" } },
+          error: null,
+        }),
+      },
+    });
+    mocks.createServiceRoleClient.mockReturnValue(
+      makeSupabaseMock([zeroPriceRow], null, {
+        id: CLAIM_ID,
+        listing_id: CLAIMED_LISTING_ID,
+        claimant_user_id: "claimant-123",
+        selected_tier: "verified",
+        status: "pending",
+        listing: { id: CLAIMED_LISTING_ID, slug: "atlantic-bistro" },
+      }),
+    );
+    mocks.findOverlappingActive.mockResolvedValue(null);
+
+    const response = await postCheckoutRoute(
+      jsonRequest({
+        source: "claim",
+        tier: "verified",
+        billing_period: "monthly",
+        claim_id: CLAIM_ID,
+      }),
+    );
+
+    expect(response.status).toBe(400);
     expect(mocks.sessionsCreate).not.toHaveBeenCalled();
   });
 

@@ -31,3 +31,11 @@ export function requireStripeServerClient(): Stripe {
 export function getStripeWebhookSecret(): string | null {
   return process.env.STRIPE_WEBHOOK_SECRET?.trim() || null;
 }
+
+export function getStripeSecretKeyMode(): "live" | "test" | null {
+  const key = process.env.STRIPE_SECRET_KEY?.trim();
+  if (!key) return null;
+  if (key.startsWith("sk_live_")) return "live";
+  if (key.startsWith("sk_test_")) return "test";
+  return null;
+}

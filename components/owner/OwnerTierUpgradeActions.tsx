@@ -21,8 +21,8 @@ interface OwnerTierUpgradeActionsProps {
   className?: string;
 }
 
-function getBillingPeriodForTier(tier: TierUpgradePrompt["targetTier"]): BillingPeriod {
-  return tier === "signature" ? "annual" : "monthly";
+function getBillingPeriodForTier(): BillingPeriod {
+  return "monthly";
 }
 
 export function OwnerTierUpgradeActions({
@@ -40,7 +40,7 @@ export function OwnerTierUpgradeActions({
   const handleUpgrade = async (prompt: TierUpgradePrompt) => {
     setActiveTarget(prompt.targetTier);
     try {
-      await createCheckout(prompt.targetTier, getBillingPeriodForTier(prompt.targetTier), {
+      await createCheckout(prompt.targetTier, getBillingPeriodForTier(), {
         listingId,
       });
     } catch (error) {

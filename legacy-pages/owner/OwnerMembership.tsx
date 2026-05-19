@@ -5,7 +5,6 @@ import {
   Crown,
   ShieldCheck,
   Check,
-  Lock,
   CheckCircle2,
   Star,
   Sparkles,
@@ -315,10 +314,7 @@ export default function OwnerMembership() {
             (tierMatches && billingPeriod !== currentBillingPeriod)
           );
           const isDowngrade = isPaidSwitch && !isUpgrade;
-          const isSignatureMonthlyBlocked = tier.id === 'signature' && billingPeriod === 'monthly';
-          const pricing = isSignatureMonthlyBlocked
-            ? tier.annual
-            : billingPeriod === 'annual'
+          const pricing = billingPeriod === 'annual'
             ? tier.annual
             : tier.monthly;
           const showSavings = billingPeriod === 'annual' && tier.annual.savings && tier.annual.savings > 0;
@@ -326,12 +322,11 @@ export default function OwnerMembership() {
           const isVerifiedTier = tier.id === 'verified';
           const isSignatureTier = tier.id === 'signature';
           const cardToneClass = isSignatureTier
-            ? "glass-box rounded-2xl border-border/30 opacity-60"
+            ? "glass-box rounded-2xl border-[#C7A35A]/35 shadow-[0_0_34px_rgba(199,163,90,0.14)] hover:shadow-[0_0_48px_rgba(199,163,90,0.2)] hover:-translate-y-0.5"
             : isVerifiedTier
               ? "rounded-2xl bg-green-500/5 border-[2px] border-green-500/50 shadow-[0_0_32px_hsla(142,72%,40%,0.16)] hover:shadow-[0_0_48px_hsla(142,72%,40%,0.26)] hover:-translate-y-0.5"
               : "bg-card border-border";
-          const blockedToneClass = isSignatureMonthlyBlocked ? "border-border bg-muted/40 text-muted-foreground" : "";
-          const currentRingClass = isCurrentTier && !isSignatureMonthlyBlocked
+          const currentRingClass = isCurrentTier
             ? (isSignatureTier ? "ring-2 ring-[#C7A35A]/35" : isVerifiedTier ? "ring-2 ring-emerald-500/70" : "")
             : "";
           const currentBadgeClass = isSignatureTier
@@ -340,19 +335,19 @@ export default function OwnerMembership() {
           const tierPriceClass = cn(
             "font-bold",
             isVerifiedTier || isSignatureTier ? "text-4xl" : "text-3xl",
-            isSignatureTier ? "text-foreground/50" : "text-foreground",
+            "text-foreground",
           );
           const tierNoteClass = cn(
             "text-sm",
-            isSignatureTier ? "text-muted-foreground/50" : "text-muted-foreground",
+            "text-muted-foreground",
           );
           const featureRowClass = cn(
             "flex items-start gap-2.5",
-            isSignatureTier ? "text-foreground/50" : isVerifiedTier ? "text-foreground/80" : "text-foreground",
+            isVerifiedTier ? "text-foreground/80" : "text-foreground",
           );
           const featureIconClass = cn(
             "h-4 w-4 flex-shrink-0 mt-0.5",
-            isSignatureTier ? "text-muted-foreground/40" : isVerifiedTier ? "text-emerald-500" : "text-green-400",
+            isSignatureTier ? "text-[#C7A35A]" : isVerifiedTier ? "text-emerald-500" : "text-green-400",
           );
           
           return (
@@ -367,8 +362,6 @@ export default function OwnerMembership() {
                   "relative h-full transition-all flex flex-col",
                   cardToneClass,
                   currentRingClass,
-                  blockedToneClass,
-                  isSignatureMonthlyBlocked && "opacity-75 saturate-50"
                 )}
               >
                 <CardHeader className={cn((isVerifiedTier || isSignatureTier) && "relative")}>
@@ -382,31 +375,23 @@ export default function OwnerMembership() {
 
                   {isSignatureTier && (
                     <div className="absolute top-0 right-0">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-muted border border-border/50 text-muted-foreground px-3 py-1 text-[10px] font-semibold uppercase tracking-widest">
-                        <Lock className="w-2.5 h-2.5" />
-                        By Invitation
+                      <span className="inline-flex items-center rounded-full bg-[#C7A35A] text-amber-950 px-3 py-1 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-amber-700/15">
+                        Signature
                       </span>
                     </div>
                   )}
 
-                  {(isCurrentTier || isSignatureMonthlyBlocked) && (
+                  {isCurrentTier && (
                     <div className="flex items-center gap-2 flex-wrap mb-2">
-                      {isSignatureMonthlyBlocked && (
-                        <span className="px-3 py-1 text-xs font-medium rounded-full bg-muted text-muted-foreground border border-border">
-                          {t('owner.membership.annualOnly')}
-                        </span>
-                      )}
-                      {isCurrentTier && !isSignatureMonthlyBlocked && (
-                        <span className={currentBadgeClass}>
-                          <CheckCircle2 className="h-3 w-3" />
-                          {t('owner.membership.currentPlan')}
-                          {currentBillingPeriod && (
-                            <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide rounded bg-white/20">
-                              {getBillingPeriodLabel(currentBillingPeriod)}
-                            </span>
-                          )}
-                        </span>
-                      )}
+                      <span className={currentBadgeClass}>
+                        <CheckCircle2 className="h-3 w-3" />
+                        {t('owner.membership.currentPlan')}
+                        {currentBillingPeriod && (
+                          <span className="px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide rounded bg-white/20">
+                            {getBillingPeriodLabel(currentBillingPeriod)}
+                          </span>
+                        )}
+                      </span>
                     </div>
                   )}
 
@@ -420,8 +405,8 @@ export default function OwnerMembership() {
                       </>
                     ) : isSignatureTier ? (
                       <>
-                        <Crown className="w-5 h-5 text-[#C7A35A]/60 shrink-0" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                        <Crown className="w-5 h-5 text-[#C7A35A] shrink-0" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-[#8A6413] dark:text-[#E2C071]">
                           Signature Partner
                         </span>
                       </>
@@ -468,7 +453,7 @@ export default function OwnerMembership() {
 
                         {isSignatureTier && (
                           <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                            Reserved for operators selected by our editorial team based on profile, location, and market fit.
+                            Premium monthly visibility for operators that want the full Signature profile and placement package.
                           </p>
                         )}
                       </m.div>
@@ -518,23 +503,10 @@ export default function OwnerMembership() {
                           {t('owner.membership.freeForever')}
                         </Button>
                       )
-                    ) : isSignatureMonthlyBlocked ? (
-                      <Button disabled className="w-full" variant="ghost">
-                        {t('owner.membership.annualOnly')}
-                      </Button>
                     ) : isCurrentTier ? (
                       <Button disabled className="w-full" variant="outline">
                         <CheckCircle2 className="h-4 w-4 mr-2" />
                         {t('owner.membership.currentPlan')}
-                      </Button>
-                    ) : tier.id === 'signature' ? (
-                      <Button
-                        type="button"
-                        disabled
-                        className="w-full rounded-lg border border-border/40 bg-muted/50 px-6 py-2.5 text-sm font-medium text-muted-foreground cursor-not-allowed flex items-center justify-center gap-2"
-                      >
-                        <Lock className="w-3.5 h-3.5" />
-                        By Invitation Only
                       </Button>
                     ) : isSameTierDifferentBilling ? (
                       <Button
@@ -556,9 +528,10 @@ export default function OwnerMembership() {
                       <Button
                         className={cn(
                           "w-full",
-                          tier.id === "verified" && "bg-green-600 hover:bg-green-700 text-white border border-green-500 shadow-lg shadow-green-600/20"
+                          tier.id === "verified" && "bg-green-600 hover:bg-green-700 text-white border border-green-500 shadow-lg shadow-green-600/20",
+                          tier.id === "signature" && "bg-[#C7A35A] hover:bg-[#B79245] text-amber-950 border border-[#C7A35A] shadow-lg shadow-amber-700/15",
                         )}
-                        variant={tier.id === "verified" || tier.highlight ? "default" : "outline"}
+                        variant={tier.id === "verified" || tier.id === "signature" || tier.highlight ? "default" : "outline"}
                         onClick={() => handlePlanAction(tier.id)}
                         disabled={isCheckingOut}
                       >
